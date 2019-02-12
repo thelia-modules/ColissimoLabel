@@ -1,0 +1,30 @@
+{ifloop rel="colissimo-label"}
+{loop type="colissimo-label" name="colissimo-label" order_id=$order_id}
+    <tr>
+        <td>
+            {$NUMBER}
+        </td>
+        <td>
+            {$WEIGHT} / Kg
+        </td>
+        <td>
+            {format_date date=$CREATE_DATE}
+        </td>
+        <td>
+            <a href="https://www.laposte.fr/particulier/outils/suivre-vos-envois?code={$NUMBER}" target="_blank">https://www.laposte.fr/particulier/outils/suivre-vos-envois?code={$NUMBER}</a>
+        </td>
+        <td>
+            <a class="btn btn-primary pull-right" href="{url path="/admin/module/colissimolabel/label/{$NUMBER}" download=1}">{intl l="Download" d="colissimolabel.bo.default"}</a>
+            <a class="btn btn-info pull-right" target="_blank" href="{url path="/admin/module/colissimolabel/label/{$NUMBER}"}">{intl l="View" d="colissimolabel.bo.default"}</a>
+            <a class="btn btn-success pull-right js-action-print" data-number="{$NUMBER}" href="{url path="/admin/module/colissimolabel/label/{$NUMBER}"}">{intl l="Print" d="colissimolabel.bo.default"}</a>
+        </td>
+    </tr>
+{/loop}
+{/ifloop}
+{elseloop rel="colissimo-label"}
+    <tr>
+        <td colspan="99">
+            {intl l="No existing label for this order" d="colissimolabel.bo.default"}
+        </td>
+    </tr>
+{/elseloop}

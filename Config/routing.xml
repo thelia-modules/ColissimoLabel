@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <route id="colissimolabel.admin.generate.label" path="/admin/module/colissimolabel/order/{orderId}/generate-label" methods="get">
+        <default key="_controller">ColissimoLabel\Controller\Admin\OrderController::generateLabelAction</default>
+        <requirement key="id">[0-9]+</requirement>
+    </route>
+
+    <route id="colissimolabel.admin.get.label" path="/admin/module/colissimolabel/label/{number}" methods="get">
+        <default key="_controller">ColissimoLabel\Controller\Admin\OrderController::getLabelAction</default>
+        <requirement key="number">[0-9A-Z]+</requirement>
+    </route>
+
+    <route id="colissimolabel.admin.get.list-labels" path="/admin/module/colissimolabel/order/{orderId}/ajax-get-labels" methods="get">
+        <default key="_controller">ColissimoLabel\Controller\Admin\OrderController::getOrderLabelsAction</default>
+        <requirement key="id">[0-9]+</requirement>
+    </route>
+</routes>

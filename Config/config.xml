@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config xmlns="http://thelia.net/schema/dic/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
+
+    <loops>
+        <loop name="colissimo-label" class="ColissimoLabel\Loop\ColissimoLabel" />
+    </loops>
+
+    <forms>
+        <!--
+        <form name="MyFormName" class="ColissimoLabel\Form\MySuperForm" />
+        -->
+    </forms>
+
+    <commands>
+        <!--
+        <command class="ColissimoLabel\Command\MySuperCommand" />
+        -->
+    </commands>
+
+    <!--
+    <services>
+
+    </services>
+    -->
+
+    <hooks>
+        <hook id="colissimo.label.hook.back.order_edit" class="ColissimoLabel\Hook\Back\OrderEditHook">
+            <tag name="hook.event_listener" event="order.edit-js" type="back" method="onOrderEditJs" />
+        </hook>
+    </hooks>
+
+    <!--
+    <exports>
+
+    </exports>
+    -->
+
+    <!--
+    <imports>
+
+    </imports>
+    -->
+</config>

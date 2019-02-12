@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database defaultIdMethod="native" name="thelia"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../vendor/propel/propel/resources/xsd/database.xsd" >
+
+    <table name="colissimo_label" namespace="ColissimoLabel\Model">
+        <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER" />
+
+        <column name="order_id" type="INTEGER" required="true" />
+        <column name="weight" type="DECIMAL" scale="2" size="6" defaultValue="0.00" />
+        <column name="number" type="VARCHAR" size="255" />
+
+        <foreign-key foreignTable="order" onDelete="CASCADE" onUpdate="RESTRICT">
+            <reference local="order_id" foreign="id" />
+        </foreign-key>
+
+        <behavior name="timestampable" />
+    </table>
+
+    <external-schema filename="local/config/schema.xml" referenceOnly="true" />
+</database>
