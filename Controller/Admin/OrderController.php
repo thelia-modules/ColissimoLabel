@@ -9,6 +9,7 @@ use ColissimoLabel\Request\Helper\LabelRequestAPIConfiguration;
 use ColissimoLabel\Request\LabelRequest;
 use Propel\Runtime\ActiveQuery\Criteria;
 use SoColissimo\Model\AddressSocolissimoQuery;
+use SoColissimo\Model\OrderAddressSocolissimoQuery;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -47,10 +48,18 @@ class OrderController extends AdminController
         $APIConfiguration->setPassword(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD));
 
         if ('SoColissimo' === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
-            if (null !== $addressSocolissimo = AddressSocolissimoQuery::create()
+            if (null !== $addressSocolissimo = OrderAddressSocolissimoQuery::create()
                 ->findOneById($order->getDeliveryOrderAddressId())) {
                 if ($addressSocolissimo) {
-                    $colissimoRequest = new LabelRequest($order, $addressSocolissimo->getCode());
+                    $colissimoRequest = new LabelRequest(
+                        $order,
+                        $addressSocolissimo->getCode() == '0' ? null : $addressSocolissimo->getCode(),
+                        $addressSocolissimo->getType()
+                    );
+
+                    $colissimoRequest->getLetter()->getService()->setCommercialName(
+                        $colissimoRequest->getLetter()->getSender()->getAddress()->getCompanyName()
+                    );
                 }
             }
         }

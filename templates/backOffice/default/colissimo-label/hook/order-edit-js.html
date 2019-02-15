@@ -101,6 +101,10 @@
                 function print(url, number) {
                     var iframeName = 'iframe-colissimo-label-' + number;
 
+                    if (typeof window.frames[iframeName] !== 'undefined') {
+                        window.frames[iframeName].remove();
+                    }
+
                     var iframe = document.createElement('iframe');
                     iframe.src = url;
                     iframe.id = iframeName;

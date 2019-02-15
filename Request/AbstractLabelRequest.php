@@ -67,11 +67,12 @@ abstract class AbstractLabelRequest extends AbstractRequest
                 'service' => [
                     "productCode" => $this->getLetter()->getService()->getProductCode(),
                     "depositDate" => $this->getLetter()->getService()->getDepositDate()->format('Y-m-d'),
-                    "orderNumber" => $this->getLetter()->getService()->getOrderNumber()
+                    "orderNumber" => $this->getLetter()->getService()->getOrderNumber(),
+                    'commercialName' => $this->getLetter()->getService()->getCommercialName()
                 ],
                 'parcel' => [
-                    'pickupLocationId' => $this->getLetter()->getParcel()->getPickupLocationId(),
-                    'weight' => $this->getLetter()->getParcel()->getWeight()
+                    'weight' => $this->getLetter()->getParcel()->getWeight(),
+                    'pickupLocationId' => $this->getLetter()->getParcel()->getPickupLocationId()
                 ],
                 'sender' => [
                     'senderParcelRef' => $this->getLetter()->getSender()->getSenderParcelRef(),

@@ -23,13 +23,13 @@ class LabelRequest extends AbstractLabelRequest
     use MethodCreateAddressFromStore;
     use MethodCreateAddressFromOrderAddress;
 
-    public function __construct(Order $order, $pickupCode = null)
+    public function __construct(Order $order, $pickupCode = null, $pickupType = null)
     {
         $orderAddress = OrderAddressQuery::create()->findOneById($order->getDeliveryOrderAddressId());
 
         $this->setLetter(new Letter(
             new Service(
-                $this->getProductCode($order, $pickupCode),
+                null !== $pickupType ? $pickupType : $this->getProductCode($order),
                 (new \DateTime()),
                 $order->getRef()
             ),
@@ -61,7 +61,7 @@ class LabelRequest extends AbstractLabelRequest
         );
     }
 
-    protected function getProductCode(Order $order, $pickupCode = null)
+    protected function getProductCode(Order $order)
     {
         /** @var OrderAddress $deliveryAddress */
         $deliveryAddress = $order->getOrderAddressRelatedByDeliveryOrderAddressId();
@@ -70,10 +70,6 @@ class LabelRequest extends AbstractLabelRequest
 
         // france case
         if ($code == '250') {
-            if (null !== $pickupCode) {
-                return Service::PRODUCT_CODE_LIST[5];
-            }
-
             return Service::PRODUCT_CODE_LIST[0];
         } elseif (in_array( // europe
             $code,
@@ -81,10 +77,6 @@ class LabelRequest extends AbstractLabelRequest
                 "040", "056", "100", "191", "196", "203", "208", "233", "246", "250", "276", "300", "348", "372", "380", "428", "440", "442", "470", "528", "616", "620", "642", "705", "724", "752", "826"
             ]
         )) {
-            if (null !== $pickupCode) {
-                return Service::PRODUCT_CODE_LIST[17];
-            }
-
             return Service::PRODUCT_CODE_LIST[0];
         } elseif (in_array( // europe
             $code,

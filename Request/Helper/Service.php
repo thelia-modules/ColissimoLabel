@@ -65,6 +65,8 @@ class Service
 
     protected $orderNumber = '';
 
+    protected $commercialName = '';
+
     public function __construct($productCode, \DateTime $depositDate, $orderNumber)
     {
         if (empty($orderNumber)) {
@@ -112,5 +114,23 @@ class Service
     public function getOrderNumber()
     {
         return $this->orderNumber;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCommercialName()
+    {
+        return $this->commercialName;
+    }
+
+    /**
+     * @param string $commercialName
+     * @return Service
+     */
+    public function setCommercialName($commercialName)
+    {
+        $this->commercialName = $commercialName;
+        return $this;
     }
 }
