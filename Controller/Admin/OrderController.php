@@ -3,12 +3,13 @@
 namespace ColissimoLabel\Controller\Admin;
 
 use ColissimoLabel\ColissimoLabel;
+use ColissimoLabel\Event\ColissimoLabelEvents;
+use ColissimoLabel\Event\LabelRequestEvent;
 use ColissimoLabel\Model\ColissimoLabel as ColissimoLabelModel;
 use ColissimoLabel\Service\SOAPService;
 use ColissimoLabel\Request\Helper\LabelRequestAPIConfiguration;
 use ColissimoLabel\Request\LabelRequest;
 use Propel\Runtime\ActiveQuery\Criteria;
-use SoColissimo\Model\AddressSocolissimoQuery;
 use SoColissimo\Model\OrderAddressSocolissimoQuery;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -73,6 +74,11 @@ class OrderController extends AdminController
         }
 
         $service = new SOAPService();
+
+        $this->getDispatcher()->dispatch(
+            ColissimoLabelEvents::LABEL_REQUEST,
+            new LabelRequestEvent($colissimoRequest)
+        );
 
         $response = $service->callAPI($APIConfiguration, $colissimoRequest);
 
