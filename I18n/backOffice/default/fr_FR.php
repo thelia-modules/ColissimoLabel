@@ -4,6 +4,7 @@ return array(
     'Cancel' => 'Annuler',
     'Date' => 'Date',
     'Download' => 'Télécharger',
+    'Generate bordereau for label since : %date' => 'Générer un bordereau pour les étiquettes créée depuis : %date',
     'Generate new label' => 'Générer une étiquette',
     'Labels Colissimo' => 'Étiquette Colissimo',
     'No existing label for this order' => 'Aucune étiquette pour cette commande',

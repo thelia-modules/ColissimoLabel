@@ -18,4 +18,14 @@
         <default key="_controller">ColissimoLabel\Controller\Admin\OrderController::getOrderLabelsAction</default>
         <requirement key="id">[0-9]+</requirement>
     </route>
+
+    <route id="colissimolabel.admin.bordereau.list" path="/admin/module/colissimolabel/bordereau/list" methods="get">
+        <default key="_controller">ColissimoLabel\Controller\Admin\BordereauController::listBordereauAction</default>
+    </route>
+    <route id="colissimolabel.admin.bordereau.generate" path="/admin/module/colissimolabel/bordereau/generate" methods="get">
+        <default key="_controller">ColissimoLabel\Controller\Admin\BordereauController::generateBordereauAction</default>
+    </route>
+    <route id="colissimolabel.admin.bordereau.download" path="/admin/module/colissimolabel/bordereau/download" methods="get">
+        <default key="_controller">ColissimoLabel\Controller\Admin\BordereauController::downloadBordereauAction</default>
+    </route>
 </routes>

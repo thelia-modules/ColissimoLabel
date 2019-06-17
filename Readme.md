@@ -12,7 +12,7 @@
 Add it in your main thelia composer.json file
 
 ```
-composer require thelia/colissimo-label-module:~0.2.3
+composer require thelia/colissimo-label-module:~0.3.0
 ```
 
 ### Configuration
