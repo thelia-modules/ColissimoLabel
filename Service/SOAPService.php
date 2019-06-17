@@ -4,6 +4,7 @@ namespace ColissimoLabel\Service;
 
 use ColissimoLabel\Request\AbstractRequest;
 use ColissimoLabel\Request\Helper\APIConfiguration;
+use ColissimoLabel\Response\BordereauResponse;
 use ColissimoLabel\Response\LabelResponse;
 
 /**
@@ -11,6 +12,33 @@ use ColissimoLabel\Response\LabelResponse;
  */
 class SOAPService
 {
+    public function callGenerateBordereauByParcelsNumbersAPI(APIConfiguration $APIConfiguration, $parcelNumbers = [])
+    {
+        //+ Generate SOAPRequest
+        $xml = new \SimpleXMLElement('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" />');
+        $xml->addChild("soapenv:Header");
+        $children = $xml->addChild("soapenv:Body");
+        $children = $children->addChild("sls:generateBordereauByParcelsNumbers", null, 'http://sls.ws.coliposte.fr');
+        $children->addChild("contractNumber", $APIConfiguration->getContractNumber(), "");
+        $children->addChild("password", $APIConfiguration->getPassword(), "");
+        $children = $children->addChild("generateBordereauParcelNumberList", null, "");
+
+        foreach ($parcelNumbers as  $parcelNumber)
+        {
+            $children->addChild("parcelsNumbers", $parcelNumber, "");
+        }
+
+        $soap = new \SoapClient($APIConfiguration->getWsdl());
+
+        return new BordereauResponse($soap->__doRequest(
+            $xml->asXML(),
+            $APIConfiguration->getWsdl(),
+            $APIConfiguration->getMethod(),
+            $APIConfiguration->getVersion(),
+            0
+        ));
+    }
+
     public function callAPI(APIConfiguration $APIConfiguration, AbstractRequest $request)
     {
         $request->setContractNumber($APIConfiguration->getContractNumber());

@@ -1,0 +1,38 @@
+{extends file="admin-layout.tpl"}
+
+{block name="check-resource"}admin.order{/block}
+{block name="check-access"}view{/block}
+{block name="page-title"}Bordereaux Colissimo{/block}
+
+{block name="after-admin-css"}
+{/block}
+
+{block name="main-content"}
+<div id="wrapper" class="container">
+    <div class="row">
+        <div class="col-md-12 general-block-decorator">
+            <div class="row">
+                <a href="{url path="/admin/module/colissimolabel/bordereau/generate"}" class="btn btn-block btn-info">
+                    {intl l="Generate bordereau for label since : %date" date="{format_date date=$lastBordereauDate}" d="colissimolabel.bo.default"}
+                </a>
+            </div>
+        </div>
+        <div class="col-md-12 general-block-decorator">
+            <div class="row">
+                <ul>
+                    {foreach from=$bordereaux item=bordereau}
+                        <li>
+                            <a href="{url path="/admin/module/colissimolabel/bordereau/download" filePath="{$bordereau['path']}"}">
+                                {$bordereau['name']}
+                            </a>
+                        </li>
+                    {/foreach}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="javascript-last-call"}
+{/block}

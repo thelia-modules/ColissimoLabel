@@ -26,7 +26,9 @@ class ColissimoLabel extends BaseModule
     /** @var string */
     const DOMAIN_NAME = 'colissimolabel';
 
-    const LABEL_FOLDER = THELIA_LOCAL_DIR . 'colissimo-abel';
+    const LABEL_FOLDER = THELIA_LOCAL_DIR . 'colissimo-label';
+
+    const BORDEREAU_FOLDER = self::LABEL_FOLDER . DIRECTORY_SEPARATOR . 'bordereau';
 
     const CONFIG_KEY_DEFAULT_LABEL_FORMAT = 'default-label-format';
 
@@ -45,6 +47,8 @@ class ColissimoLabel extends BaseModule
     const CONFIG_KEY_PRE_FILL_INPUT_WEIGHT = 'pre-fill-input-weight';
 
     const CONFIG_DEFAULT_PRE_FILL_INPUT_WEIGHT = 1;
+
+    const CONFIG_KEY_LAST_BORDEREAU_DATE = 'last-bordereau-date';
 
     /**
      * @param ConnectionInterface $con
@@ -139,6 +143,12 @@ class ColissimoLabel extends BaseModule
     {
         return self::LABEL_FOLDER . DIRECTORY_SEPARATOR . $number . '.' . $extension;
     }
+
+    public static function getBordereauPath($date)
+    {
+        return self::BORDEREAU_FOLDER . DIRECTORY_SEPARATOR . $date . '.pdf';
+    }
+
 
     public static function getExtensionFile()
     {
