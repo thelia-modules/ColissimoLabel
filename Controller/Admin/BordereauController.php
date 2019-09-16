@@ -37,6 +37,8 @@ class BordereauController extends AdminController
 
     public function generateBordereauAction()
     {
+        ColissimoLabel::checkLabelFolder();
+
         $lastBordereauDate = ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE);
 
         $labels = ColissimoLabelQuery::create()
