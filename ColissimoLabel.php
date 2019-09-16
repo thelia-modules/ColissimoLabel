@@ -50,6 +50,8 @@ class ColissimoLabel extends BaseModule
 
     const CONFIG_KEY_LAST_BORDEREAU_DATE = 'last-bordereau-date';
 
+    const CONFIG_DEFAULT_KEY_LAST_BORDEREAU_DATE = 1970;
+
     /**
      * @param ConnectionInterface $con
      */
@@ -123,6 +125,14 @@ class ColissimoLabel extends BaseModule
                 self::CONFIG_DEFAULT_PRE_FILL_INPUT_WEIGHT
             );
         }
+
+        if (null === self::getConfigValue(self::CONFIG_KEY_LAST_BORDEREAU_DATE)) {
+            self::setConfigValue(
+                self::CONFIG_KEY_LAST_BORDEREAU_DATE,
+                self::CONFIG_DEFAULT_KEY_LAST_BORDEREAU_DATE
+            );
+        }
+
     }
 
     public static function checkLabelFolder()
@@ -131,6 +141,9 @@ class ColissimoLabel extends BaseModule
 
         if (!$fileSystem->exists(self::LABEL_FOLDER)) {
             $fileSystem->mkdir(self::LABEL_FOLDER);
+        }
+        if (!$fileSystem->exists(self::BORDEREAU_FOLDER)) {
+            $fileSystem->mkdir(self::BORDEREAU_FOLDER);
         }
     }
 
