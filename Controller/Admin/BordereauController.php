@@ -17,6 +17,7 @@ class BordereauController extends AdminController
 {
     public function listBordereauAction()
     {
+        ColissimoLabel::checkLabelFolder();
         $lastBordereauDate = ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE);
 
         $finder = new Finder();
@@ -36,6 +37,8 @@ class BordereauController extends AdminController
 
     public function generateBordereauAction()
     {
+        ColissimoLabel::checkLabelFolder();
+
         $lastBordereauDate = ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE);
 
         $labels = ColissimoLabelQuery::create()
@@ -56,6 +59,9 @@ class BordereauController extends AdminController
 
         $parseResponse = $service->callGenerateBordereauByParcelsNumbersAPI($APIConfiguration, $parcelNumbers);
         $resultAttachment = $parseResponse->attachments;
+        if (!isset($resultAttachment[0])) {
+            throw new \Exception("No label found");
+        }
         $bordereauContent = $resultAttachment[0];
         $fileContent = $bordereauContent["data"];
 
