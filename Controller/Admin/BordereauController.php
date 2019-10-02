@@ -32,6 +32,7 @@ class BordereauController extends AdminController
             ];
         }
 
+        sort($bordereaux);
         return $this->render('colissimo-label/bordereau-list', compact("lastBordereauDate", "bordereaux"));
     }
 
@@ -78,7 +79,8 @@ class BordereauController extends AdminController
         );
 
         ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE, (new \DateTime())->format("Y-m-d H:i:s"));
-        return new BinaryFileResponse($filePath);
+
+        return $this->listBordereauAction();
     }
 
     public function downloadBordereauAction()
