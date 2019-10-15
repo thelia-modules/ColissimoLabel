@@ -1,0 +1,22 @@
+<div class="general-block-decorator col-md-12">
+    <h1>ColissimoLabel</h1>
+
+    {form name="colissimolabel-config_form"}
+
+        <form action="{url path="/admin/colissimolabel/update/config"}" method="post">
+            {include
+                file = "includes/inner-form-toolbar.html"
+                hide_save_and_close_button = true
+                hide_flags = true
+                close_url = {url path='/admin/modules'}
+            }
+            <div class="col-md-6 row">
+                {form_hidden_fields form=$form}
+
+                {render_form_field field="contract-number"}
+                {render_form_field field="password"}
+            </div>
+        </form>
+    {/form}
+
+</div>

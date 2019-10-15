@@ -28,4 +28,7 @@
     <route id="colissimolabel.admin.bordereau.download" path="/admin/module/colissimolabel/bordereau/download" methods="get">
         <default key="_controller">ColissimoLabel\Controller\Admin\BordereauController::downloadBordereauAction</default>
     </route>
+    <route id="colissimolabel.admin.config.update" path="/admin/colissimolabel/update/config" methods="post">
+        <default key="_controller">ColissimoLabel\Controller\Admin\ConfigController::updateConfigAction</default>
+    </route>
 </routes>
