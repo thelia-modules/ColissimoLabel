@@ -32,8 +32,8 @@ class BordereauController extends AdminController
             ];
         }
 
-        $bordereaux = array_reverse($bordereaux);
         sort($bordereaux);
+        $bordereaux = array_reverse($bordereaux);
         return $this->render('colissimo-label/bordereau-list', compact("lastBordereauDate", "bordereaux"));
     }
 
