@@ -8,6 +8,7 @@
 
         <column name="order_id" type="INTEGER" required="true" />
         <column name="weight" type="DECIMAL" scale="2" size="6" defaultValue="0.00" />
+        <column name="signed" type="TINYINT" required="true" />
         <column name="number" type="VARCHAR" size="255" />
 
         <foreign-key foreignTable="order" onDelete="CASCADE" onUpdate="RESTRICT">

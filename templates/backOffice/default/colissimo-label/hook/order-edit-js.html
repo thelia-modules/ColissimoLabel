@@ -20,6 +20,10 @@
                         <div class="modal-body">
                             <div class="form-inline">
                                 <div class="form-group">
+                                    <div>
+                                        <label for="colissimo-input-signedDelivery">{intl l="Livraison avec signature :" d="colissimolabel.bo.default"}</label>
+                                        <input id="colissimo-input-signedDelivery" type="checkbox" class="form-control" name="signedDelivery">
+                                    </div>
                                     <label for="colissimo-input-weight">{intl l="Shipping weight :" d="colissimolabel.bo.default"}</label>
                                     <div class="input-group">
                                         {$weightValue = {$WEIGHT|round:2}}
@@ -86,7 +90,7 @@
         </script>
         <script>
             (function(){
-                // ajout de bloque colissimo
+                // ajout de bloc colissimo
                 $('#bill').prepend($('#colissimo-label-tpl').html());
 
                 var $modal = $('#modal-colissimo-label'),
@@ -96,6 +100,7 @@
                     $modalLoader = $modal.find('.modal-loader'),
                     $modalErrorAlert = $modalError.find('.alert'),
                     $modalInputWeight = $modal.find("input[name='weight']"),
+                    $modalInputSignedDelivery = $modal.find("input[name='signedDelivery']"),
                     $table = $('#colissimo-label-table');
 
                 function print(url, number) {

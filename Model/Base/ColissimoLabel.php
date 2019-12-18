@@ -76,6 +76,12 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     protected $weight;
 
     /**
+     * The value for the signed field.
+     * @var        int
+     */
+    protected $signed;
+
+    /**
      * The value for the number field.
      * @var        string
      */
@@ -411,6 +417,17 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     }
 
     /**
+     * Get the [signed] column value.
+     *
+     * @return   int
+     */
+    public function getSigned()
+    {
+
+        return $this->signed;
+    }
+
+    /**
      * Get the [number] column value.
      *
      * @return   string
@@ -529,6 +546,27 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     } // setWeight()
 
     /**
+     * Set the value of [signed] column.
+     *
+     * @param      int $v new value
+     * @return   \ColissimoLabel\Model\ColissimoLabel The current object (for fluent API support)
+     */
+    public function setSigned($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->signed !== $v) {
+            $this->signed = $v;
+            $this->modifiedColumns[ColissimoLabelTableMap::SIGNED] = true;
+        }
+
+
+        return $this;
+    } // setSigned()
+
+    /**
      * Set the value of [number] column.
      *
      * @param      string $v new value
@@ -641,16 +679,19 @@ abstract class ColissimoLabel implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : ColissimoLabelTableMap::translateFieldName('Weight', TableMap::TYPE_PHPNAME, $indexType)];
             $this->weight = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ColissimoLabelTableMap::translateFieldName('Number', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ColissimoLabelTableMap::translateFieldName('Signed', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->signed = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ColissimoLabelTableMap::translateFieldName('Number', TableMap::TYPE_PHPNAME, $indexType)];
             $this->number = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ColissimoLabelTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ColissimoLabelTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->created_at = (null !== $col) ? PropelDateTime::newInstance($col, null, '\DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ColissimoLabelTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ColissimoLabelTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
@@ -663,7 +704,7 @@ abstract class ColissimoLabel implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 6; // 6 = ColissimoLabelTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 7; // 7 = ColissimoLabelTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating \ColissimoLabel\Model\ColissimoLabel object", 0, $e);
@@ -908,6 +949,9 @@ abstract class ColissimoLabel implements ActiveRecordInterface
         if ($this->isColumnModified(ColissimoLabelTableMap::WEIGHT)) {
             $modifiedColumns[':p' . $index++]  = 'WEIGHT';
         }
+        if ($this->isColumnModified(ColissimoLabelTableMap::SIGNED)) {
+            $modifiedColumns[':p' . $index++]  = 'SIGNED';
+        }
         if ($this->isColumnModified(ColissimoLabelTableMap::NUMBER)) {
             $modifiedColumns[':p' . $index++]  = 'NUMBER';
         }
@@ -936,6 +980,9 @@ abstract class ColissimoLabel implements ActiveRecordInterface
                         break;
                     case 'WEIGHT':
                         $stmt->bindValue($identifier, $this->weight, PDO::PARAM_STR);
+                        break;
+                    case 'SIGNED':
+                        $stmt->bindValue($identifier, $this->signed, PDO::PARAM_INT);
                         break;
                     case 'NUMBER':
                         $stmt->bindValue($identifier, $this->number, PDO::PARAM_STR);
@@ -1018,12 +1065,15 @@ abstract class ColissimoLabel implements ActiveRecordInterface
                 return $this->getWeight();
                 break;
             case 3:
-                return $this->getNumber();
+                return $this->getSigned();
                 break;
             case 4:
-                return $this->getCreatedAt();
+                return $this->getNumber();
                 break;
             case 5:
+                return $this->getCreatedAt();
+                break;
+            case 6:
                 return $this->getUpdatedAt();
                 break;
             default:
@@ -1058,9 +1108,10 @@ abstract class ColissimoLabel implements ActiveRecordInterface
             $keys[0] => $this->getId(),
             $keys[1] => $this->getOrderId(),
             $keys[2] => $this->getWeight(),
-            $keys[3] => $this->getNumber(),
-            $keys[4] => $this->getCreatedAt(),
-            $keys[5] => $this->getUpdatedAt(),
+            $keys[3] => $this->getSigned(),
+            $keys[4] => $this->getNumber(),
+            $keys[5] => $this->getCreatedAt(),
+            $keys[6] => $this->getUpdatedAt(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1115,12 +1166,15 @@ abstract class ColissimoLabel implements ActiveRecordInterface
                 $this->setWeight($value);
                 break;
             case 3:
-                $this->setNumber($value);
+                $this->setSigned($value);
                 break;
             case 4:
-                $this->setCreatedAt($value);
+                $this->setNumber($value);
                 break;
             case 5:
+                $this->setCreatedAt($value);
+                break;
+            case 6:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1150,9 +1204,10 @@ abstract class ColissimoLabel implements ActiveRecordInterface
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setOrderId($arr[$keys[1]]);
         if (array_key_exists($keys[2], $arr)) $this->setWeight($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setNumber($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setCreatedAt($arr[$keys[4]]);
-        if (array_key_exists($keys[5], $arr)) $this->setUpdatedAt($arr[$keys[5]]);
+        if (array_key_exists($keys[3], $arr)) $this->setSigned($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setNumber($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setCreatedAt($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setUpdatedAt($arr[$keys[6]]);
     }
 
     /**
@@ -1167,6 +1222,7 @@ abstract class ColissimoLabel implements ActiveRecordInterface
         if ($this->isColumnModified(ColissimoLabelTableMap::ID)) $criteria->add(ColissimoLabelTableMap::ID, $this->id);
         if ($this->isColumnModified(ColissimoLabelTableMap::ORDER_ID)) $criteria->add(ColissimoLabelTableMap::ORDER_ID, $this->order_id);
         if ($this->isColumnModified(ColissimoLabelTableMap::WEIGHT)) $criteria->add(ColissimoLabelTableMap::WEIGHT, $this->weight);
+        if ($this->isColumnModified(ColissimoLabelTableMap::SIGNED)) $criteria->add(ColissimoLabelTableMap::SIGNED, $this->signed);
         if ($this->isColumnModified(ColissimoLabelTableMap::NUMBER)) $criteria->add(ColissimoLabelTableMap::NUMBER, $this->number);
         if ($this->isColumnModified(ColissimoLabelTableMap::CREATED_AT)) $criteria->add(ColissimoLabelTableMap::CREATED_AT, $this->created_at);
         if ($this->isColumnModified(ColissimoLabelTableMap::UPDATED_AT)) $criteria->add(ColissimoLabelTableMap::UPDATED_AT, $this->updated_at);
@@ -1235,6 +1291,7 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     {
         $copyObj->setOrderId($this->getOrderId());
         $copyObj->setWeight($this->getWeight());
+        $copyObj->setSigned($this->getSigned());
         $copyObj->setNumber($this->getNumber());
         $copyObj->setCreatedAt($this->getCreatedAt());
         $copyObj->setUpdatedAt($this->getUpdatedAt());
@@ -1325,6 +1382,7 @@ abstract class ColissimoLabel implements ActiveRecordInterface
         $this->id = null;
         $this->order_id = null;
         $this->weight = null;
+        $this->signed = null;
         $this->number = null;
         $this->created_at = null;
         $this->updated_at = null;
