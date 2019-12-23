@@ -23,13 +23,19 @@ class LabelRequest extends AbstractLabelRequest
     use MethodCreateAddressFromStore;
     use MethodCreateAddressFromOrderAddress;
 
-    public function __construct(Order $order, $pickupCode = null, $pickupType = null)
+    public function __construct(Order $order, $pickupCode = null, $pickupType = null, $signedDelivery = false)
     {
         $orderAddress = OrderAddressQuery::create()->findOneById($order->getDeliveryOrderAddressId());
 
+        $isPickup = null !== $pickupType ? $pickupType : $this->getProductCode($order);
+
+        if (null === $productCode = $pickupType) {
+            $productCode = $this->getProductCode($order, $signedDelivery);
+        }
+
         $this->setLetter(new Letter(
             new Service(
-                null !== $pickupType ? $pickupType : $this->getProductCode($order),
+                $productCode,
                 (new \DateTime()),
                 $order->getRef()
             ),
@@ -61,7 +67,7 @@ class LabelRequest extends AbstractLabelRequest
         );
     }
 
-    protected function getProductCode(Order $order)
+    protected function getProductCode(Order $order, $signedDelivery = false)
     {
         /** @var OrderAddress $deliveryAddress */
         $deliveryAddress = $order->getOrderAddressRelatedByDeliveryOrderAddressId();
@@ -70,6 +76,9 @@ class LabelRequest extends AbstractLabelRequest
 
         // france case
         if ($code == '250') {
+            if ($signedDelivery) {
+                return Service::PRODUCT_CODE_LIST[2];
+            }
             return Service::PRODUCT_CODE_LIST[0];
         } elseif (in_array( // europe
             $code,

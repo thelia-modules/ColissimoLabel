@@ -65,12 +65,18 @@ class OrderController extends AdminController
             }
         }
 
+        $signedDelivery = null !== $request->get('signedDelivery');
+
         if (!isset($colissimoRequest)) {
-            $colissimoRequest = new LabelRequest($order);
+            $colissimoRequest = new LabelRequest($order, null, null, $signedDelivery);
         }
 
         if (null !== $weight = $request->get('weight')) {
             $colissimoRequest->getLetter()->getParcel()->setWeight($weight);
+        }
+
+        if (null !== $signedDelivery) {
+            $colissimoRequest->getLetter()->getParcel()->setSignedDelivery($signedDelivery);
         }
 
         $service = new SOAPService();
@@ -100,7 +106,9 @@ class OrderController extends AdminController
             $colissimoLabelModel = (new ColissimoLabelModel())
                 ->setOrderId($order->getId())
                 ->setWeight($colissimoRequest->getLetter()->getParcel()->getWeight())
-                ->setNumber($response->getParcelNumber());
+                ->setNumber($response->getParcelNumber())
+                ->setSigned($signedDelivery)
+            ;
 
             $colissimoLabelModel->save();
 

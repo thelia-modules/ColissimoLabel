@@ -25,6 +25,7 @@ use Thelia\Model\Order;
  * @method     ChildColissimoLabelQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildColissimoLabelQuery orderByOrderId($order = Criteria::ASC) Order by the order_id column
  * @method     ChildColissimoLabelQuery orderByWeight($order = Criteria::ASC) Order by the weight column
+ * @method     ChildColissimoLabelQuery orderBySigned($order = Criteria::ASC) Order by the signed column
  * @method     ChildColissimoLabelQuery orderByNumber($order = Criteria::ASC) Order by the number column
  * @method     ChildColissimoLabelQuery orderByCreatedAt($order = Criteria::ASC) Order by the created_at column
  * @method     ChildColissimoLabelQuery orderByUpdatedAt($order = Criteria::ASC) Order by the updated_at column
@@ -32,6 +33,7 @@ use Thelia\Model\Order;
  * @method     ChildColissimoLabelQuery groupById() Group by the id column
  * @method     ChildColissimoLabelQuery groupByOrderId() Group by the order_id column
  * @method     ChildColissimoLabelQuery groupByWeight() Group by the weight column
+ * @method     ChildColissimoLabelQuery groupBySigned() Group by the signed column
  * @method     ChildColissimoLabelQuery groupByNumber() Group by the number column
  * @method     ChildColissimoLabelQuery groupByCreatedAt() Group by the created_at column
  * @method     ChildColissimoLabelQuery groupByUpdatedAt() Group by the updated_at column
@@ -50,6 +52,7 @@ use Thelia\Model\Order;
  * @method     ChildColissimoLabel findOneById(int $id) Return the first ChildColissimoLabel filtered by the id column
  * @method     ChildColissimoLabel findOneByOrderId(int $order_id) Return the first ChildColissimoLabel filtered by the order_id column
  * @method     ChildColissimoLabel findOneByWeight(string $weight) Return the first ChildColissimoLabel filtered by the weight column
+ * @method     ChildColissimoLabel findOneBySigned(int $signed) Return the first ChildColissimoLabel filtered by the signed column
  * @method     ChildColissimoLabel findOneByNumber(string $number) Return the first ChildColissimoLabel filtered by the number column
  * @method     ChildColissimoLabel findOneByCreatedAt(string $created_at) Return the first ChildColissimoLabel filtered by the created_at column
  * @method     ChildColissimoLabel findOneByUpdatedAt(string $updated_at) Return the first ChildColissimoLabel filtered by the updated_at column
@@ -57,6 +60,7 @@ use Thelia\Model\Order;
  * @method     array findById(int $id) Return ChildColissimoLabel objects filtered by the id column
  * @method     array findByOrderId(int $order_id) Return ChildColissimoLabel objects filtered by the order_id column
  * @method     array findByWeight(string $weight) Return ChildColissimoLabel objects filtered by the weight column
+ * @method     array findBySigned(int $signed) Return ChildColissimoLabel objects filtered by the signed column
  * @method     array findByNumber(string $number) Return ChildColissimoLabel objects filtered by the number column
  * @method     array findByCreatedAt(string $created_at) Return ChildColissimoLabel objects filtered by the created_at column
  * @method     array findByUpdatedAt(string $updated_at) Return ChildColissimoLabel objects filtered by the updated_at column
@@ -148,7 +152,7 @@ abstract class ColissimoLabelQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT ID, ORDER_ID, WEIGHT, NUMBER, CREATED_AT, UPDATED_AT FROM colissimo_label WHERE ID = :p0';
+        $sql = 'SELECT ID, ORDER_ID, WEIGHT, SIGNED, NUMBER, CREATED_AT, UPDATED_AT FROM colissimo_label WHERE ID = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -360,6 +364,47 @@ abstract class ColissimoLabelQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(ColissimoLabelTableMap::WEIGHT, $weight, $comparison);
+    }
+
+    /**
+     * Filter the query on the signed column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterBySigned(1234); // WHERE signed = 1234
+     * $query->filterBySigned(array(12, 34)); // WHERE signed IN (12, 34)
+     * $query->filterBySigned(array('min' => 12)); // WHERE signed > 12
+     * </code>
+     *
+     * @param     mixed $signed The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildColissimoLabelQuery The current query, for fluid interface
+     */
+    public function filterBySigned($signed = null, $comparison = null)
+    {
+        if (is_array($signed)) {
+            $useMinMax = false;
+            if (isset($signed['min'])) {
+                $this->addUsingAlias(ColissimoLabelTableMap::SIGNED, $signed['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($signed['max'])) {
+                $this->addUsingAlias(ColissimoLabelTableMap::SIGNED, $signed['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(ColissimoLabelTableMap::SIGNED, $signed, $comparison);
     }
 
     /**

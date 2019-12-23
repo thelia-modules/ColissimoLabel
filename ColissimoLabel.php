@@ -15,6 +15,7 @@ namespace ColissimoLabel;
 use ColissimoLabel\Request\Helper\OutputFormat;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Thelia\Module\BaseModule;
 use Thelia\Install\Database;
 
@@ -70,9 +71,20 @@ class ColissimoLabel extends BaseModule
 
     public function update($currentVersion, $newVersion, ConnectionInterface $con = null)
     {
-        parent::update($currentVersion, $newVersion, $con);
+        $finder = Finder::create()
+            ->name('*.sql')
+            ->depth(0)
+            ->sortByName()
+            ->in(__DIR__ . DS . 'Config' . DS . 'update');
 
-        $this->checkConfigurationsValues();
+        $database = new Database($con);
+
+        /** @var \SplFileInfo $file */
+        foreach ($finder as $file) {
+            if (version_compare($currentVersion, $file->getBasename('.sql'), '<')) {
+                $database->insertSql(null, [$file->getPathname()]);
+            }
+        }
     }
 
     protected function checkConfigurationsValues()

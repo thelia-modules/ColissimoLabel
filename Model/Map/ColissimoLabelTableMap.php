@@ -58,7 +58,7 @@ class ColissimoLabelTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 6;
+    const NUM_COLUMNS = 7;
 
     /**
      * The number of lazy-loaded columns
@@ -68,7 +68,7 @@ class ColissimoLabelTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 6;
+    const NUM_HYDRATE_COLUMNS = 7;
 
     /**
      * the column name for the ID field
@@ -84,6 +84,11 @@ class ColissimoLabelTableMap extends TableMap
      * the column name for the WEIGHT field
      */
     const WEIGHT = 'colissimo_label.WEIGHT';
+
+    /**
+     * the column name for the SIGNED field
+     */
+    const SIGNED = 'colissimo_label.SIGNED';
 
     /**
      * the column name for the NUMBER field
@@ -112,12 +117,12 @@ class ColissimoLabelTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'OrderId', 'Weight', 'Number', 'CreatedAt', 'UpdatedAt', ),
-        self::TYPE_STUDLYPHPNAME => array('id', 'orderId', 'weight', 'number', 'createdAt', 'updatedAt', ),
-        self::TYPE_COLNAME       => array(ColissimoLabelTableMap::ID, ColissimoLabelTableMap::ORDER_ID, ColissimoLabelTableMap::WEIGHT, ColissimoLabelTableMap::NUMBER, ColissimoLabelTableMap::CREATED_AT, ColissimoLabelTableMap::UPDATED_AT, ),
-        self::TYPE_RAW_COLNAME   => array('ID', 'ORDER_ID', 'WEIGHT', 'NUMBER', 'CREATED_AT', 'UPDATED_AT', ),
-        self::TYPE_FIELDNAME     => array('id', 'order_id', 'weight', 'number', 'created_at', 'updated_at', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
+        self::TYPE_PHPNAME       => array('Id', 'OrderId', 'Weight', 'Signed', 'Number', 'CreatedAt', 'UpdatedAt', ),
+        self::TYPE_STUDLYPHPNAME => array('id', 'orderId', 'weight', 'signed', 'number', 'createdAt', 'updatedAt', ),
+        self::TYPE_COLNAME       => array(ColissimoLabelTableMap::ID, ColissimoLabelTableMap::ORDER_ID, ColissimoLabelTableMap::WEIGHT, ColissimoLabelTableMap::SIGNED, ColissimoLabelTableMap::NUMBER, ColissimoLabelTableMap::CREATED_AT, ColissimoLabelTableMap::UPDATED_AT, ),
+        self::TYPE_RAW_COLNAME   => array('ID', 'ORDER_ID', 'WEIGHT', 'SIGNED', 'NUMBER', 'CREATED_AT', 'UPDATED_AT', ),
+        self::TYPE_FIELDNAME     => array('id', 'order_id', 'weight', 'signed', 'number', 'created_at', 'updated_at', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
     );
 
     /**
@@ -127,12 +132,12 @@ class ColissimoLabelTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'OrderId' => 1, 'Weight' => 2, 'Number' => 3, 'CreatedAt' => 4, 'UpdatedAt' => 5, ),
-        self::TYPE_STUDLYPHPNAME => array('id' => 0, 'orderId' => 1, 'weight' => 2, 'number' => 3, 'createdAt' => 4, 'updatedAt' => 5, ),
-        self::TYPE_COLNAME       => array(ColissimoLabelTableMap::ID => 0, ColissimoLabelTableMap::ORDER_ID => 1, ColissimoLabelTableMap::WEIGHT => 2, ColissimoLabelTableMap::NUMBER => 3, ColissimoLabelTableMap::CREATED_AT => 4, ColissimoLabelTableMap::UPDATED_AT => 5, ),
-        self::TYPE_RAW_COLNAME   => array('ID' => 0, 'ORDER_ID' => 1, 'WEIGHT' => 2, 'NUMBER' => 3, 'CREATED_AT' => 4, 'UPDATED_AT' => 5, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'order_id' => 1, 'weight' => 2, 'number' => 3, 'created_at' => 4, 'updated_at' => 5, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'OrderId' => 1, 'Weight' => 2, 'Signed' => 3, 'Number' => 4, 'CreatedAt' => 5, 'UpdatedAt' => 6, ),
+        self::TYPE_STUDLYPHPNAME => array('id' => 0, 'orderId' => 1, 'weight' => 2, 'signed' => 3, 'number' => 4, 'createdAt' => 5, 'updatedAt' => 6, ),
+        self::TYPE_COLNAME       => array(ColissimoLabelTableMap::ID => 0, ColissimoLabelTableMap::ORDER_ID => 1, ColissimoLabelTableMap::WEIGHT => 2, ColissimoLabelTableMap::SIGNED => 3, ColissimoLabelTableMap::NUMBER => 4, ColissimoLabelTableMap::CREATED_AT => 5, ColissimoLabelTableMap::UPDATED_AT => 6, ),
+        self::TYPE_RAW_COLNAME   => array('ID' => 0, 'ORDER_ID' => 1, 'WEIGHT' => 2, 'SIGNED' => 3, 'NUMBER' => 4, 'CREATED_AT' => 5, 'UPDATED_AT' => 6, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'order_id' => 1, 'weight' => 2, 'signed' => 3, 'number' => 4, 'created_at' => 5, 'updated_at' => 6, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
     );
 
     /**
@@ -154,6 +159,7 @@ class ColissimoLabelTableMap extends TableMap
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
         $this->addForeignKey('ORDER_ID', 'OrderId', 'INTEGER', 'order', 'ID', true, null, null);
         $this->addColumn('WEIGHT', 'Weight', 'DECIMAL', false, 6, 0);
+        $this->addColumn('SIGNED', 'Signed', 'TINYINT', true, null, null);
         $this->addColumn('NUMBER', 'Number', 'VARCHAR', false, 255, null);
         $this->addColumn('CREATED_AT', 'CreatedAt', 'TIMESTAMP', false, null, null);
         $this->addColumn('UPDATED_AT', 'UpdatedAt', 'TIMESTAMP', false, null, null);
@@ -321,6 +327,7 @@ class ColissimoLabelTableMap extends TableMap
             $criteria->addSelectColumn(ColissimoLabelTableMap::ID);
             $criteria->addSelectColumn(ColissimoLabelTableMap::ORDER_ID);
             $criteria->addSelectColumn(ColissimoLabelTableMap::WEIGHT);
+            $criteria->addSelectColumn(ColissimoLabelTableMap::SIGNED);
             $criteria->addSelectColumn(ColissimoLabelTableMap::NUMBER);
             $criteria->addSelectColumn(ColissimoLabelTableMap::CREATED_AT);
             $criteria->addSelectColumn(ColissimoLabelTableMap::UPDATED_AT);
@@ -328,6 +335,7 @@ class ColissimoLabelTableMap extends TableMap
             $criteria->addSelectColumn($alias . '.ID');
             $criteria->addSelectColumn($alias . '.ORDER_ID');
             $criteria->addSelectColumn($alias . '.WEIGHT');
+            $criteria->addSelectColumn($alias . '.SIGNED');
             $criteria->addSelectColumn($alias . '.NUMBER');
             $criteria->addSelectColumn($alias . '.CREATED_AT');
             $criteria->addSelectColumn($alias . '.UPDATED_AT');

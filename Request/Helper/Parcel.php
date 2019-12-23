@@ -9,6 +9,8 @@ class Parcel
 {
     protected $weight = 0;
 
+    protected $signedDelivery = false;
+
     protected $instructions = '';
 
     protected $pickupLocationId;
@@ -33,6 +35,24 @@ class Parcel
     public function setWeight($weight)
     {
         $this->weight = $weight;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSignedDelivery()
+    {
+        return $this->signedDelivery;
+    }
+
+    /**
+     * @param bool $signedDelivery
+     * @return self
+     */
+    public function setSignedDelivery($signedDelivery)
+    {
+        $this->signedDelivery = $signedDelivery;
         return $this;
     }
 
