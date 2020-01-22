@@ -7,11 +7,14 @@ use ColissimoLabel\Model\ColissimoLabel as ColissimoLabelModel;
 use ColissimoLabel\Model\ColissimoLabelQuery;
 use ColissimoLabel\Request\Helper\BordereauRequestAPIConfiguration;
 use ColissimoLabel\Service\SOAPService;
+use ColissimoWs\Model\ColissimowsLabel;
+use ColissimoWs\Model\ColissimowsLabelQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Thelia\Controller\Admin\AdminController;
+use Thelia\Model\ModuleQuery;
 
 class BordereauController extends AdminController
 {
@@ -52,6 +55,19 @@ class BordereauController extends AdminController
         /** @var ColissimoLabelModel $label */
         foreach ($labels as $label) {
             $parcelNumbers[] = $label->getNumber();
+        }
+
+        /** Compatibility with ColissimoWS /!\ DO NOT use strict comparison */
+        if (ModuleQuery::create()->findOneByCode('ColissimoWs')->getActivate()) {
+            $labelsWs = ColissimowsLabelQuery::create()
+                ->filterByCreatedAt($lastBordereauDate, Criteria::GREATER_THAN)
+                ->find();
+
+            /** @var ColissimowsLabel $label */
+            foreach ($labelsWs as $labelWs) {
+                $parcelNumbers[] = $labelWs->getTrackingNumber();
+            }
+
         }
 
         $service = new SOAPService();
