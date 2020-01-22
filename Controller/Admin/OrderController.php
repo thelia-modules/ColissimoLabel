@@ -9,6 +9,7 @@ use ColissimoLabel\Model\ColissimoLabel as ColissimoLabelModel;
 use ColissimoLabel\Service\SOAPService;
 use ColissimoLabel\Request\Helper\LabelRequestAPIConfiguration;
 use ColissimoLabel\Request\LabelRequest;
+use ColissimoWs\Model\ColissimowsLabelQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
 use SoColissimo\Model\OrderAddressSocolissimoQuery;
 use Symfony\Component\Filesystem\Filesystem;
@@ -22,6 +23,7 @@ use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
+use Thelia\Model\ModuleQuery;
 use Thelia\Model\OrderQuery;
 use Thelia\Model\OrderStatusQuery;
 use Thelia\Tools\URL;
@@ -163,6 +165,13 @@ class OrderController extends AdminController
             return $response;
         }
 
+        ///** Compatibility with ColissimoWs /!\ Do not use strict comparison */
+        //if (ModuleQuery::create()->findOneByCode('ColissimoWs')->getActivate() == true) {
+        //    if ($cws = ColissimowsLabelQuery::create()->findOneByTrackingNumber($number)) {
+        //        /** Cheating by changing the parcel number by the order ref which is the filename in ColissimoWs */
+        //        $number = $cws->getOrderRef();
+        //    }
+        //}
         $response = new BinaryFileResponse(
             ColissimoLabel::getLabelPath($number, ColissimoLabel::getExtensionFile())
         );
