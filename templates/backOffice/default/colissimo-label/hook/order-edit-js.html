@@ -1,7 +1,8 @@
 {loop type="order" name="the-order" id=$order_id customer="*" backend_context=true}
     {$enable = false}
-    {loop type="module" name="module-order" active="yes" backend_context=true id=$DELIVERY_MODULE_ID}
-        {if $CODE === "Colissimo" || $CODE === "SoColissimo"}
+    {loop type="module" name="module-order" active="yes" backend_context=true id=$DELIVERY_MODULE}
+        <!-- List of authorized modules -->
+        {if $CODE === "ColissimoWs" || $CODE === "SoColissimo"}
             {$enable = true}
         {/if}
     {/loop}
@@ -14,44 +15,87 @@
                         <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title" id="exampleModalLabel">{intl l="Labels Colissimo" d="colissimolabel.bo.default"}</h4>
+                        <h4 class="modal-title" id="exampleModalLabel">{intl l="Colissimo Labels" d="colissimolabel.bo.default"}</h4>
                     </div>
-                    <form action="{url path="/admin/module/colissimolabel/order/{$order_id}/generate-label"}">
+
+                    {form name="colissimolabel_export_form"}
+                    {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
+
+                    <form action="{url path='/admin/module/colissimolabel/export?edit-order=1'}" id="export-form" method="post">
+                        {form_hidden_fields}
                         <div class="modal-body">
-                            <div class="form-inline">
-                                <div class="form-group">
-                                    <div>
-                                        <label for="colissimo-input-signedDelivery">{intl l="Livraison avec signature :" d="colissimolabel.bo.default"}</label>
-                                        <input id="colissimo-input-signedDelivery" type="checkbox" class="form-control" name="signedDelivery">
-                                    </div>
-                                    <label for="colissimo-input-weight">{intl l="Shipping weight :" d="colissimolabel.bo.default"}</label>
-                                    <div class="input-group">
-                                        {$weightValue = {$WEIGHT|round:2}}
-                                        {if !$preFillWeightInput || $weightValue == 0}
-                                            {$weightValue = ''}
-                                        {/if}
-                                        <input id="colissimo-input-weight" type="number" required class="form-control" name="weight" min="0" step="0.01" value="{$weightValue}" style="width: 150px;"/>
-                                        <div class="input-group-addon"> / kg</div>
-                                    </div>
+
+                            <div class="panel-body" hidden>
+                                {form_field field="new_status"}
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="{$name}" value="nochange" {if $data == "nochange"}checked{/if}>
+                                        {intl l="Do not change" d='colissimolabel.bo.default'}
+                                    </label>
                                 </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="{$name}" value="processing" {if $data == "processing"}checked{/if}>
+                                        {intl l="Change to \"Processing\"" d='colissimolabel.bo.default'}
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="{$name}" value="sent" {if $data == "sent"}checked{/if}>
+                                        {intl l="Change to \"Sent\". If you choose this option, the delivery notification email is sent to the customer, and the processed order are removed from this page." d='colissimolabel.bo.default'}
+                                    </label>
+                                </div>
+                                {/form_field}
                             </div>
-                        </div>
-                        <div class="modal-iframe hide">
+
+                            {loop type="colissimolabel.label-info" name="form-label-infos" order_id=$ID limit=1}
+
+                            {form_field field="order_id" value_key=$ORDER_ID}
+                                <input type="checkbox" name="{$name}" value="{$ORDER_ID}" checked hidden>
+                            {/form_field}
+
+                            <td class="text-center">
+                                {form_field field="signed" value_key=$ORDER_ID}
+                                <label for="colissimolabel-input-signedDelivery">{intl l="Livraison avec signature :" d="colissimolabel.bo.default"}</label>
+                                <input id="colissimolabel-input-signedDelivery" class="form-control order_checkbox" type="checkbox" name="{$name}" {if $SIGNED} checked {/if} {if !$CAN_BE_NOT_SIGNED} disabled {/if}>
+                                {/form_field}
+                            </td>
+
+                            <td class="text-center">
+                                {form_field field="weight" value_key=$ORDER_ID}
+                                <label for="colissimo-input-weight">{intl l="Shipping weight :" d="colissimolabel.bo.default"}</label>
+                                <div class="input-group">
+                                    {$weightValue = {$WEIGHT|round:2}}
+                                    {if $weightValue == 0}
+                                        {$weightValue = ''}
+                                    {/if}
+                                    <input id="colissimo-input-weight" type="text" required class="form-control input-sm" name="{$name}" value="{$weightValue}">
+                                    <div class="input-group-addon">{intl l="/kg" d='colissimolabel.bo.default'}</div>
+                                </div>
+                                {/form_field}
+                            </td>
 
                         </div>
+
                         <div class="modal-loader hide text-center">
                             {intl l="Please wait ..." d="colissimolabel.bo.default"}
                         </div>
+
                         <div class="modal-error hide">
                             <div class="alert alert-danger">
 
                             </div>
                         </div>
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">{intl l="Cancel" d="colissimolabel.bo.default"}</button>
-                            <button type="submit" name="target" value="print" class="btn btn-primary">{intl l="Print" d="colissimolabel.bo.default"}</button>
+                            <button type="submit" value="stay" class="btn btn-primary">{intl l="Print" d="colissimolabel.bo.default"}</button>
                         </div>
+
+                        {/loop}
+
                     </form>
+                    {/form}
                 </div>
             </div>
         </div>
@@ -99,7 +143,7 @@
                     $modalError = $modal.find('.modal-error'),
                     $modalLoader = $modal.find('.modal-loader'),
                     $modalErrorAlert = $modalError.find('.alert'),
-                    $modalInputWeight = $modal.find("input[name='weight']"),
+                    $modalInputWeight = $modal.find('#colissimo-input-weight'),
                     $modalInputSignedDelivery = $modal.find("input[name='signedDelivery']"),
                     $table = $('#colissimo-label-table');
 
@@ -170,7 +214,7 @@
                     var request = $.ajax({
                         url: $(this).attr('action'),
                         data: $(this).serialize(),
-                        type: 'GET',
+                        type: 'POST',
                         dataType: 'json'
                     });
 
@@ -195,6 +239,7 @@
                     });
 
                     request.fail(function(jqXHR, textStatus) {
+                        console.log('jsonfail');
                         $modalLoader.addClass('hide');
                         $modalError.removeClass('hide');
                         $modalErrorAlert.html(textStatus);

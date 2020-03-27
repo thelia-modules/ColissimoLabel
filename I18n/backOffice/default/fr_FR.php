@@ -9,7 +9,7 @@ return array(
     'Labels Colissimo' => 'Étiquette Colissimo',
     'No existing label for this order' => 'Aucune étiquette pour cette commande',
     'Number' => 'Numéro',
-    'Please wait ...' => 'Veillez patienter ...',
+    'Please wait ...' => 'Veuillez patienter ...',
     'Print' => 'Imprimer',
     'Shipping weight :' => 'Poids d\'expédition :',
     'Tracking URL' => 'URL de tracking',

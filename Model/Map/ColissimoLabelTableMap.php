@@ -58,7 +58,7 @@ class ColissimoLabelTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 7;
+    const NUM_COLUMNS = 12;
 
     /**
      * The number of lazy-loaded columns
@@ -68,7 +68,7 @@ class ColissimoLabelTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 7;
+    const NUM_HYDRATE_COLUMNS = 12;
 
     /**
      * the column name for the ID field
@@ -81,6 +81,31 @@ class ColissimoLabelTableMap extends TableMap
     const ORDER_ID = 'colissimo_label.ORDER_ID';
 
     /**
+     * the column name for the ORDER_REF field
+     */
+    const ORDER_REF = 'colissimo_label.ORDER_REF';
+
+    /**
+     * the column name for the ERROR field
+     */
+    const ERROR = 'colissimo_label.ERROR';
+
+    /**
+     * the column name for the ERROR_MESSAGE field
+     */
+    const ERROR_MESSAGE = 'colissimo_label.ERROR_MESSAGE';
+
+    /**
+     * the column name for the TRACKING_NUMBER field
+     */
+    const TRACKING_NUMBER = 'colissimo_label.TRACKING_NUMBER';
+
+    /**
+     * the column name for the LABEL_TYPE field
+     */
+    const LABEL_TYPE = 'colissimo_label.LABEL_TYPE';
+
+    /**
      * the column name for the WEIGHT field
      */
     const WEIGHT = 'colissimo_label.WEIGHT';
@@ -91,9 +116,9 @@ class ColissimoLabelTableMap extends TableMap
     const SIGNED = 'colissimo_label.SIGNED';
 
     /**
-     * the column name for the NUMBER field
+     * the column name for the WITH_CUSTOMS_INVOICE field
      */
-    const NUMBER = 'colissimo_label.NUMBER';
+    const WITH_CUSTOMS_INVOICE = 'colissimo_label.WITH_CUSTOMS_INVOICE';
 
     /**
      * the column name for the CREATED_AT field
@@ -117,12 +142,12 @@ class ColissimoLabelTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'OrderId', 'Weight', 'Signed', 'Number', 'CreatedAt', 'UpdatedAt', ),
-        self::TYPE_STUDLYPHPNAME => array('id', 'orderId', 'weight', 'signed', 'number', 'createdAt', 'updatedAt', ),
-        self::TYPE_COLNAME       => array(ColissimoLabelTableMap::ID, ColissimoLabelTableMap::ORDER_ID, ColissimoLabelTableMap::WEIGHT, ColissimoLabelTableMap::SIGNED, ColissimoLabelTableMap::NUMBER, ColissimoLabelTableMap::CREATED_AT, ColissimoLabelTableMap::UPDATED_AT, ),
-        self::TYPE_RAW_COLNAME   => array('ID', 'ORDER_ID', 'WEIGHT', 'SIGNED', 'NUMBER', 'CREATED_AT', 'UPDATED_AT', ),
-        self::TYPE_FIELDNAME     => array('id', 'order_id', 'weight', 'signed', 'number', 'created_at', 'updated_at', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('Id', 'OrderId', 'OrderRef', 'Error', 'ErrorMessage', 'TrackingNumber', 'LabelType', 'Weight', 'Signed', 'WithCustomsInvoice', 'CreatedAt', 'UpdatedAt', ),
+        self::TYPE_STUDLYPHPNAME => array('id', 'orderId', 'orderRef', 'error', 'errorMessage', 'trackingNumber', 'labelType', 'weight', 'signed', 'withCustomsInvoice', 'createdAt', 'updatedAt', ),
+        self::TYPE_COLNAME       => array(ColissimoLabelTableMap::ID, ColissimoLabelTableMap::ORDER_ID, ColissimoLabelTableMap::ORDER_REF, ColissimoLabelTableMap::ERROR, ColissimoLabelTableMap::ERROR_MESSAGE, ColissimoLabelTableMap::TRACKING_NUMBER, ColissimoLabelTableMap::LABEL_TYPE, ColissimoLabelTableMap::WEIGHT, ColissimoLabelTableMap::SIGNED, ColissimoLabelTableMap::WITH_CUSTOMS_INVOICE, ColissimoLabelTableMap::CREATED_AT, ColissimoLabelTableMap::UPDATED_AT, ),
+        self::TYPE_RAW_COLNAME   => array('ID', 'ORDER_ID', 'ORDER_REF', 'ERROR', 'ERROR_MESSAGE', 'TRACKING_NUMBER', 'LABEL_TYPE', 'WEIGHT', 'SIGNED', 'WITH_CUSTOMS_INVOICE', 'CREATED_AT', 'UPDATED_AT', ),
+        self::TYPE_FIELDNAME     => array('id', 'order_id', 'order_ref', 'error', 'error_message', 'tracking_number', 'label_type', 'weight', 'signed', 'with_customs_invoice', 'created_at', 'updated_at', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, )
     );
 
     /**
@@ -132,12 +157,12 @@ class ColissimoLabelTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'OrderId' => 1, 'Weight' => 2, 'Signed' => 3, 'Number' => 4, 'CreatedAt' => 5, 'UpdatedAt' => 6, ),
-        self::TYPE_STUDLYPHPNAME => array('id' => 0, 'orderId' => 1, 'weight' => 2, 'signed' => 3, 'number' => 4, 'createdAt' => 5, 'updatedAt' => 6, ),
-        self::TYPE_COLNAME       => array(ColissimoLabelTableMap::ID => 0, ColissimoLabelTableMap::ORDER_ID => 1, ColissimoLabelTableMap::WEIGHT => 2, ColissimoLabelTableMap::SIGNED => 3, ColissimoLabelTableMap::NUMBER => 4, ColissimoLabelTableMap::CREATED_AT => 5, ColissimoLabelTableMap::UPDATED_AT => 6, ),
-        self::TYPE_RAW_COLNAME   => array('ID' => 0, 'ORDER_ID' => 1, 'WEIGHT' => 2, 'SIGNED' => 3, 'NUMBER' => 4, 'CREATED_AT' => 5, 'UPDATED_AT' => 6, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'order_id' => 1, 'weight' => 2, 'signed' => 3, 'number' => 4, 'created_at' => 5, 'updated_at' => 6, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'OrderId' => 1, 'OrderRef' => 2, 'Error' => 3, 'ErrorMessage' => 4, 'TrackingNumber' => 5, 'LabelType' => 6, 'Weight' => 7, 'Signed' => 8, 'WithCustomsInvoice' => 9, 'CreatedAt' => 10, 'UpdatedAt' => 11, ),
+        self::TYPE_STUDLYPHPNAME => array('id' => 0, 'orderId' => 1, 'orderRef' => 2, 'error' => 3, 'errorMessage' => 4, 'trackingNumber' => 5, 'labelType' => 6, 'weight' => 7, 'signed' => 8, 'withCustomsInvoice' => 9, 'createdAt' => 10, 'updatedAt' => 11, ),
+        self::TYPE_COLNAME       => array(ColissimoLabelTableMap::ID => 0, ColissimoLabelTableMap::ORDER_ID => 1, ColissimoLabelTableMap::ORDER_REF => 2, ColissimoLabelTableMap::ERROR => 3, ColissimoLabelTableMap::ERROR_MESSAGE => 4, ColissimoLabelTableMap::TRACKING_NUMBER => 5, ColissimoLabelTableMap::LABEL_TYPE => 6, ColissimoLabelTableMap::WEIGHT => 7, ColissimoLabelTableMap::SIGNED => 8, ColissimoLabelTableMap::WITH_CUSTOMS_INVOICE => 9, ColissimoLabelTableMap::CREATED_AT => 10, ColissimoLabelTableMap::UPDATED_AT => 11, ),
+        self::TYPE_RAW_COLNAME   => array('ID' => 0, 'ORDER_ID' => 1, 'ORDER_REF' => 2, 'ERROR' => 3, 'ERROR_MESSAGE' => 4, 'TRACKING_NUMBER' => 5, 'LABEL_TYPE' => 6, 'WEIGHT' => 7, 'SIGNED' => 8, 'WITH_CUSTOMS_INVOICE' => 9, 'CREATED_AT' => 10, 'UPDATED_AT' => 11, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'order_id' => 1, 'order_ref' => 2, 'error' => 3, 'error_message' => 4, 'tracking_number' => 5, 'label_type' => 6, 'weight' => 7, 'signed' => 8, 'with_customs_invoice' => 9, 'created_at' => 10, 'updated_at' => 11, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, )
     );
 
     /**
@@ -158,9 +183,14 @@ class ColissimoLabelTableMap extends TableMap
         // columns
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
         $this->addForeignKey('ORDER_ID', 'OrderId', 'INTEGER', 'order', 'ID', true, null, null);
+        $this->addColumn('ORDER_REF', 'OrderRef', 'VARCHAR', true, 255, null);
+        $this->addColumn('ERROR', 'Error', 'BOOLEAN', true, 1, false);
+        $this->addColumn('ERROR_MESSAGE', 'ErrorMessage', 'VARCHAR', false, 255, '');
+        $this->addColumn('TRACKING_NUMBER', 'TrackingNumber', 'VARCHAR', false, 255, null);
+        $this->addColumn('LABEL_TYPE', 'LabelType', 'VARCHAR', false, 4, null);
         $this->addColumn('WEIGHT', 'Weight', 'DECIMAL', false, 6, 0);
-        $this->addColumn('SIGNED', 'Signed', 'TINYINT', true, null, null);
-        $this->addColumn('NUMBER', 'Number', 'VARCHAR', false, 255, null);
+        $this->addColumn('SIGNED', 'Signed', 'BOOLEAN', true, 1, false);
+        $this->addColumn('WITH_CUSTOMS_INVOICE', 'WithCustomsInvoice', 'BOOLEAN', true, 1, false);
         $this->addColumn('CREATED_AT', 'CreatedAt', 'TIMESTAMP', false, null, null);
         $this->addColumn('UPDATED_AT', 'UpdatedAt', 'TIMESTAMP', false, null, null);
     } // initialize()
@@ -326,17 +356,27 @@ class ColissimoLabelTableMap extends TableMap
         if (null === $alias) {
             $criteria->addSelectColumn(ColissimoLabelTableMap::ID);
             $criteria->addSelectColumn(ColissimoLabelTableMap::ORDER_ID);
+            $criteria->addSelectColumn(ColissimoLabelTableMap::ORDER_REF);
+            $criteria->addSelectColumn(ColissimoLabelTableMap::ERROR);
+            $criteria->addSelectColumn(ColissimoLabelTableMap::ERROR_MESSAGE);
+            $criteria->addSelectColumn(ColissimoLabelTableMap::TRACKING_NUMBER);
+            $criteria->addSelectColumn(ColissimoLabelTableMap::LABEL_TYPE);
             $criteria->addSelectColumn(ColissimoLabelTableMap::WEIGHT);
             $criteria->addSelectColumn(ColissimoLabelTableMap::SIGNED);
-            $criteria->addSelectColumn(ColissimoLabelTableMap::NUMBER);
+            $criteria->addSelectColumn(ColissimoLabelTableMap::WITH_CUSTOMS_INVOICE);
             $criteria->addSelectColumn(ColissimoLabelTableMap::CREATED_AT);
             $criteria->addSelectColumn(ColissimoLabelTableMap::UPDATED_AT);
         } else {
             $criteria->addSelectColumn($alias . '.ID');
             $criteria->addSelectColumn($alias . '.ORDER_ID');
+            $criteria->addSelectColumn($alias . '.ORDER_REF');
+            $criteria->addSelectColumn($alias . '.ERROR');
+            $criteria->addSelectColumn($alias . '.ERROR_MESSAGE');
+            $criteria->addSelectColumn($alias . '.TRACKING_NUMBER');
+            $criteria->addSelectColumn($alias . '.LABEL_TYPE');
             $criteria->addSelectColumn($alias . '.WEIGHT');
             $criteria->addSelectColumn($alias . '.SIGNED');
-            $criteria->addSelectColumn($alias . '.NUMBER');
+            $criteria->addSelectColumn($alias . '.WITH_CUSTOMS_INVOICE');
             $criteria->addSelectColumn($alias . '.CREATED_AT');
             $criteria->addSelectColumn($alias . '.UPDATED_AT');
         }

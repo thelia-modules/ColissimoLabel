@@ -13,14 +13,6 @@ class OrderEditHook extends BaseHook
 {
     public function onOrderEditJs(HookRenderEvent $event)
     {
-        $event->add($this->render(
-            'colissimo-label/hook/order-edit-js.html',
-            array_merge(
-                $event->getArguments(),
-                [
-                    'preFillWeightInput' => ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PRE_FILL_INPUT_WEIGHT)
-                ]
-            )
-        ));
+        $event->add($this->render('colissimo-label/hook/order-edit-js.html'));
     }
 }

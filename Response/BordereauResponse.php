@@ -10,13 +10,13 @@ class BordereauResponse
     const UUID = '/--uuid:/'; //This is the separator of each part of the response
     const CONTENT = 'Content-';
 
-    public $soapResponse;
+    public $soapResponse = [];
     public $attachments = [];
     public $uuid;
 
     public function __construct($soapResponse)
     {
-        $this->soapResponse = $soapResponse;
+        $this->soapResponse[] = $soapResponse;
 
         $this->parseResponse($soapResponse);
     }

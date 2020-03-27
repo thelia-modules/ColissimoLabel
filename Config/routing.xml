@@ -4,13 +4,27 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <route id="colissimolabel.admin.generate.label" path="/admin/module/colissimolabel/order/{orderId}/generate-label" methods="get">
+    <route id="colissimolabel.export" path="/admin/module/colissimolabel/export">
         <default key="_controller">ColissimoLabel\Controller\Admin\OrderController::generateLabelAction</default>
-        <requirement key="id">[0-9]+</requirement>
     </route>
 
-    <route id="colissimolabel.admin.get.label" path="/admin/module/colissimolabel/label/{number}" methods="get">
+    <route id="colissimolabel.get_zip" path="/admin/module/colissimolabel/labels-zip/{base64EncodedZipFilename}">
+        <default key="_controller">ColissimoLabel\Controller\Admin\OrderController::getLabelZip</default>
+        <requirement key="base64ZipFilePath">[A-Za-z0-9]+</requirement>
+    </route>
+
+    <route id="colissimolabel.admin.get.label" path="/admin/module/colissimolabel/label/{number}">
         <default key="_controller">ColissimoLabel\Controller\Admin\OrderController::getLabelAction</default>
+        <requirement key="number">[0-9A-Z]+</requirement>
+    </route>
+
+    <route id="colissimolabel.admin.get.customs.invoice" path="/admin/module/colissimolabel/customs-invoice/{orderId}">
+        <default key="_controller">ColissimoLabel\Controller\Admin\OrderController::getCustomsInvoiceAction</default>
+        <requirement key="orderId">[0-9A-Z]+</requirement>
+    </route>
+
+    <route id="colissimolabel.admin.delete.label" path="/admin/module/colissimolabel/label/delete/{number}" methods="get">
+        <default key="_controller">ColissimoLabel\Controller\Admin\OrderController::deleteLabelAction</default>
         <requirement key="number">[0-9A-Z]+</requirement>
     </route>
 
@@ -19,13 +33,31 @@
         <requirement key="id">[0-9]+</requirement>
     </route>
 
-    <route id="colissimolabel.admin.bordereau.list" path="/admin/module/colissimolabel/bordereau/list" methods="get">
+    <route id="colissimolabel.admin.bordereau.list" path="/admin/module/colissimolabel/bordereaux" methods="get">
         <default key="_controller">ColissimoLabel\Controller\Admin\BordereauController::listBordereauAction</default>
     </route>
+
+    <route id="colissimolabel.admin.configuration" path="/admin/module/colissimolabel/configuration" methods="get">
+        <default key="_controller">ColissimoLabel\Controller\Admin\ConfigurationController::renderConfigPageAction</default>
+    </route>
+
+    <route id="colissimolabel.admin.configuration.save" path="/admin/module/colissimolabel/configuration/save" methods="post">
+        <default key="_controller">ColissimoLabel\Controller\Admin\ConfigurationController::saveConfig</default>
+    </route>
+
+    <route id="colissimolabel.admin.labels" path="/admin/module/colissimolabel/labels" methods="get">
+        <default key="_controller">ColissimoLabel\Controller\Admin\BordereauController::listLabelsAction</default>
+    </route>
+
     <route id="colissimolabel.admin.bordereau.generate" path="/admin/module/colissimolabel/bordereau/generate" methods="get">
         <default key="_controller">ColissimoLabel\Controller\Admin\BordereauController::generateBordereauAction</default>
     </route>
+
     <route id="colissimolabel.admin.bordereau.download" path="/admin/module/colissimolabel/bordereau/download" methods="get">
         <default key="_controller">ColissimoLabel\Controller\Admin\BordereauController::downloadBordereauAction</default>
+    </route>
+
+    <route id="colissimolabel.admin.bordereau.delete" path="/admin/module/colissimolabel/bordereau/delete">
+        <default key="_controller">ColissimoLabel\Controller\Admin\BordereauController::deleteBordereauAction</default>
     </route>
 </routes>

@@ -1,0 +1,169 @@
+{extends file="admin-layout.tpl"}
+
+{block name="check-resource"}admin.order{/block}
+{block name="check-access"}view{/block}
+{block name="page-title"}Bordereaux Colissimo{/block}
+
+{block name="after-admin-css"}
+{/block}
+
+{if isset($smarty.get.tab)}
+    {$tab=$smarty.get.tab}
+{else}
+    {$tab='config'}
+{/if}
+
+{block name="main-content"}
+{$conf}
+<div class="row">
+    <div class="col-md-12">
+        <div class="general-block-decorator">
+            <div class="row">
+                <div class="col-md-12">
+                    <ul id="tabbed-menu" class="nav nav-tabs">
+                        <li class="{if $tab eq "bordereaux"}active{/if}"><a href="{if $tab eq 'bordereaux'}#{else}{url path='/admin/module/colissimolabel/bordereaux'}{/if}">{intl l="Bordereaux" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "labels"}active{/if}"><a href="{if $tab eq 'labels'}#{else}{url path='/admin/module/colissimolabel/labels'}{/if}">{intl l="Labels" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "config"}active{/if}"><a href="{if $tab eq 'config'}#{else}{url path='/admin/module/colissimolabel/configuration'}{/if}">{intl l="Configuration" d='colissimolabel.bo.default'}</a> </li>
+                    </ul>
+
+                    <div class="row">
+                        <div id="config" class="tab-pane {if $tab eq "config"}active{/if} form-container">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    {intl l="Advanced configuration" d='colissimolabel.bo.default'}
+                                </div>
+
+                                <div class="panel-body">
+                                    {form name="colissimolabel.configure"}
+                                    {if $form_error && $form_error_message}
+                                    <div class="alert alert-danger">{$form_error_message}</div>
+                                    {/if}
+                                    <form action="{url path='/admin/module/colissimolabel/configuration/save'}" method="post">
+
+                                        <!-- Sender's address -->
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <div class="panel-title">{intl d='colissimolabel.bo.default' l="General informations"}</div>
+                                            </div>
+                                            <div class="panel-body">
+                                                {form_hidden_fields form=$form}
+
+                                                {render_form_field form=$form field='colissimolabel-endpoint' value={$value}}
+                                                {form_field form=$form field='contract-number'}
+                                                <div class="form-group {if $error}has-error{/if}">
+                                                    <label for="{$label_attr.for}" class="control-label">{$label}{if $required} <span class="required">*</span>{/if} : </label>
+                                                    <input type="text" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}" >
+                                                </div>
+                                                {/form_field}
+                                                {form_field form=$form field='password'}
+                                                <div class="form-group {if $error}has-error{/if}">
+                                                    <label for="{$label_attr.for}" class="control-label">{$label}{if $required} <span class="required">*</span>{/if} : </label>
+                                                    <input type="text" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}">
+                                                </div>
+                                                {/form_field}
+                                                {form_field form=$form field='default-signed'}
+                                                <div class="form-group {if $error}has-error{/if}">
+                                                    <label for="{$label_attr.for}" class="control-label">{$label}{if $required} <span class="required">*</span>{/if} : </label>
+                                                    {if $value == 1}
+                                                    <input type="checkbox" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}" checked>
+                                                    {else}
+                                                    <input type="checkbox" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}">
+                                                    {/if}
+                                                </div>
+                                                {/form_field}
+                                                {form_field form=$form field='generate-bordereau'}
+                                                <div class="form-group {if $error}has-error{/if}">
+                                                    <label for="{$label_attr.for}" class="control-label">{$label}{if $required} <span class="required">*</span>{/if} : </label>
+                                                    {if $value == 1}
+                                                    <input type="checkbox" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}" checked>
+                                                    {else}
+                                                    <input type="checkbox" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}">
+                                                    {/if}
+                                                </div>
+                                                {/form_field}
+                                                {render_form_field form=$form field='default-label-format' value={$value}}
+                                                {render_form_field form=$form field='last-bordereau-date' value={$value}}
+                                                {form_field form=$form field='get-invoices'}
+                                                <div class="form-group {if $error}has-error{/if}">
+                                                    <label for="{$label_attr.for}" class="control-label">{$label}{if $required} <span class="required">*</span>{/if} : </label>
+                                                    {if $value == 1}
+                                                        <input type="checkbox" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}" checked>
+                                                    {else}
+                                                        <input type="checkbox" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}">
+                                                    {/if}
+                                                </div>
+                                                {/form_field}
+                                                {form_field form=$form field='get-customs-invoices'}
+                                                <div class="form-group {if $error}has-error{/if}">
+                                                    <label for="{$label_attr.for}" class="control-label">{$label}{if $required} <span class="required">*</span>{/if} : </label>
+                                                    {if $value == 1}
+                                                    <input type="checkbox" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}" checked>
+                                                    {else}
+                                                    <input type="checkbox" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}">
+                                                    {/if}
+                                                </div>
+                                                {/form_field}
+                                                {render_form_field form=$form field='customs-product-hscode' value={$value}}
+                                                <br/>
+                                            </div>
+                                        </div>
+
+                                        <!-- Sender's address -->
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <div class="panel-title">{intl d='colissimolabel.bo.default' l="Sender's address"}</div>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        {render_form_field field="colissimolabel-company-name" value={$value}}
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        {render_form_field field="colissimolabel-from-contact-email" value={$value}}
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        {render_form_field field="colissimolabel-from-phone" value={$value}}
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        {render_form_field field="colissimolabel-from-address-1" value={$value}}
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        {render_form_field field="colissimolabel-from-address-2" value={$value}}
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        {render_form_field field="colissimolabel-from-zipcode" value={$value}}
+                                                    </div>
+                                                    <div class="col-md-5">
+                                                        {render_form_field field="colissimolabel-from-city" value={$value}}
+                                                    </div>
+                                                    <div class="col-md-5">
+                                                        {custom_render_form_field form=$form field="colissimolabel-from-country"}
+                                                        <select {form_field_attributes field="colissimolabel-from-country"}>
+                                                            {loop type="country" name="store_country" backend_context="true"}
+                                                            {$isocode = $ISOALPHA2|strtoupper}
+                                                            <option value="{$ID}"{if {$ID} == {$value}} selected{/if}>{$TITLE} ({$isocode})</option>
+                                                            {/loop}
+                                                        </select>
+                                                        {/custom_render_form_field}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" name="save_mode" value="stay" class="form-submit-button btn btn-sm btn-default btn-success" title="{intl l='Save changes' d='colissimolabel.bo.default'}">{intl l='Save changes' d='colissimolabel.bo.default'} <span class="glyphicon glyphicon-ok"></span></button>
+                                    </form>
+                                    {/form}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="javascript-last-call"}
+{/block}

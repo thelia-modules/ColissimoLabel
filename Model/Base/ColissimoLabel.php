@@ -69,6 +69,38 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     protected $order_id;
 
     /**
+     * The value for the order_ref field.
+     * @var        string
+     */
+    protected $order_ref;
+
+    /**
+     * The value for the error field.
+     * Note: this column has a database default value of: false
+     * @var        boolean
+     */
+    protected $error;
+
+    /**
+     * The value for the error_message field.
+     * Note: this column has a database default value of: ''
+     * @var        string
+     */
+    protected $error_message;
+
+    /**
+     * The value for the tracking_number field.
+     * @var        string
+     */
+    protected $tracking_number;
+
+    /**
+     * The value for the label_type field.
+     * @var        string
+     */
+    protected $label_type;
+
+    /**
      * The value for the weight field.
      * Note: this column has a database default value of: '0.00'
      * @var        string
@@ -77,15 +109,17 @@ abstract class ColissimoLabel implements ActiveRecordInterface
 
     /**
      * The value for the signed field.
-     * @var        int
+     * Note: this column has a database default value of: false
+     * @var        boolean
      */
     protected $signed;
 
     /**
-     * The value for the number field.
-     * @var        string
+     * The value for the with_customs_invoice field.
+     * Note: this column has a database default value of: false
+     * @var        boolean
      */
-    protected $number;
+    protected $with_customs_invoice;
 
     /**
      * The value for the created_at field.
@@ -120,7 +154,11 @@ abstract class ColissimoLabel implements ActiveRecordInterface
      */
     public function applyDefaultValues()
     {
+        $this->error = false;
+        $this->error_message = '';
         $this->weight = '0.00';
+        $this->signed = false;
+        $this->with_customs_invoice = false;
     }
 
     /**
@@ -406,6 +444,61 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     }
 
     /**
+     * Get the [order_ref] column value.
+     *
+     * @return   string
+     */
+    public function getOrderRef()
+    {
+
+        return $this->order_ref;
+    }
+
+    /**
+     * Get the [error] column value.
+     *
+     * @return   boolean
+     */
+    public function getError()
+    {
+
+        return $this->error;
+    }
+
+    /**
+     * Get the [error_message] column value.
+     *
+     * @return   string
+     */
+    public function getErrorMessage()
+    {
+
+        return $this->error_message;
+    }
+
+    /**
+     * Get the [tracking_number] column value.
+     *
+     * @return   string
+     */
+    public function getTrackingNumber()
+    {
+
+        return $this->tracking_number;
+    }
+
+    /**
+     * Get the [label_type] column value.
+     *
+     * @return   string
+     */
+    public function getLabelType()
+    {
+
+        return $this->label_type;
+    }
+
+    /**
      * Get the [weight] column value.
      *
      * @return   string
@@ -419,7 +512,7 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     /**
      * Get the [signed] column value.
      *
-     * @return   int
+     * @return   boolean
      */
     public function getSigned()
     {
@@ -428,14 +521,14 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     }
 
     /**
-     * Get the [number] column value.
+     * Get the [with_customs_invoice] column value.
      *
-     * @return   string
+     * @return   boolean
      */
-    public function getNumber()
+    public function getWithCustomsInvoice()
     {
 
-        return $this->number;
+        return $this->with_customs_invoice;
     }
 
     /**
@@ -525,6 +618,119 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     } // setOrderId()
 
     /**
+     * Set the value of [order_ref] column.
+     *
+     * @param      string $v new value
+     * @return   \ColissimoLabel\Model\ColissimoLabel The current object (for fluent API support)
+     */
+    public function setOrderRef($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->order_ref !== $v) {
+            $this->order_ref = $v;
+            $this->modifiedColumns[ColissimoLabelTableMap::ORDER_REF] = true;
+        }
+
+
+        return $this;
+    } // setOrderRef()
+
+    /**
+     * Sets the value of the [error] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     *
+     * @param      boolean|integer|string $v The new value
+     * @return   \ColissimoLabel\Model\ColissimoLabel The current object (for fluent API support)
+     */
+    public function setError($v)
+    {
+        if ($v !== null) {
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
+        }
+
+        if ($this->error !== $v) {
+            $this->error = $v;
+            $this->modifiedColumns[ColissimoLabelTableMap::ERROR] = true;
+        }
+
+
+        return $this;
+    } // setError()
+
+    /**
+     * Set the value of [error_message] column.
+     *
+     * @param      string $v new value
+     * @return   \ColissimoLabel\Model\ColissimoLabel The current object (for fluent API support)
+     */
+    public function setErrorMessage($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->error_message !== $v) {
+            $this->error_message = $v;
+            $this->modifiedColumns[ColissimoLabelTableMap::ERROR_MESSAGE] = true;
+        }
+
+
+        return $this;
+    } // setErrorMessage()
+
+    /**
+     * Set the value of [tracking_number] column.
+     *
+     * @param      string $v new value
+     * @return   \ColissimoLabel\Model\ColissimoLabel The current object (for fluent API support)
+     */
+    public function setTrackingNumber($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->tracking_number !== $v) {
+            $this->tracking_number = $v;
+            $this->modifiedColumns[ColissimoLabelTableMap::TRACKING_NUMBER] = true;
+        }
+
+
+        return $this;
+    } // setTrackingNumber()
+
+    /**
+     * Set the value of [label_type] column.
+     *
+     * @param      string $v new value
+     * @return   \ColissimoLabel\Model\ColissimoLabel The current object (for fluent API support)
+     */
+    public function setLabelType($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->label_type !== $v) {
+            $this->label_type = $v;
+            $this->modifiedColumns[ColissimoLabelTableMap::LABEL_TYPE] = true;
+        }
+
+
+        return $this;
+    } // setLabelType()
+
+    /**
      * Set the value of [weight] column.
      *
      * @param      string $v new value
@@ -546,15 +752,23 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     } // setWeight()
 
     /**
-     * Set the value of [signed] column.
+     * Sets the value of the [signed] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
      *
-     * @param      int $v new value
+     * @param      boolean|integer|string $v The new value
      * @return   \ColissimoLabel\Model\ColissimoLabel The current object (for fluent API support)
      */
     public function setSigned($v)
     {
         if ($v !== null) {
-            $v = (int) $v;
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
         }
 
         if ($this->signed !== $v) {
@@ -567,25 +781,33 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     } // setSigned()
 
     /**
-     * Set the value of [number] column.
+     * Sets the value of the [with_customs_invoice] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
      *
-     * @param      string $v new value
+     * @param      boolean|integer|string $v The new value
      * @return   \ColissimoLabel\Model\ColissimoLabel The current object (for fluent API support)
      */
-    public function setNumber($v)
+    public function setWithCustomsInvoice($v)
     {
         if ($v !== null) {
-            $v = (string) $v;
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
         }
 
-        if ($this->number !== $v) {
-            $this->number = $v;
-            $this->modifiedColumns[ColissimoLabelTableMap::NUMBER] = true;
+        if ($this->with_customs_invoice !== $v) {
+            $this->with_customs_invoice = $v;
+            $this->modifiedColumns[ColissimoLabelTableMap::WITH_CUSTOMS_INVOICE] = true;
         }
 
 
         return $this;
-    } // setNumber()
+    } // setWithCustomsInvoice()
 
     /**
      * Sets the value of [created_at] column to a normalized version of the date/time value specified.
@@ -639,7 +861,23 @@ abstract class ColissimoLabel implements ActiveRecordInterface
      */
     public function hasOnlyDefaultValues()
     {
+            if ($this->error !== false) {
+                return false;
+            }
+
+            if ($this->error_message !== '') {
+                return false;
+            }
+
             if ($this->weight !== '0.00') {
+                return false;
+            }
+
+            if ($this->signed !== false) {
+                return false;
+            }
+
+            if ($this->with_customs_invoice !== false) {
                 return false;
             }
 
@@ -676,22 +914,37 @@ abstract class ColissimoLabel implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : ColissimoLabelTableMap::translateFieldName('OrderId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->order_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : ColissimoLabelTableMap::translateFieldName('Weight', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : ColissimoLabelTableMap::translateFieldName('OrderRef', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->order_ref = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ColissimoLabelTableMap::translateFieldName('Error', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->error = (null !== $col) ? (boolean) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ColissimoLabelTableMap::translateFieldName('ErrorMessage', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->error_message = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ColissimoLabelTableMap::translateFieldName('TrackingNumber', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->tracking_number = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ColissimoLabelTableMap::translateFieldName('LabelType', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->label_type = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : ColissimoLabelTableMap::translateFieldName('Weight', TableMap::TYPE_PHPNAME, $indexType)];
             $this->weight = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ColissimoLabelTableMap::translateFieldName('Signed', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->signed = (null !== $col) ? (int) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : ColissimoLabelTableMap::translateFieldName('Signed', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->signed = (null !== $col) ? (boolean) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ColissimoLabelTableMap::translateFieldName('Number', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->number = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 9 + $startcol : ColissimoLabelTableMap::translateFieldName('WithCustomsInvoice', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->with_customs_invoice = (null !== $col) ? (boolean) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ColissimoLabelTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 10 + $startcol : ColissimoLabelTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->created_at = (null !== $col) ? PropelDateTime::newInstance($col, null, '\DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ColissimoLabelTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 11 + $startcol : ColissimoLabelTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
@@ -704,7 +957,7 @@ abstract class ColissimoLabel implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 7; // 7 = ColissimoLabelTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 12; // 12 = ColissimoLabelTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating \ColissimoLabel\Model\ColissimoLabel object", 0, $e);
@@ -946,14 +1199,29 @@ abstract class ColissimoLabel implements ActiveRecordInterface
         if ($this->isColumnModified(ColissimoLabelTableMap::ORDER_ID)) {
             $modifiedColumns[':p' . $index++]  = 'ORDER_ID';
         }
+        if ($this->isColumnModified(ColissimoLabelTableMap::ORDER_REF)) {
+            $modifiedColumns[':p' . $index++]  = 'ORDER_REF';
+        }
+        if ($this->isColumnModified(ColissimoLabelTableMap::ERROR)) {
+            $modifiedColumns[':p' . $index++]  = 'ERROR';
+        }
+        if ($this->isColumnModified(ColissimoLabelTableMap::ERROR_MESSAGE)) {
+            $modifiedColumns[':p' . $index++]  = 'ERROR_MESSAGE';
+        }
+        if ($this->isColumnModified(ColissimoLabelTableMap::TRACKING_NUMBER)) {
+            $modifiedColumns[':p' . $index++]  = 'TRACKING_NUMBER';
+        }
+        if ($this->isColumnModified(ColissimoLabelTableMap::LABEL_TYPE)) {
+            $modifiedColumns[':p' . $index++]  = 'LABEL_TYPE';
+        }
         if ($this->isColumnModified(ColissimoLabelTableMap::WEIGHT)) {
             $modifiedColumns[':p' . $index++]  = 'WEIGHT';
         }
         if ($this->isColumnModified(ColissimoLabelTableMap::SIGNED)) {
             $modifiedColumns[':p' . $index++]  = 'SIGNED';
         }
-        if ($this->isColumnModified(ColissimoLabelTableMap::NUMBER)) {
-            $modifiedColumns[':p' . $index++]  = 'NUMBER';
+        if ($this->isColumnModified(ColissimoLabelTableMap::WITH_CUSTOMS_INVOICE)) {
+            $modifiedColumns[':p' . $index++]  = 'WITH_CUSTOMS_INVOICE';
         }
         if ($this->isColumnModified(ColissimoLabelTableMap::CREATED_AT)) {
             $modifiedColumns[':p' . $index++]  = 'CREATED_AT';
@@ -978,14 +1246,29 @@ abstract class ColissimoLabel implements ActiveRecordInterface
                     case 'ORDER_ID':
                         $stmt->bindValue($identifier, $this->order_id, PDO::PARAM_INT);
                         break;
+                    case 'ORDER_REF':
+                        $stmt->bindValue($identifier, $this->order_ref, PDO::PARAM_STR);
+                        break;
+                    case 'ERROR':
+                        $stmt->bindValue($identifier, (int) $this->error, PDO::PARAM_INT);
+                        break;
+                    case 'ERROR_MESSAGE':
+                        $stmt->bindValue($identifier, $this->error_message, PDO::PARAM_STR);
+                        break;
+                    case 'TRACKING_NUMBER':
+                        $stmt->bindValue($identifier, $this->tracking_number, PDO::PARAM_STR);
+                        break;
+                    case 'LABEL_TYPE':
+                        $stmt->bindValue($identifier, $this->label_type, PDO::PARAM_STR);
+                        break;
                     case 'WEIGHT':
                         $stmt->bindValue($identifier, $this->weight, PDO::PARAM_STR);
                         break;
                     case 'SIGNED':
-                        $stmt->bindValue($identifier, $this->signed, PDO::PARAM_INT);
+                        $stmt->bindValue($identifier, (int) $this->signed, PDO::PARAM_INT);
                         break;
-                    case 'NUMBER':
-                        $stmt->bindValue($identifier, $this->number, PDO::PARAM_STR);
+                    case 'WITH_CUSTOMS_INVOICE':
+                        $stmt->bindValue($identifier, (int) $this->with_customs_invoice, PDO::PARAM_INT);
                         break;
                     case 'CREATED_AT':
                         $stmt->bindValue($identifier, $this->created_at ? $this->created_at->format("Y-m-d H:i:s") : null, PDO::PARAM_STR);
@@ -1062,18 +1345,33 @@ abstract class ColissimoLabel implements ActiveRecordInterface
                 return $this->getOrderId();
                 break;
             case 2:
-                return $this->getWeight();
+                return $this->getOrderRef();
                 break;
             case 3:
-                return $this->getSigned();
+                return $this->getError();
                 break;
             case 4:
-                return $this->getNumber();
+                return $this->getErrorMessage();
                 break;
             case 5:
-                return $this->getCreatedAt();
+                return $this->getTrackingNumber();
                 break;
             case 6:
+                return $this->getLabelType();
+                break;
+            case 7:
+                return $this->getWeight();
+                break;
+            case 8:
+                return $this->getSigned();
+                break;
+            case 9:
+                return $this->getWithCustomsInvoice();
+                break;
+            case 10:
+                return $this->getCreatedAt();
+                break;
+            case 11:
                 return $this->getUpdatedAt();
                 break;
             default:
@@ -1107,11 +1405,16 @@ abstract class ColissimoLabel implements ActiveRecordInterface
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getOrderId(),
-            $keys[2] => $this->getWeight(),
-            $keys[3] => $this->getSigned(),
-            $keys[4] => $this->getNumber(),
-            $keys[5] => $this->getCreatedAt(),
-            $keys[6] => $this->getUpdatedAt(),
+            $keys[2] => $this->getOrderRef(),
+            $keys[3] => $this->getError(),
+            $keys[4] => $this->getErrorMessage(),
+            $keys[5] => $this->getTrackingNumber(),
+            $keys[6] => $this->getLabelType(),
+            $keys[7] => $this->getWeight(),
+            $keys[8] => $this->getSigned(),
+            $keys[9] => $this->getWithCustomsInvoice(),
+            $keys[10] => $this->getCreatedAt(),
+            $keys[11] => $this->getUpdatedAt(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1163,18 +1466,33 @@ abstract class ColissimoLabel implements ActiveRecordInterface
                 $this->setOrderId($value);
                 break;
             case 2:
-                $this->setWeight($value);
+                $this->setOrderRef($value);
                 break;
             case 3:
-                $this->setSigned($value);
+                $this->setError($value);
                 break;
             case 4:
-                $this->setNumber($value);
+                $this->setErrorMessage($value);
                 break;
             case 5:
-                $this->setCreatedAt($value);
+                $this->setTrackingNumber($value);
                 break;
             case 6:
+                $this->setLabelType($value);
+                break;
+            case 7:
+                $this->setWeight($value);
+                break;
+            case 8:
+                $this->setSigned($value);
+                break;
+            case 9:
+                $this->setWithCustomsInvoice($value);
+                break;
+            case 10:
+                $this->setCreatedAt($value);
+                break;
+            case 11:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1203,11 +1521,16 @@ abstract class ColissimoLabel implements ActiveRecordInterface
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setOrderId($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setWeight($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setSigned($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setNumber($arr[$keys[4]]);
-        if (array_key_exists($keys[5], $arr)) $this->setCreatedAt($arr[$keys[5]]);
-        if (array_key_exists($keys[6], $arr)) $this->setUpdatedAt($arr[$keys[6]]);
+        if (array_key_exists($keys[2], $arr)) $this->setOrderRef($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setError($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setErrorMessage($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setTrackingNumber($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setLabelType($arr[$keys[6]]);
+        if (array_key_exists($keys[7], $arr)) $this->setWeight($arr[$keys[7]]);
+        if (array_key_exists($keys[8], $arr)) $this->setSigned($arr[$keys[8]]);
+        if (array_key_exists($keys[9], $arr)) $this->setWithCustomsInvoice($arr[$keys[9]]);
+        if (array_key_exists($keys[10], $arr)) $this->setCreatedAt($arr[$keys[10]]);
+        if (array_key_exists($keys[11], $arr)) $this->setUpdatedAt($arr[$keys[11]]);
     }
 
     /**
@@ -1221,9 +1544,14 @@ abstract class ColissimoLabel implements ActiveRecordInterface
 
         if ($this->isColumnModified(ColissimoLabelTableMap::ID)) $criteria->add(ColissimoLabelTableMap::ID, $this->id);
         if ($this->isColumnModified(ColissimoLabelTableMap::ORDER_ID)) $criteria->add(ColissimoLabelTableMap::ORDER_ID, $this->order_id);
+        if ($this->isColumnModified(ColissimoLabelTableMap::ORDER_REF)) $criteria->add(ColissimoLabelTableMap::ORDER_REF, $this->order_ref);
+        if ($this->isColumnModified(ColissimoLabelTableMap::ERROR)) $criteria->add(ColissimoLabelTableMap::ERROR, $this->error);
+        if ($this->isColumnModified(ColissimoLabelTableMap::ERROR_MESSAGE)) $criteria->add(ColissimoLabelTableMap::ERROR_MESSAGE, $this->error_message);
+        if ($this->isColumnModified(ColissimoLabelTableMap::TRACKING_NUMBER)) $criteria->add(ColissimoLabelTableMap::TRACKING_NUMBER, $this->tracking_number);
+        if ($this->isColumnModified(ColissimoLabelTableMap::LABEL_TYPE)) $criteria->add(ColissimoLabelTableMap::LABEL_TYPE, $this->label_type);
         if ($this->isColumnModified(ColissimoLabelTableMap::WEIGHT)) $criteria->add(ColissimoLabelTableMap::WEIGHT, $this->weight);
         if ($this->isColumnModified(ColissimoLabelTableMap::SIGNED)) $criteria->add(ColissimoLabelTableMap::SIGNED, $this->signed);
-        if ($this->isColumnModified(ColissimoLabelTableMap::NUMBER)) $criteria->add(ColissimoLabelTableMap::NUMBER, $this->number);
+        if ($this->isColumnModified(ColissimoLabelTableMap::WITH_CUSTOMS_INVOICE)) $criteria->add(ColissimoLabelTableMap::WITH_CUSTOMS_INVOICE, $this->with_customs_invoice);
         if ($this->isColumnModified(ColissimoLabelTableMap::CREATED_AT)) $criteria->add(ColissimoLabelTableMap::CREATED_AT, $this->created_at);
         if ($this->isColumnModified(ColissimoLabelTableMap::UPDATED_AT)) $criteria->add(ColissimoLabelTableMap::UPDATED_AT, $this->updated_at);
 
@@ -1290,9 +1618,14 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
         $copyObj->setOrderId($this->getOrderId());
+        $copyObj->setOrderRef($this->getOrderRef());
+        $copyObj->setError($this->getError());
+        $copyObj->setErrorMessage($this->getErrorMessage());
+        $copyObj->setTrackingNumber($this->getTrackingNumber());
+        $copyObj->setLabelType($this->getLabelType());
         $copyObj->setWeight($this->getWeight());
         $copyObj->setSigned($this->getSigned());
-        $copyObj->setNumber($this->getNumber());
+        $copyObj->setWithCustomsInvoice($this->getWithCustomsInvoice());
         $copyObj->setCreatedAt($this->getCreatedAt());
         $copyObj->setUpdatedAt($this->getUpdatedAt());
         if ($makeNew) {
@@ -1381,9 +1714,14 @@ abstract class ColissimoLabel implements ActiveRecordInterface
     {
         $this->id = null;
         $this->order_id = null;
+        $this->order_ref = null;
+        $this->error = null;
+        $this->error_message = null;
+        $this->tracking_number = null;
+        $this->label_type = null;
         $this->weight = null;
         $this->signed = null;
-        $this->number = null;
+        $this->with_customs_invoice = null;
         $this->created_at = null;
         $this->updated_at = null;
         $this->alreadyInSave = false;

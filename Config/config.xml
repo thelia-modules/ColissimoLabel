@@ -5,13 +5,13 @@
         xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
 
     <loops>
-        <loop name="colissimo-label" class="ColissimoLabel\Loop\ColissimoLabel" />
+        <loop name="colissimolabel.orders-not-sent" class="ColissimoLabel\Loop\OrdersNotSentLoop" />
+        <loop name="colissimolabel.label-info" class="ColissimoLabel\Loop\ColissimoLabelInfo" />
     </loops>
 
     <forms>
-        <!--
-        <form name="MyFormName" class="ColissimoLabel\Form\MySuperForm" />
-        -->
+        <form name="colissimolabel.configure" class="ColissimoLabel\Form\ConfigureColissimoLabel" />
+        <form name="colissimolabel_export_form" class="ColissimoLabel\Form\LabelGenerationForm" />
     </forms>
 
     <commands>
@@ -22,7 +22,6 @@
 
     <!--
     <services>
-
     </services>
     -->
 

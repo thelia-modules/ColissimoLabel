@@ -1,0 +1,227 @@
+{extends file="admin-layout.tpl"}
+
+{block name="check-resource"}admin.order{/block}
+{block name="check-access"}view{/block}
+{block name="page-title"}Labels Colissimo{/block}
+
+{block name="after-admin-css"}
+{/block}
+
+{if isset($smarty.get.tab)}
+    {$tab=$smarty.get.tab}
+{else}
+    {$tab='labels'}
+{/if}
+
+{block name="main-content"}
+<div class="row">
+    <div class="col-md-12">
+        <div class="general-block-decorator">
+            <div class="row">
+                <div class="col-md-12">
+                    <ul id="tabbed-menu" class="nav nav-tabs">
+                        <li class="{if $tab eq "bordereaux"}active{/if}"><a href="{if $tab eq 'bordereaux'}#{else}{url path='/admin/module/colissimolabel/bordereaux'}{/if}">{intl l="Bordereaux" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "labels"}active{/if}"><a href="{if $tab eq 'labels'}#{else}{url path='/admin/module/colissimolabel/labels'}{/if}">{intl l="Labels" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "config"}active{/if}"><a href="{if $tab eq 'config'}#{else}{url path='/admin/module/colissimolabel/configuration'}{/if}">{intl l="Configuration" d='colissimolabel.bo.default'}</a> </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div id="labels" class="tab-pane {if $tab eq "labels"}active{/if} form-container">
+                        <br>
+                        <div class="title">
+                            {intl l="Download and print Colissimo labels for orders not yet sent" d='colissimolabel.bo.default'}
+                        </div>
+
+                        {form name="colissimolabel_export_form"}
+                        {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
+
+                        <form action="{url path='/admin/module/colissimolabel/export'}" id="export-form" method="post">
+                            {form_hidden_fields}
+                            <div class="panel panel-default">
+                                <div class="panel-heading clearfix">
+                                    {intl d='colissimolabel.bo.default' l="Order status change after processing"}
+                                </div>
+
+                                <div class="panel-body">
+                                    {form_field field="new_status"}
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="{$name}" value="nochange" {if $data == "nochange"}checked{/if}>
+                                            {intl l="Do not change" d='colissimolabel.bo.default'}
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="{$name}" value="processing" {if $data == "processing"}checked{/if}>
+                                            {intl l="Change to \"Processing\"" d='colissimolabel.bo.default'}
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="{$name}" value="sent" {if $data == "sent"}checked{/if}>
+                                            {intl l="Change to \"Sent\". If you choose this option, the delivery notification email is sent to the customer, and the processed order are removed from this page." d='colissimolabel.bo.default'}
+                                        </label>
+                                    </div>
+                                    {/form_field}
+                                </div>
+                            </div>
+
+                            <table class="table table-condensed">
+                                <thead>
+                                <tr class="active">
+                                    <th>
+                                        {intl d='colissimolabel.bo.default' l="REF"}
+                                    </th>
+                                    <th class="text-center">
+                                        {intl d='colissimolabel.bo.default' l="Order date"}
+                                    </th>
+                                    <th>
+                                        {intl d='colissimolabel.bo.default' l="Destination"}
+                                    </th>
+                                    <th class="text-center">
+                                        {intl d='colissimolabel.bo.default' l="Weight"}
+                                    </th>
+                                    <th class="text-center">
+                                        {intl d='colissimolabel.bo.default' l="Price (with taxes)"}
+                                    </th>
+                                    <th class="text-center">
+                                        {intl d='colissimolabel.bo.default' l="Signature"}
+                                    </th>
+                                    <th class="text-center">
+                                        {intl d='colissimolabel.bo.default' l="Module"}
+                                    </th>
+                                    <th class="text-center">
+                                        {intl d='colissimolabel.bo.default' l="Tracking"}
+                                    </th>
+                                    <th class="text-center">
+                                        {intl d='colissimolabel.bo.default' l="Label"}
+                                    </th>
+                                    <th class="text-center">
+                                        {intl d='colissimolabel.bo.default' l="Customs invoice"}
+                                    </th>
+                                    <th class="text-center">
+                                        {intl l="Sel." d='colissimolabel.bo.default'}
+                                    </th>
+                                </tr>
+                                </thead>
+
+                                <tr>
+                                    {loop type="colissimolabel.orders-not-sent" name="orders.not.sent"}
+                                    {loop type="colissimolabel.label-info" name="label-info" order_id=$ID}
+
+                                <tr id="order-{$ORDER_ID}"{if $HAS_ERROR} class="bg-warning"{/if}>
+                                <td>
+                                    <a href="{url path="/admin/order/update/%id" id=$ID tab='bill'}" target="_blank">{$REF}</a>
+                                </td>
+                                <td class="text-center">
+                                    {format_date date=$CREATE_DATE}
+                                </td>
+                                <td>
+                                    {loop type='order_address' name='colissimolabel.address' backend_context=1 id=$DELIVERY_ADDRESS}
+                                    {$CITY|strtoupper} {$ZIPCODE|strtoupper}, {loop backend_context=1 type="country" name="adrctry" id=$COUNTRY}{$TITLE|strtoupper}{/loop}
+                                    {/loop}
+                                </td>
+                                <td class="text-center">
+                                    {form_field field="weight" value_key=$ORDER_ID}
+                                    <div class="input-group">
+                                        <input class="form-control input-sm" type="text" name="{$name}" value="{$WEIGHT}" >
+                                        <span class="input-group-addon">{intl l="kg" d='colissimolabel.bo.default'}</span>
+                                    </div>
+                                    {/form_field}
+                                </td>
+                                <td class="text-center">
+                                    {$TOTAL_TAXED_AMOUNT|string_format:"%.2f"}
+                                </td>
+                                <td class="text-center">
+                                    {form_field field="signed" value_key=$ORDER_ID}
+                                    <input class="form-control order_checkbox" type="checkbox" name="{$name}" {if $SIGNED} checked {/if} {if !$CAN_BE_NOT_SIGNED} disabled checked {/if} {if $TRACKING_NUMBER} disabled {/if}>
+                                    {/form_field}
+                                </td>
+                                <td class="text-center">
+                                    {loop type="order" name="order-loop-labels" id="{$ORDER_ID}" customer='*' backend_context=1}
+                                        {loop type="module" name="delivery-module-loop" id=$DELIVERY_MODULE backend_context=1}
+                                        <b>{$CODE}</b>
+                                        {/loop}
+                                    {/loop}
+                                </td>
+                                <td class="text-center">
+                                    {if $TRACKING_NUMBER}
+                                        <a href="https://www.colissimo.fr/portail_colissimo/suivreResultat.do?parcelnumber={$TRACKING_NUMBER}">{$TRACKING_NUMBER}</a>
+                                    {else}
+                                        <i title="{intl l="Non disponible" d='colissimolabel.bo.default'}" class="glyphicon glyphicon-ban-circle"></i>
+                                    {/if}
+                                </td>
+
+                                <td class="text-center">
+                                    {if $HAS_LABEL}
+                                        <a class="btn btn-default btn-xs" href="{$LABEL_URL}" target="_blank" title="{intl d='colissimolabel.bo.default' l="Download label (%fmt)" fmt=$LABEL_TYPE|upper}">
+                                            <i class="glyphicon glyphicon-download-alt"></i>
+                                        </a>
+                                    {else}
+                                    <i title="{intl l="Non disponible" d='colissimolabel.bo.default'}" class="glyphicon glyphicon-ban-circle"></i>
+                                    {/if}
+                                </td>
+
+                                <td class="text-center">
+                                    {if $HAS_CUSTOMS_INVOICE}
+                                    <a class="btn btn-default btn-xs" href="{$CUSTOMS_INVOICE_URL}" target="_blank" title="{intl d='colissimolabel.bo.default' l="Download customs invoice (PDF)"}">
+                                    <i class="glyphicon glyphicon-download"></i>
+                                    </a>
+                                    {else}
+                                    -
+                                    {/if}
+                                </td>
+
+                                <td class="text-center">
+                                    {if !$HAS_LABEL}
+                                    {form_field field="order_id" value_key=$ORDER_ID}
+                                    <input type="checkbox" name="{$name}" value="{$ORDER_ID}" class="form-control order_checkbox">
+                                    {/form_field}
+                                    {else}
+                                    <a onclick="return confirm('{intl l="Do you want to clear label and tracking number for this order ?"}')" href="{$CLEAR_LABEL_URL}" class="btn btn-danger btn-xs" title="{intl l='Clear label'}">
+                                    <i class="glyphicon glyphicon-trash"></i>
+                                    </a>
+                                    {/if}
+                                </td>
+                                </tr>
+
+                                {if $HAS_ERROR}
+                                <tr class="bg-warning">
+                                    <td colspan="99" style="padding-top:0;border:none">
+                                        <i class="glyphicon glyphicon-warning-sign"></i> {intl l="Label cannot be created. Error is: " d='colissimolabel.bo.default'}
+                                        {$ERROR_MESSAGE nofilter}
+                                    </td>
+                                </tr>
+                                {/if}
+
+                                {/loop}
+                                {/loop}
+                                </tbody>
+                            </table>
+
+                            {elseloop rel="orders.not.sent"}
+                            <div class="alert alert-info">{intl d='colissimolabel.bo.default' l="There are currently no orders to ship with Colissimo"}</div>
+                            {/elseloop}
+
+                            {ifloop rel="orders.not.sent"}
+                            <div class="pull-right">
+                                <button type="submit" value="stay" class="btn btn-primary" title="{intl l='Process selected orders' d='colissimolabel.bo.default'}">{intl l='Process selected orders' d='colissimolabel.bo.default'}</button>
+                            </div>
+                            {/ifloop}
+                        </form>
+                        {/form}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{* Download zip file if we have the name in the URL parameters *}
+{if $smarty.get.zip}
+<iframe style="width:100%;height:20px;border:none" src="{url path="/admin/module/colissimolabel/labels-zip/%hash" hash={$smarty.get.zip}}"></iframe>
+{/if}
+{/block}
+
+{block name="javascript-last-call"}
+{/block}
+
