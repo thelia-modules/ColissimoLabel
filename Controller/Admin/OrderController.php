@@ -466,16 +466,18 @@ class OrderController extends AdminController
         $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($number);
 
         /** Compatibility for ColissimoLabel < 1.0.0 */
-        $file = ColissimoLabel::getLabelPath($number, ColissimoLabel::getFileExtension());
-        $fileName = $number;
+        if ($label) {
+            $file = ColissimoLabel::getLabelPath($number, ColissimoLabel::getFileExtension());
+            $fileName = $number;
 
-        $orderRef = $label->getOrderRef();
+            $orderRef = $label->getOrderRef();
+        }
 
         /** Compatibility for ColissimoWs < 2.0.0 */
         if (ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[0])) {
-            if (ColissimowsLabelQuery::create()->findOneByTrackingNumber($number)) {
-                $file = ColissimoLabel::getLabelPath($label->getOrderRef(), ColissimoLabel::getFileExtension());
-                $fileName = $label->getOrderRef();
+            if ($labelWs = ColissimowsLabelQuery::create()->findOneByTrackingNumber($number)) {
+                $file = ColissimoLabel::getLabelPath($labelWs->getOrderRef(), $labelWs->getLabelType());
+                $fileName = $labelWs->getOrderRef();
             }
         }
 
