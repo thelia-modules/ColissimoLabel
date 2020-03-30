@@ -24,8 +24,8 @@ CREATE TABLE `colissimo_label`
     `created_at` DATETIME,
     `updated_at` DATETIME,
     PRIMARY KEY (`id`),
-    INDEX `colissimo_label_FI_1` (`order_id`),
-    CONSTRAINT `colissimo_label_FK_1`
+    INDEX `colissimo_label_fi_75704f` (`order_id`),
+    CONSTRAINT `colissimo_label_fk_75704f`
         FOREIGN KEY (`order_id`)
         REFERENCES `order` (`id`)
         ON UPDATE RESTRICT
