@@ -237,6 +237,7 @@ class OrderController extends AdminController
                             ->setError(1)
                             ->setErrorMessage($response->getError(true)[0])
                             ->setSigned($signedDelivery)
+                            ->setWeight($colissimoRequest->getLetter()->getParcel()->getWeight())
                             ->save()
                         ;
 
