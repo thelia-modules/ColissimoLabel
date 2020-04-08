@@ -4,10 +4,8 @@
 namespace ColissimoLabel\Loop;
 
 
-use ColissimoWs\ColissimoWs;
 use ColissimoLabel\ColissimoLabel;
 use Propel\Runtime\ActiveQuery\Criteria;
-use SoColissimo\SoColissimo;
 use Thelia\Core\Template\Loop\Argument\Argument;
 use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
 use Thelia\Core\Template\Loop\Order;
@@ -50,6 +48,13 @@ class OrdersNotSentLoop extends Order
         if ($soColissimo = ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[1])) {
             $moduleIds[] = $soColissimo->getId();
         }
+        if ($colissimoHomeDelivery = ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[2])) {
+            $moduleIds[] = $colissimoHomeDelivery->getId();
+        }
+        if ($colissimoPickupPoint = ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[3])) {
+            $moduleIds[] = $colissimoPickupPoint->getId();
+        }
+
         $query = OrderQuery::create()
             ->filterByDeliveryModuleId(
                 $moduleIds,

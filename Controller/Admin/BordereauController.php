@@ -41,8 +41,8 @@ class BordereauController extends AdminController
         $bordereaux = [];
         foreach ($finder as $file) {
             $bordereaux[] = [
-                "name" => $file->getRelativePathname(),
-                "path" => $file->getRealPath(),
+                'name' => $file->getRelativePathname(),
+                'path' => $file->getRealPath(),
             ];
         }
 
@@ -51,7 +51,7 @@ class BordereauController extends AdminController
         $bordereaux = array_reverse($bordereaux);
 
         /** We render the page */
-        return $this->render('colissimo-label/bordereau-list', compact("lastBordereauDate", "bordereaux", "error"));
+        return $this->render('colissimo-label/bordereau-list', compact('lastBordereauDate', 'bordereaux', 'error'));
     }
 
     /**

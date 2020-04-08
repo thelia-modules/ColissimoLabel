@@ -2,7 +2,7 @@
     {$enable = false}
     {loop type="module" name="module-order" active="yes" backend_context=true id=$DELIVERY_MODULE}
         <!-- List of authorized modules -->
-        {if $CODE === "ColissimoWs" || $CODE === "SoColissimo"}
+        {if $CODE === "ColissimoWs" || $CODE === "SoColissimo" || $CODE === "ColissimoHomeDelivery" || $CODE === "ColissimoPickupPoint"}
             {$enable = true}
         {/if}
     {/loop}

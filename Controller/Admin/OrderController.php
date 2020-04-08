@@ -9,15 +9,14 @@ use ColissimoLabel\Event\LabelRequestEvent;
 use ColissimoLabel\Model\ColissimoLabel as ColissimoLabelModel;
 use ColissimoLabel\Model\ColissimoLabelQuery;
 use ColissimoLabel\Request\Helper\BordereauRequestAPIConfiguration;
-use ColissimoLabel\Request\Helper\OutputFormat;
 use ColissimoLabel\Service\SOAPService;
 use ColissimoLabel\Request\Helper\LabelRequestAPIConfiguration;
 use ColissimoLabel\Request\LabelRequest;
+use ColissimoPickupPoint\Model\OrderAddressColissimoPickupPointQuery;
 use ColissimoWs\Controller\LabelController;
 use ColissimoWs\Model\ColissimowsLabelQuery;
-use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Exception\PropelException;
-use SoColissimo\Model\OrderAddressSocolissimoQuery;
+use SoColissimo\Model\OrderAddressColissimoPickupPointQuery as OrderAddressSoColissimoPickupPointQuery;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -63,7 +62,7 @@ class OrderController extends AdminController
             /** Check if status needs to be changed after processing */
             $newStatus = OrderStatusQuery::create()->findOneByCode($data['new_status']);
 
-            ColissimoLabel::setConfigValue("new_status", $data['new_status']);
+            ColissimoLabel::setConfigValue('new_status', $data['new_status']);
 
             $weight_array = $data['weight'];
             $signed_array = $data['signed'];
@@ -78,7 +77,7 @@ class OrderController extends AdminController
                     }
 
                     if ($weight === null) {
-                        throw new \Exception($this->getTranslator()->trans("Please enter a weight for every selected order"));
+                        throw new \Exception($this->getTranslator()->trans('Please enter a weight for every selected order'));
                     }
 
                     /** Check if the 'signed' checkbox was checked for this particular order */
@@ -93,14 +92,33 @@ class OrderController extends AdminController
 
                     /** Check if delivery is a relay point through SoColissimo. Use relay point address if it is */
                     if (ColissimoLabel::AUTHORIZED_MODULES[1] === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
-                        if (null !== $addressSocolissimo = OrderAddressSocolissimoQuery::create()
+                        if (null !== $AddressColissimoPickupPoint = OrderAddressSoColissimoPickupPointQuery::create()
                                 ->findOneById($order->getDeliveryOrderAddressId())) {
                             /** If the delivery is through a relay point, we create a new LabelRequest with the relay point and order infos */
-                            if ($addressSocolissimo) {
+                            if ($AddressColissimoPickupPoint) {
                                 $colissimoRequest = new LabelRequest(
                                     $order,
-                                    $addressSocolissimo->getCode() == '0' ? null : $addressSocolissimo->getCode(),
-                                    $addressSocolissimo->getType()
+                                    $AddressColissimoPickupPoint->getCode() == '0' ? null : $AddressColissimoPickupPoint->getCode(),
+                                    $AddressColissimoPickupPoint->getType()
+                                );
+
+                                $colissimoRequest->getLetter()->getService()->setCommercialName(
+                                    $colissimoRequest->getLetter()->getSender()->getAddress()->getCompanyName()
+                                );
+                            }
+                        }
+                    }
+
+                    /** Same thing with ColissimoPickupPoint */
+                    if (ColissimoLabel::AUTHORIZED_MODULES[3] === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
+                        if (null !== $AddressColissimoPickupPoint = OrderAddressColissimoPickupPointQuery::create()
+                                ->findOneById($order->getDeliveryOrderAddressId())) {
+                            /** If the delivery is through a relay point, we create a new LabelRequest with the relay point and order infos */
+                            if ($AddressColissimoPickupPoint) {
+                                $colissimoRequest = new LabelRequest(
+                                    $order,
+                                    $AddressColissimoPickupPoint->getCode() == '0' ? null : $AddressColissimoPickupPoint->getCode(),
+                                    $AddressColissimoPickupPoint->getType()
                                 );
 
                                 $colissimoRequest->getLetter()->getService()->setCommercialName(

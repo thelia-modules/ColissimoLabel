@@ -60,7 +60,7 @@ class ConfigurationController extends AdminController
             );
         } catch (\Exception $e) {
             $this->setupFormErrorContext(
-                Translator::getInstance()->trans("ColissimoLabel update config"),
+                Translator::getInstance()->trans('ColissimoLabel update config'),
                 $e->getMessage(),
                 $form,
                 $e

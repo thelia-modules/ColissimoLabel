@@ -12,10 +12,13 @@
 
 namespace ColissimoLabel;
 
+use ColissimoHomeDelivery\ColissimoHomeDelivery;
 use ColissimoLabel\Request\Helper\OutputFormat;
 use ColissimoLabel\Request\Helper\Service;
+use ColissimoPickupPoint\ColissimoPickupPoint;
 use ColissimoWs\ColissimoWs;
 use Propel\Runtime\Connection\ConnectionInterface;
+use Propel\Runtime\Exception\PropelException;
 use SoColissimo\SoColissimo;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -37,7 +40,7 @@ class ColissimoLabel extends BaseModule
 
     const BORDEREAU_FOLDER = self::LABEL_FOLDER . DIRECTORY_SEPARATOR . 'bordereau';
 
-    const AUTHORIZED_MODULES = ['ColissimoWs', 'SoColissimo'];
+    const AUTHORIZED_MODULES = ['ColissimoWs', 'SoColissimo', 'ColissimoHomeDelivery', 'ColissimoPickupPoint'];
 
     const CONFIG_KEY_DEFAULT_LABEL_FORMAT = 'default-label-format';
 
@@ -102,7 +105,7 @@ class ColissimoLabel extends BaseModule
 
         if (!self::getConfigValue('is_initialized', false)) {
             $database = new Database($con);
-            $database->insertSql(null, [__DIR__ . "/Config/thelia.sql"]);
+            $database->insertSql(null, [__DIR__ . '/Config/thelia.sql']);
             self::setConfigValue('is_initialized', true);
         }
 
@@ -142,8 +145,10 @@ class ColissimoLabel extends BaseModule
 
         /**
          * Check if the contract number config value exists, and sets it to either of the following :
-         * The contract number of the ColissimoWS config, if the module is activated
-         * Otherwise : the contract number of the SoColissimo config, if the module is activated
+         * The contract number of the ColissimoHomeDelivery config, if the module is installed
+         * Otherwise : the contract number of the ColissimoPickupPoint config, if the module is installed
+         * Otherwise : the contract number of the ColissimoWs config, if the module is installed
+         * Otherwise : the contract number of the SoColissimo config, if the module is installed
          * Otherwise : a blanck string : ""
          */
         if (null === self::getConfigValue(self::CONFIG_KEY_CONTRACT_NUMBER)) {
@@ -155,6 +160,12 @@ class ColissimoLabel extends BaseModule
             if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[0])) {
                 $contractNumber = ColissimoWs::getConfigValue('colissimo_username');
             }
+            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[3])) {
+                $contractNumber = ColissimoPickupPoint::getConfigValue('colissimo_pickup_point_username');
+            }
+            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[2])) {
+                $contractNumber = ColissimoHomeDelivery::getConfigValue('colissimo_home_delivery_username');
+            }
 
             self::setConfigValue(
                 self::CONFIG_KEY_CONTRACT_NUMBER,
@@ -164,7 +175,9 @@ class ColissimoLabel extends BaseModule
 
         /**
          * Check if the contract password config value exists, and sets it to either of the following :
-         * The contract password of the ColissimoWS config, if the module is activated
+         * The contract password of the ColissimoHomeDelivery config, if the module is activated
+         * Otherwise : the contract password of the ColissimoPickupPoint config, if the module is activated
+         * Otherwise : the contract password of the ColissimoWS config, if the module is activated
          * Otherwise : the contract password of the SoColissimo config, if the module is activated
          * Otherwise : a blank string : ""
          */
@@ -176,6 +189,12 @@ class ColissimoLabel extends BaseModule
             }
             if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[0])) {
                 $contractPassword = ColissimoWs::getConfigValue('colissimo_password');
+            }
+            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[3])) {
+                $contractPassword = ColissimoPickupPoint::getConfigValue('colissimo_pickup_point_password');
+            }
+            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[2])) {
+                $contractPassword = ColissimoHomeDelivery::getConfigValue('colissimo_home_delivery_password');
             }
 
             self::setConfigValue(
@@ -322,19 +341,30 @@ class ColissimoLabel extends BaseModule
         }
     }
 
-    /** Get the path of a given label file, according to its number */
+    /** Get the path of a given label file, according to its number
+     * @param $fileName
+     * @param $extension
+     * @return string
+     */
     public static function getLabelPath($fileName, $extension)
     {
         return self::LABEL_FOLDER . DS . $fileName . '.' . $extension;
     }
 
-    /** Get the path of a given CN23 customs file, according to the order ref */
+    /** Get the path of a given CN23 customs file, according to the order ref
+     * @param $fileName
+     * @param $extension
+     * @return string
+     */
     public static function getLabelCN23Path($fileName, $extension)
     {
         return self::LABEL_FOLDER . DS . $fileName . '.' . $extension;
     }
 
-    /** Get the path of a bordereau file, according to a date */
+    /** Get the path of a bordereau file, according to a date
+     * @param $date
+     * @return string
+     */
     public static function getBordereauPath($date)
     {
         return self::BORDEREAU_FOLDER . DS . $date . '.pdf';
@@ -347,11 +377,11 @@ class ColissimoLabel extends BaseModule
     }
 
     /**
-     * Check if order has to be signed or if it is optionnal (aka if its in Europe or not)
+     * Check if order has to be signed or if it is optional (aka if its in Europe or not)
      *
      * @param Order $order
      * @return bool
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
     public static function canOrderBeNotSigned(Order $order)
     {
