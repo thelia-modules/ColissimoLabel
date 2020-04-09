@@ -302,7 +302,7 @@ class OrderController extends AdminController
         }
 
         /** We redirect to the module label page with parameters to download the zip file as well */
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl("/admin/module/colissimolabel/labels", $params));
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/colissimolabel/labels', $params));
     }
 
     /**
@@ -404,7 +404,7 @@ class OrderController extends AdminController
 
         /** Trying to get it from ColissimoWs */
         if ($orderId = $request->get('order')) {
-            /** Checking is ColissimoWs is installed */
+            /** Checking if ColissimoWs is installed */
             if (ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[0])) {
                 /** Checking if the label entry exists in the deprecated ColissimoWsLabel table */
                 if ($colissimoWslabel = ColissimowsLabelQuery::create()->findOneByOrderId($orderId)) {
