@@ -16,7 +16,7 @@ use ColissimoPickupPoint\Model\OrderAddressColissimoPickupPointQuery;
 use ColissimoWs\Controller\LabelController;
 use ColissimoWs\Model\ColissimowsLabelQuery;
 use Propel\Runtime\Exception\PropelException;
-use SoColissimo\Model\OrderAddressColissimoPickupPointQuery as OrderAddressSoColissimoPickupPointQuery;
+use SoColissimo\Model\OrderAddressSocolissimoQuery as OrderAddressSoColissimoPickupPointQuery;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
