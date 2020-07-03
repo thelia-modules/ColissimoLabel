@@ -57,6 +57,51 @@ class Service
         20 => 'International (Europe) Colissimo Point Retrait – en bureau de poste ****'
     ];
 
+    const EUROPE_ISOCODES = [
+        '040', /** Austria */
+        '056', /** Belgium */
+        '100', /** Bulgaria */
+        '191', /** Croatia */
+        '196', /** Cyprus */
+        '203', /** Czech Republic */
+        '208', /** Denmark */
+        '233', /** Estonia */
+        '246', /** Finland */
+        '250', /** France */
+        '276', /** Germany */
+        '300', /** Greece */
+        '348', /** Hungary */
+        '352', /** Iceland */
+        '372', /** Ireland */
+        '380', /** Italy */
+        '428', /** Latvia */
+        '440', /** Lithuania */
+        '442', /** Luxembourg */
+        '470', /** Malta */
+        '528', /** Netherlands */
+        '578', /** Norway */
+        '616', /** Poland */
+        '620', /** Portugal */
+        '642', /** Romania */
+        '703', /** Slovakia */
+        '705', /** Slovenia */
+        '724', /** Spain */
+        '752', /** Sweden */
+        '756', /** Switzerland */
+        '826', /** United Kingdom */
+    ];
+
+    const DOMTOM_ISOCODES = [
+        '175', /** Mayotte */
+        '254', /** Guyane Française */
+        '258', /** Polynésie Française */
+        '312', /** Guadeloupe */
+        '474', /** Martinique */
+        '540', /** Nouvelle-Calédonie */
+        '638', /** Réunion(La) */
+        '666', /** St Pierre et Miquelon */
+        '876', /** Wallis et Futuna */
+    ];
 
     protected $productCode = '';
 
@@ -67,7 +112,11 @@ class Service
 
     protected $commercialName = '';
 
-    public function __construct($productCode, \DateTime $depositDate, $orderNumber)
+    protected $transportationAmount = '';
+
+    protected $returnTypeChoice = 3;
+
+    public function __construct($productCode, \DateTime $depositDate, $orderNumber, $transportationAmount, $returnTypeChoice)
     {
         if (empty($orderNumber)) {
             throw new InvalidArgumentException('Invalid argument orderNumber');
@@ -80,6 +129,8 @@ class Service
         $this->orderNumber = $orderNumber;
         $this->depositDate = $depositDate;
         $this->productCode = $productCode;
+        $this->transportationAmount = $transportationAmount;
+        $this->returnTypeChoice = $returnTypeChoice;
     }
 
     /**
@@ -131,6 +182,53 @@ class Service
     public function setCommercialName($commercialName)
     {
         $this->commercialName = $commercialName;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTransportationAmount()
+    {
+        /** DO NOT use strict comparison here */
+        if ($this->transportationAmount == 0) {
+            return '0';
+        }
+
+        /** Formatting the postage price in a XXXX format (price in cents without separator), as requested by the Colissimo API */
+        $nbr = number_format($this->transportationAmount, 2, '.', '');
+        if ((float)$nbr < 10) {
+            $nbr = '0' . $nbr;
+        }
+        return str_pad(str_replace('.', '', $nbr), 4, '0', STR_PAD_RIGHT);
+    }
+
+    /**
+     * @param $transportationAmount
+     * @return $this
+     */
+    public function setTransportationAmount($transportationAmount)
+    {
+        $this->transportationAmount = $transportationAmount;
+        return $this;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getReturnTypeChoice()
+    {
+        return $this->returnTypeChoice;
+    }
+
+    /**
+     * @param $returnTypeChoice
+     * @return $this
+     */
+    public function setReturnTypeChoice($returnTypeChoice)
+    {
+        $this->returnTypeChoice = $returnTypeChoice;
         return $this;
     }
 }

@@ -4,6 +4,8 @@ namespace ColissimoLabel\Service;
 
 use ColissimoLabel\Request\AbstractRequest;
 use ColissimoLabel\Request\Helper\APIConfiguration;
+use ColissimoLabel\Request\Helper\Article;
+use ColissimoLabel\Request\LabelRequest;
 use ColissimoLabel\Response\BordereauResponse;
 use ColissimoLabel\Response\LabelResponse;
 
@@ -23,7 +25,7 @@ class SOAPService
         $children->addChild("password", $APIConfiguration->getPassword(), "");
         $children = $children->addChild("generateBordereauParcelNumberList", null, "");
 
-        foreach ($parcelNumbers as  $parcelNumber)
+        foreach ($parcelNumbers as $parcelNumber)
         {
             $children->addChild("parcelsNumbers", $parcelNumber, "");
         }
@@ -39,7 +41,7 @@ class SOAPService
         ));
     }
 
-    public function callAPI(APIConfiguration $APIConfiguration, AbstractRequest $request)
+    public function callAPI(APIConfiguration $APIConfiguration, LabelRequest $request)
     {
         $request->setContractNumber($APIConfiguration->getContractNumber());
         $request->setPassword($APIConfiguration->getPassword());
@@ -51,9 +53,11 @@ class SOAPService
         $children = $children->addChild("sls:generateLabel", null, 'http://sls.ws.coliposte.fr');
         $children = $children->addChild("generateLabelRequest", null, "");
 
-        $this->arrayToXml($request->generateArrayRequest(), $children);
+        $this->arrayToXml($request->generateArrayRequest(), $children, $request->getLetter()->getCustomsDeclarations()->getArticles());
 
         $soap = new \SoapClient($APIConfiguration->getWsdl());
+
+        $test = $xml->asXML();
 
         return new LabelResponse($soap->__doRequest(
             $xml->asXML(),
@@ -64,7 +68,7 @@ class SOAPService
         ));
     }
 
-    protected function arrayToXml(array $soapRequest, \SimpleXMLElement $soapRequestXml)
+    protected function arrayToXml(array $soapRequest, \SimpleXMLElement $soapRequestXml, $articles)
     {
         foreach ($soapRequest as $key => $value) {
             if ($value === null || empty($value)) {
@@ -73,13 +77,27 @@ class SOAPService
             if (is_array($value)) {
                 if (!is_numeric($key)) {
                     $subnode = $soapRequestXml->addChild($key);
-                    $this->arrayToXml($value, $subnode);
+                    $this->arrayToXml($value, $subnode, $articles);
                 } else {
                     $subnode = $soapRequestXml->addChild("item" . $key);
-                    $this->arrayToXml($value, $subnode);
+                    $this->arrayToXml($value, $subnode, $articles);
                 }
             } else {
-                $soapRequestXml->addChild($key, htmlspecialchars($value));
+                if ($key === 'article') {
+                    /** @var Article $article */
+                    foreach ($articles as $article) {
+                        $xmlArticle = $soapRequestXml->addChild($key);
+                        $xmlArticle->addChild('description', $article->getDescription());
+                        $xmlArticle->addChild('quantity', $article->getQuantity());
+                        $xmlArticle->addChild('weight', $article->getWeight());
+                        $xmlArticle->addChild('value', $article->getValue());
+                        $xmlArticle->addChild('hsCode', $article->getHsCode());
+                        $xmlArticle->addChild('originCountry', $article->getOriginCountry());
+                        $xmlArticle->addChild('currency', $article->getCurrency());
+                    }
+                } else {
+                    $soapRequestXml->addChild($key, htmlspecialchars($value));
+                }
             }
         }
     }

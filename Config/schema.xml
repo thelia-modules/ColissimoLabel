@@ -4,12 +4,16 @@
           xsi:noNamespaceSchemaLocation="../../../../vendor/propel/propel/resources/xsd/database.xsd" >
 
     <table name="colissimo_label" namespace="ColissimoLabel\Model">
-        <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER" />
-
-        <column name="order_id" type="INTEGER" required="true" />
-        <column name="weight" type="DECIMAL" scale="2" size="6" defaultValue="0.00" />
-        <column name="signed" type="TINYINT" required="true" />
-        <column name="number" type="VARCHAR" size="255" />
+        <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER" /> <!-- Old -->
+        <column name="order_id" type="INTEGER" required="true" /> <!-- Old -->
+        <column name="order_ref" type="VARCHAR" size="255" required="true"/> <!-- New -->
+        <column name="error" type="BOOLEAN" required="true" default="0" /> <!-- New -->
+        <column name="error_message" type="VARCHAR" size="255" default="" /> <!-- New -->
+        <column name="tracking_number" type="VARCHAR" size="255" /> <!-- Old - To Remove & change to tracking number -->
+        <column name="label_type" type="VARCHAR" size="4" /> <!-- New -->
+        <column name="weight" type="DECIMAL" scale="2" size="6" defaultValue="0.00" /> <!-- Old -->
+        <column name="signed" type="BOOLEAN" required="true" default="0" /> <!-- Old : Ex tinyint without default value -->
+        <column name="with_customs_invoice" type="BOOLEAN" required="true" default="0" /> <!-- New -->
 
         <foreign-key foreignTable="order" onDelete="CASCADE" onUpdate="RESTRICT">
             <reference local="order_id" foreign="id" />

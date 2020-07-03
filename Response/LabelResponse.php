@@ -56,7 +56,7 @@ class LabelResponse
     {
         if ($this->isValid()) {
             if (\count($this->cacheAttachments) > 1) {
-                $this->cacheAttachments[1]["data"];
+                return $this->cacheAttachments[1]["data"];
             }
         }
 
@@ -81,9 +81,9 @@ class LabelResponse
         return false;
     }
 
-    public function getError()
+    public function getError($messageOnly = false)
     {
-        if (!isset($this->cacheSoapResponse["data"])) {
+        if (!isset($this->cacheSoapResponse['data'])) {
             return [$this->soapResponse];
         }
 
@@ -97,6 +97,10 @@ class LabelResponse
 
         $errorMessage = explode("<messageContent>", $this->cacheSoapResponse["data"]);
         $errorMessage = explode("</messageContent>", $errorMessage[1]);
+
+        if ($messageOnly) {
+            return $errorMessage;
+        }
 
         return [$errorCode[0] => $errorMessage];
     }
