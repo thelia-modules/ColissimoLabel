@@ -24,15 +24,27 @@ use Thelia\Model\Order;
  *
  * @method     ChildColissimoLabelQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildColissimoLabelQuery orderByOrderId($order = Criteria::ASC) Order by the order_id column
+ * @method     ChildColissimoLabelQuery orderByOrderRef($order = Criteria::ASC) Order by the order_ref column
+ * @method     ChildColissimoLabelQuery orderByError($order = Criteria::ASC) Order by the error column
+ * @method     ChildColissimoLabelQuery orderByErrorMessage($order = Criteria::ASC) Order by the error_message column
+ * @method     ChildColissimoLabelQuery orderByTrackingNumber($order = Criteria::ASC) Order by the tracking_number column
+ * @method     ChildColissimoLabelQuery orderByLabelType($order = Criteria::ASC) Order by the label_type column
  * @method     ChildColissimoLabelQuery orderByWeight($order = Criteria::ASC) Order by the weight column
- * @method     ChildColissimoLabelQuery orderByNumber($order = Criteria::ASC) Order by the number column
+ * @method     ChildColissimoLabelQuery orderBySigned($order = Criteria::ASC) Order by the signed column
+ * @method     ChildColissimoLabelQuery orderByWithCustomsInvoice($order = Criteria::ASC) Order by the with_customs_invoice column
  * @method     ChildColissimoLabelQuery orderByCreatedAt($order = Criteria::ASC) Order by the created_at column
  * @method     ChildColissimoLabelQuery orderByUpdatedAt($order = Criteria::ASC) Order by the updated_at column
  *
  * @method     ChildColissimoLabelQuery groupById() Group by the id column
  * @method     ChildColissimoLabelQuery groupByOrderId() Group by the order_id column
+ * @method     ChildColissimoLabelQuery groupByOrderRef() Group by the order_ref column
+ * @method     ChildColissimoLabelQuery groupByError() Group by the error column
+ * @method     ChildColissimoLabelQuery groupByErrorMessage() Group by the error_message column
+ * @method     ChildColissimoLabelQuery groupByTrackingNumber() Group by the tracking_number column
+ * @method     ChildColissimoLabelQuery groupByLabelType() Group by the label_type column
  * @method     ChildColissimoLabelQuery groupByWeight() Group by the weight column
- * @method     ChildColissimoLabelQuery groupByNumber() Group by the number column
+ * @method     ChildColissimoLabelQuery groupBySigned() Group by the signed column
+ * @method     ChildColissimoLabelQuery groupByWithCustomsInvoice() Group by the with_customs_invoice column
  * @method     ChildColissimoLabelQuery groupByCreatedAt() Group by the created_at column
  * @method     ChildColissimoLabelQuery groupByUpdatedAt() Group by the updated_at column
  *
@@ -49,15 +61,27 @@ use Thelia\Model\Order;
  *
  * @method     ChildColissimoLabel findOneById(int $id) Return the first ChildColissimoLabel filtered by the id column
  * @method     ChildColissimoLabel findOneByOrderId(int $order_id) Return the first ChildColissimoLabel filtered by the order_id column
+ * @method     ChildColissimoLabel findOneByOrderRef(string $order_ref) Return the first ChildColissimoLabel filtered by the order_ref column
+ * @method     ChildColissimoLabel findOneByError(boolean $error) Return the first ChildColissimoLabel filtered by the error column
+ * @method     ChildColissimoLabel findOneByErrorMessage(string $error_message) Return the first ChildColissimoLabel filtered by the error_message column
+ * @method     ChildColissimoLabel findOneByTrackingNumber(string $tracking_number) Return the first ChildColissimoLabel filtered by the tracking_number column
+ * @method     ChildColissimoLabel findOneByLabelType(string $label_type) Return the first ChildColissimoLabel filtered by the label_type column
  * @method     ChildColissimoLabel findOneByWeight(string $weight) Return the first ChildColissimoLabel filtered by the weight column
- * @method     ChildColissimoLabel findOneByNumber(string $number) Return the first ChildColissimoLabel filtered by the number column
+ * @method     ChildColissimoLabel findOneBySigned(boolean $signed) Return the first ChildColissimoLabel filtered by the signed column
+ * @method     ChildColissimoLabel findOneByWithCustomsInvoice(boolean $with_customs_invoice) Return the first ChildColissimoLabel filtered by the with_customs_invoice column
  * @method     ChildColissimoLabel findOneByCreatedAt(string $created_at) Return the first ChildColissimoLabel filtered by the created_at column
  * @method     ChildColissimoLabel findOneByUpdatedAt(string $updated_at) Return the first ChildColissimoLabel filtered by the updated_at column
  *
  * @method     array findById(int $id) Return ChildColissimoLabel objects filtered by the id column
  * @method     array findByOrderId(int $order_id) Return ChildColissimoLabel objects filtered by the order_id column
+ * @method     array findByOrderRef(string $order_ref) Return ChildColissimoLabel objects filtered by the order_ref column
+ * @method     array findByError(boolean $error) Return ChildColissimoLabel objects filtered by the error column
+ * @method     array findByErrorMessage(string $error_message) Return ChildColissimoLabel objects filtered by the error_message column
+ * @method     array findByTrackingNumber(string $tracking_number) Return ChildColissimoLabel objects filtered by the tracking_number column
+ * @method     array findByLabelType(string $label_type) Return ChildColissimoLabel objects filtered by the label_type column
  * @method     array findByWeight(string $weight) Return ChildColissimoLabel objects filtered by the weight column
- * @method     array findByNumber(string $number) Return ChildColissimoLabel objects filtered by the number column
+ * @method     array findBySigned(boolean $signed) Return ChildColissimoLabel objects filtered by the signed column
+ * @method     array findByWithCustomsInvoice(boolean $with_customs_invoice) Return ChildColissimoLabel objects filtered by the with_customs_invoice column
  * @method     array findByCreatedAt(string $created_at) Return ChildColissimoLabel objects filtered by the created_at column
  * @method     array findByUpdatedAt(string $updated_at) Return ChildColissimoLabel objects filtered by the updated_at column
  *
@@ -148,7 +172,7 @@ abstract class ColissimoLabelQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT ID, ORDER_ID, WEIGHT, NUMBER, CREATED_AT, UPDATED_AT FROM colissimo_label WHERE ID = :p0';
+        $sql = 'SELECT ID, ORDER_ID, ORDER_REF, ERROR, ERROR_MESSAGE, TRACKING_NUMBER, LABEL_TYPE, WEIGHT, SIGNED, WITH_CUSTOMS_INVOICE, CREATED_AT, UPDATED_AT FROM colissimo_label WHERE ID = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -322,6 +346,149 @@ abstract class ColissimoLabelQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query on the order_ref column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByOrderRef('fooValue');   // WHERE order_ref = 'fooValue'
+     * $query->filterByOrderRef('%fooValue%'); // WHERE order_ref LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $orderRef The value to use as filter.
+     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildColissimoLabelQuery The current query, for fluid interface
+     */
+    public function filterByOrderRef($orderRef = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($orderRef)) {
+                $comparison = Criteria::IN;
+            } elseif (preg_match('/[\%\*]/', $orderRef)) {
+                $orderRef = str_replace('*', '%', $orderRef);
+                $comparison = Criteria::LIKE;
+            }
+        }
+
+        return $this->addUsingAlias(ColissimoLabelTableMap::ORDER_REF, $orderRef, $comparison);
+    }
+
+    /**
+     * Filter the query on the error column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByError(true); // WHERE error = true
+     * $query->filterByError('yes'); // WHERE error = true
+     * </code>
+     *
+     * @param     boolean|string $error The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildColissimoLabelQuery The current query, for fluid interface
+     */
+    public function filterByError($error = null, $comparison = null)
+    {
+        if (is_string($error)) {
+            $error = in_array(strtolower($error), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+        }
+
+        return $this->addUsingAlias(ColissimoLabelTableMap::ERROR, $error, $comparison);
+    }
+
+    /**
+     * Filter the query on the error_message column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByErrorMessage('fooValue');   // WHERE error_message = 'fooValue'
+     * $query->filterByErrorMessage('%fooValue%'); // WHERE error_message LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $errorMessage The value to use as filter.
+     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildColissimoLabelQuery The current query, for fluid interface
+     */
+    public function filterByErrorMessage($errorMessage = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($errorMessage)) {
+                $comparison = Criteria::IN;
+            } elseif (preg_match('/[\%\*]/', $errorMessage)) {
+                $errorMessage = str_replace('*', '%', $errorMessage);
+                $comparison = Criteria::LIKE;
+            }
+        }
+
+        return $this->addUsingAlias(ColissimoLabelTableMap::ERROR_MESSAGE, $errorMessage, $comparison);
+    }
+
+    /**
+     * Filter the query on the tracking_number column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByTrackingNumber('fooValue');   // WHERE tracking_number = 'fooValue'
+     * $query->filterByTrackingNumber('%fooValue%'); // WHERE tracking_number LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $trackingNumber The value to use as filter.
+     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildColissimoLabelQuery The current query, for fluid interface
+     */
+    public function filterByTrackingNumber($trackingNumber = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($trackingNumber)) {
+                $comparison = Criteria::IN;
+            } elseif (preg_match('/[\%\*]/', $trackingNumber)) {
+                $trackingNumber = str_replace('*', '%', $trackingNumber);
+                $comparison = Criteria::LIKE;
+            }
+        }
+
+        return $this->addUsingAlias(ColissimoLabelTableMap::TRACKING_NUMBER, $trackingNumber, $comparison);
+    }
+
+    /**
+     * Filter the query on the label_type column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByLabelType('fooValue');   // WHERE label_type = 'fooValue'
+     * $query->filterByLabelType('%fooValue%'); // WHERE label_type LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $labelType The value to use as filter.
+     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildColissimoLabelQuery The current query, for fluid interface
+     */
+    public function filterByLabelType($labelType = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($labelType)) {
+                $comparison = Criteria::IN;
+            } elseif (preg_match('/[\%\*]/', $labelType)) {
+                $labelType = str_replace('*', '%', $labelType);
+                $comparison = Criteria::LIKE;
+            }
+        }
+
+        return $this->addUsingAlias(ColissimoLabelTableMap::LABEL_TYPE, $labelType, $comparison);
+    }
+
+    /**
      * Filter the query on the weight column
      *
      * Example usage:
@@ -363,32 +530,57 @@ abstract class ColissimoLabelQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the number column
+     * Filter the query on the signed column
      *
      * Example usage:
      * <code>
-     * $query->filterByNumber('fooValue');   // WHERE number = 'fooValue'
-     * $query->filterByNumber('%fooValue%'); // WHERE number LIKE '%fooValue%'
+     * $query->filterBySigned(true); // WHERE signed = true
+     * $query->filterBySigned('yes'); // WHERE signed = true
      * </code>
      *
-     * @param     string $number The value to use as filter.
-     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     boolean|string $signed The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return ChildColissimoLabelQuery The current query, for fluid interface
      */
-    public function filterByNumber($number = null, $comparison = null)
+    public function filterBySigned($signed = null, $comparison = null)
     {
-        if (null === $comparison) {
-            if (is_array($number)) {
-                $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $number)) {
-                $number = str_replace('*', '%', $number);
-                $comparison = Criteria::LIKE;
-            }
+        if (is_string($signed)) {
+            $signed = in_array(strtolower($signed), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
         }
 
-        return $this->addUsingAlias(ColissimoLabelTableMap::NUMBER, $number, $comparison);
+        return $this->addUsingAlias(ColissimoLabelTableMap::SIGNED, $signed, $comparison);
+    }
+
+    /**
+     * Filter the query on the with_customs_invoice column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByWithCustomsInvoice(true); // WHERE with_customs_invoice = true
+     * $query->filterByWithCustomsInvoice('yes'); // WHERE with_customs_invoice = true
+     * </code>
+     *
+     * @param     boolean|string $withCustomsInvoice The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildColissimoLabelQuery The current query, for fluid interface
+     */
+    public function filterByWithCustomsInvoice($withCustomsInvoice = null, $comparison = null)
+    {
+        if (is_string($withCustomsInvoice)) {
+            $with_customs_invoice = in_array(strtolower($withCustomsInvoice), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+        }
+
+        return $this->addUsingAlias(ColissimoLabelTableMap::WITH_CUSTOMS_INVOICE, $withCustomsInvoice, $comparison);
     }
 
     /**

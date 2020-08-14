@@ -2,6 +2,7 @@
 
 namespace ColissimoLabel\Request\Helper;
 
+use ColissimoLabel\ColissimoLabel;
 use Thelia\Model\ConfigQuery;
 
 /**
@@ -21,9 +22,9 @@ abstract class APIConfiguration
 
     public function __construct()
     {
-        $this->setContractNumber(ConfigQuery::read('colissimo.api.contract.number'));
-        $this->setPassword(ConfigQuery::read('colissimo.api.password'));
-        $this->setWsdl('https://ws.colissimo.fr/sls-ws/SlsServiceWS/2.0?wsdl');
+        $this->setContractNumber(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_CONTRACT_NUMBER));
+        $this->setPassword(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD));
+        $this->setWsdl(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_ENDPOINT));
     }
 
     /**

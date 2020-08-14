@@ -18,7 +18,8 @@ class OutputFormat
         5 => 'PDF_A4_300dpi'
     ];
 
-    const OUTPUT_PRINTING_TYPE_DEFAULT = self::OUTPUT_PRINTING_TYPE[4];
+    /** Default label format is : PDF_10x15_300dpi */
+    const OUTPUT_PRINTING_TYPE_DEFAULT = 4;
 
     protected $x = 0;
 

@@ -19,16 +19,21 @@ class Letter
     /** @var Service */
     protected $service;
 
+    /** @var CustomsDeclarations */
+    protected $customsDeclarations;
+
     public function __construct(
         Service $service,
         Sender $sender,
         Addressee $addressee,
-        Parcel $parcel
+        Parcel $parcel,
+        CustomsDeclarations $customsDeclarations
     ) {
         $this->sender = $sender;
         $this->addressee = $addressee;
         $this->parcel = $parcel;
         $this->service = $service;
+        $this->customsDeclarations = $customsDeclarations;
     }
 
     /**
@@ -61,5 +66,13 @@ class Letter
     public function getParcel()
     {
         return $this->parcel;
+    }
+
+    /**
+     * @return CustomsDeclarations
+     */
+    public function getCustomsDeclarations()
+    {
+        return $this->customsDeclarations;
     }
 }
