@@ -20,10 +20,13 @@
         -->
     </commands>
 
-    <!--
     <services>
+        <service id="colissimolabel.update.oder.address.listener" class="ColissimoLabel\EventListeners\UpdateDeliveryAddressListener">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
-    -->
 
     <hooks>
         <hook id="colissimo.label.hook.back.order_edit" class="ColissimoLabel\Hook\Back\OrderEditHook">
