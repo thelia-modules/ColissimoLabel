@@ -143,6 +143,12 @@ class OrderController extends AdminController
                         $colissimoRequest->getLetter()->getParcel()->setSignedDelivery($signedDelivery);
                     }
 
+                    if (!in_array($order->getModuleRelatedByDeliveryModuleId()->getCode(),
+                        [ColissimoLabel::AUTHORIZED_MODULES[1], ColissimoLabel::AUTHORIZED_MODULES[3]],
+                        true)){
+                        $colissimoRequest->getOutputFormat()->setY(6);
+                    }
+
                     $service = new SOAPService();
 
                     $this->getDispatcher()->dispatch(
