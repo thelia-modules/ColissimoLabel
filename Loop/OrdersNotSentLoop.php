@@ -42,16 +42,16 @@ class OrdersNotSentLoop extends Order
 
         /** Verify what modules are installed */
         $moduleIds = [];
-        if ($colissimoWS = ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[0])) {
+        if ($colissimoWS = ModuleQuery::create()->findOneByCode(ColissimoLabel::COLISSIMO_WS_CODE)) {
             $moduleIds[] = $colissimoWS->getId();
         }
-        if ($soColissimo = ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[1])) {
+        if ($soColissimo = ModuleQuery::create()->findOneByCode(ColissimoLabel::SOCOLISSIMO_CODE)) {
             $moduleIds[] = $soColissimo->getId();
         }
-        if ($colissimoHomeDelivery = ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[2])) {
+        if ($colissimoHomeDelivery = ModuleQuery::create()->findOneByCode(ColissimoLabel::COLISSIMO_HOME_DELIVERY_CODE)) {
             $moduleIds[] = $colissimoHomeDelivery->getId();
         }
-        if ($colissimoPickupPoint = ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[3])) {
+        if ($colissimoPickupPoint = ModuleQuery::create()->findOneByCode(ColissimoLabel::COLISSIMO_PICKUP_POINT_CODE)) {
             $moduleIds[] = $colissimoPickupPoint->getId();
         }
 

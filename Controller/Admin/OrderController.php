@@ -91,7 +91,7 @@ class OrderController extends AdminController
                     $APIConfiguration->setPassword(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD));
 
                     /** Check if delivery is a relay point through SoColissimo. Use relay point address if it is */
-                    if (ColissimoLabel::AUTHORIZED_MODULES[1] === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
+                    if (ColissimoLabel::SOCOLISSIMO_CODE === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
                         if (null !== $AddressColissimoPickupPoint = OrderAddressSoColissimoPickupPointQuery::create()
                                 ->findOneById($order->getDeliveryOrderAddressId())) {
                             /** If the delivery is through a relay point, we create a new LabelRequest with the relay point and order infos */
@@ -110,7 +110,7 @@ class OrderController extends AdminController
                     }
 
                     /** Same thing with ColissimoPickupPoint */
-                    if (ColissimoLabel::AUTHORIZED_MODULES[3] === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
+                    if (ColissimoLabel::COLISSIMO_PICKUP_POINT_CODE === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
                         if (null !== $AddressColissimoPickupPoint = OrderAddressColissimoPickupPointQuery::create()
                                 ->findOneById($order->getDeliveryOrderAddressId())) {
                             /** If the delivery is through a relay point, we create a new LabelRequest with the relay point and order infos */
@@ -144,7 +144,7 @@ class OrderController extends AdminController
                     }
 
                     if (!in_array($order->getModuleRelatedByDeliveryModuleId()->getCode(),
-                        [ColissimoLabel::AUTHORIZED_MODULES[1], ColissimoLabel::AUTHORIZED_MODULES[3]],
+                        [ColissimoLabel::SOCOLISSIMO_CODE, ColissimoLabel::COLISSIMO_PICKUP_POINT_CODE],
                         true)){
                         $colissimoRequest->getOutputFormat()->setY(6);
                     }
@@ -411,7 +411,7 @@ class OrderController extends AdminController
         /** Trying to get it from ColissimoWs */
         if ($orderId = $request->get('order')) {
             /** Checking if ColissimoWs is installed */
-            if (ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[0])) {
+            if (ModuleQuery::create()->findOneByCode(ColissimoLabel::COLISSIMO_WS_CODE)) {
                 /** Checking if the label entry exists in the deprecated ColissimoWsLabel table */
                 if ($colissimoWslabel = ColissimowsLabelQuery::create()->findOneByOrderId($orderId)) {
                     $orderRef = $colissimoWslabel->getOrderRef();
@@ -499,7 +499,7 @@ class OrderController extends AdminController
         }
 
         /** Compatibility for ColissimoWs < 2.0.0 */
-        if (ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[0])) {
+        if (ModuleQuery::create()->findOneByCode(ColissimoLabel::COLISSIMO_WS_CODE)) {
             if ($labelWs = ColissimowsLabelQuery::create()->findOneByTrackingNumber($number)) {
                 $file = ColissimoLabel::getLabelPath($labelWs->getOrderRef(), $labelWs->getLabelType());
                 $fileName = $labelWs->getOrderRef();

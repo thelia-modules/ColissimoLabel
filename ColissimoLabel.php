@@ -40,7 +40,20 @@ class ColissimoLabel extends BaseModule
 
     const BORDEREAU_FOLDER = self::LABEL_FOLDER . DIRECTORY_SEPARATOR . 'bordereau';
 
-    const AUTHORIZED_MODULES = ['ColissimoWs', 'SoColissimo', 'ColissimoHomeDelivery', 'ColissimoPickupPoint'];
+    const COLISSIMO_WS_CODE = 'ColissimoWs';
+
+    const SOCOLISSIMO_CODE = 'SoColissimo';
+
+    const COLISSIMO_HOME_DELIVERY_CODE = 'ColissimoHomeDelivery';
+
+    const COLISSIMO_PICKUP_POINT_CODE = 'ColissimoPickupPoint';
+
+    const AUTHORIZED_MODULES = [
+        self::COLISSIMO_WS_CODE,
+        self::SOCOLISSIMO_CODE,
+        self::COLISSIMO_HOME_DELIVERY_CODE,
+        self::COLISSIMO_PICKUP_POINT_CODE
+    ];
 
     const CONFIG_KEY_DEFAULT_LABEL_FORMAT = 'default-label-format';
 
@@ -154,16 +167,16 @@ class ColissimoLabel extends BaseModule
         if (null === self::getConfigValue(self::CONFIG_KEY_CONTRACT_NUMBER)) {
 
             $contractNumber = '';
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[1])) {
+            if (ModuleQuery::create()->findOneByCode(self::SOCOLISSIMO_CODE)) {
                 $contractNumber = SoColissimo::getConfigValue('socolissimo_username');
             }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[0])) {
+            if (ModuleQuery::create()->findOneByCode(self::COLISSIMO_WS_CODE)) {
                 $contractNumber = ColissimoWs::getConfigValue('colissimo_username');
             }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[3])) {
+            if (ModuleQuery::create()->findOneByCode(self::COLISSIMO_PICKUP_POINT_CODE)) {
                 $contractNumber = ColissimoPickupPoint::getConfigValue('colissimo_pickup_point_username');
             }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[2])) {
+            if (ModuleQuery::create()->findOneByCode(self::COLISSIMO_HOME_DELIVERY_CODE)) {
                 $contractNumber = ColissimoHomeDelivery::getConfigValue('colissimo_home_delivery_username');
             }
 
@@ -184,16 +197,16 @@ class ColissimoLabel extends BaseModule
         if (null === self::getConfigValue(self::CONFIG_KEY_PASSWORD)) {
 
             $contractPassword = '';
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[1])) {
+            if (ModuleQuery::create()->findOneByCode(self::SOCOLISSIMO_CODE)) {
                 $contractPassword = SoColissimo::getConfigValue('socolissimo_password');
             }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[0])) {
+            if (ModuleQuery::create()->findOneByCode(self::COLISSIMO_WS_CODE)) {
                 $contractPassword = ColissimoWs::getConfigValue('colissimo_password');
             }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[3])) {
+            if (ModuleQuery::create()->findOneByCode(self::COLISSIMO_PICKUP_POINT_CODE)) {
                 $contractPassword = ColissimoPickupPoint::getConfigValue('colissimo_pickup_point_password');
             }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[2])) {
+            if (ModuleQuery::create()->findOneByCode(self::COLISSIMO_HOME_DELIVERY_CODE)) {
                 $contractPassword = ColissimoHomeDelivery::getConfigValue('colissimo_home_delivery_password');
             }
 
