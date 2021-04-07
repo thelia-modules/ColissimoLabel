@@ -41,16 +41,16 @@ class LabelService
         /** Check if status needs to be changed after processing */
         $newStatus = OrderStatusQuery::create()->findOneByCode($data['new_status']);
 
-        $weight_array = $data['weight'];
-        $signed_array = $data['signed'];
+        $weightArray = $data['weight'];
+        $signedArray = $data['signed'];
 
         foreach ($data['order_id'] as $orderId) {
             if (null !== $order = OrderQuery::create()->findOneById($orderId)) {
                 /** DO NOT use strict comparison here */
-                if (!isset($weight_array[$orderId]) || 0 == (float)$weight_array[$orderId]) {
+                if (!isset($weightArray[$orderId]) || 0 == (float)$weightArray[$orderId]) {
                     $weight = $order->getWeight();
                 } else {
-                    $weight = (float)$weight_array[$orderId];
+                    $weight = (float)$weightArray[$orderId];
                 }
 
                 if ($weight === null) {
@@ -59,8 +59,8 @@ class LabelService
 
                 /** Check if the 'signed' checkbox was checked for this particular order */
                 $signedDelivery = false;
-                if (array_key_exists($orderId, $signed_array)) {
-                    $signedDelivery = $signed_array[$orderId];
+                if (array_key_exists($orderId, $signedArray)) {
+                    $signedDelivery = $signedArray[$orderId];
                 }
 
                 $APIConfiguration = new LabelRequestAPIConfiguration();

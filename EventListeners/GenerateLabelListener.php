@@ -3,6 +3,7 @@
 namespace ColissimoLabel\EventListeners;
 
 
+use ColissimoLabel\Service\LabelService;
 use Picking\Event\GenerateLabelEvent;
 use Picking\Picking;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -18,14 +19,14 @@ use Thelia\Controller\Admin\BaseAdminController;
  */
 class GenerateLabelListener extends BaseAdminController implements EventSubscriberInterface
 {
-    protected $container;
+    protected $service;
 
     /**
-     * @param ContainerInterface $container
+     * @param LabelService $container
      */
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(LabelService $service)
     {
-        $this->container = $container;
+        $this->service = $service;
     }
 
     /**
@@ -41,8 +42,7 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
             $data['order_id'][$orderId] = $orderId;
             $data['weight'][$orderId] = $event->getWeight();
             $data['signed'][$orderId] = $event->isSignedDelivery();
-            $service = $this->container->get('colissimolabel.generate.label.service');
-            $event->setResponse($service->generateLabel($data, true));
+            $event->setResponse($this->service->generateLabel($data, true));
         }
     }
 
