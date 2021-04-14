@@ -94,7 +94,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
         /** Trying to get it from ColissimoWs */
         if ($orderId = $order->getId()) {
             /** Checking if ColissimoWs is installed */
-            if (ModuleQuery::create()->findOneByCode(ColissimoLabelModule::AUTHORIZED_MODULES[0])) {
+            if (ModuleQuery::create()->findOneByCode(ColissimoLabelModule::COLISSIMO_WS_CODE)) {
                 /** Checking if the label entry exists in the deprecated ColissimoWsLabel table */
                 if ($colissimoWslabel = ColissimowsLabelQuery::create()->findOneByOrderId($orderId)) {
                     $orderRef = $colissimoWslabel->getOrderRef();
@@ -131,7 +131,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
         $APIConfiguration->setPassword(ColissimoLabelModule::getConfigValue(ColissimoLabelModule::CONFIG_KEY_PASSWORD));
 
         /** Check if delivery is a relay point through SoColissimo. Use relay point address if it is */
-        if (ColissimoLabelModule::AUTHORIZED_MODULES[1] === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
+        if (ColissimoLabelModule::SOCOLISSIMO_CODE === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
             null !== ($AddressColissimoPickupPoint = OrderAddressSoColissimoPickupPointQuery::create()
             ->findOneById($order->getDeliveryOrderAddressId())) &&
             $AddressColissimoPickupPoint) {
@@ -149,7 +149,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
 
 
         /** Same thing with ColissimoPickupPoint */
-        if (ColissimoLabelModule::AUTHORIZED_MODULES[3] === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
+        if (ColissimoLabelModule::COLISSIMO_PICKUP_POINT_CODE === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
             null !== ($AddressColissimoPickupPoint = OrderAddressColissimoPickupPointQuery::create()
                 ->findOneById($order->getDeliveryOrderAddressId()))
             && $AddressColissimoPickupPoint) {

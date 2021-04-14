@@ -87,9 +87,9 @@ class LabelRequest extends AbstractLabelRequest
         if (null !== $pickupCode) {
             $this->getLetter()->getParcel()->setPickupLocationId($pickupCode);
         }
-
-        $this->getLetter()->getAddressee()->setAddresseeParcelRef($order->getRef());
-        $this->getLetter()->getSender()->setSenderParcelRef($order->getRef());
+        $customer = $order->getCustomer();
+        $this->getLetter()->getAddressee()->setAddresseeParcelRef($customer->getRef());
+        $this->getLetter()->getSender()->setSenderParcelRef($customer->getRef());
 
         /** We initialize the label format */
         $this->setOutputFormat(new OutputFormat());

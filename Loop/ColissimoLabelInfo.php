@@ -44,7 +44,7 @@ class ColissimoLabelInfo extends BaseLoop implements PropelSearchLoopInterface
         /** Compatibility for old versions of ColissimoWS where the label info was on a ColissimoWs table */
         if (null === $search->findOne()) {
             /** We check that ColissimoWS is installed */
-            if (ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[0])) {
+            if (ModuleQuery::create()->findOneByCode(ColissimoLabel::COLISSIMO_WS_CODE)) {
                 /** Security check to make sure the ColissimoWSLabel table exists */
                 try {
                     $searchColissimoWS = ColissimowsLabelQuery::create()->filterByOrderId($this->getOrderId());
