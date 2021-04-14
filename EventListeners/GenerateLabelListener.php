@@ -35,14 +35,14 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
     public function generateLabel(GenerateLabelEvent $event)
     {
         $deliveryModuleCode = $event->getOrder()->getModuleRelatedByDeliveryModuleId()->getCode();
-        if ($deliveryModuleCode === "ColissimoHomeDelivery" || $deliveryModuleCode === "ColissimoPickupPoint") {
+        if ($deliveryModuleCode === "ColissimoHomeDelivery" || $deliveryModuleCode === "ColissimoPickupPoint"|| $deliveryModuleCode === "SoColissimo") {
             $data = [];
             $orderId = $event->getOrder()->getId();
             $data['new_status'] = '';
             $data['order_id'][$orderId] = $orderId;
             $data['weight'][$orderId] = $event->getWeight();
             $data['signed'][$orderId] = $event->isSignedDelivery();
-            $event->setResponse($this->service->generateLabel($data, true));
+            $event->setResponse($this->labelService->generateLabel($data, true));
         }
     }
 
