@@ -44,7 +44,7 @@ class LabelRequest extends AbstractLabelRequest
         foreach ($order->getOrderProducts() as $orderProduct) {
             $productPrice = $orderProduct->getWasInPromo() ? $orderProduct->getPromoPrice() : $orderProduct->getPrice();
             $articles[] = new Article(
-                $orderProduct->getChapo(),
+                $orderProduct->getTitle(),
                 $orderProduct->getQuantity(),
                 $orderProduct->getWeight(),
                 $productPrice,
