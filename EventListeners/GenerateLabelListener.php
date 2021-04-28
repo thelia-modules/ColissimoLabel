@@ -3,6 +3,7 @@
 namespace ColissimoLabel\EventListeners;
 
 
+use ColissimoLabel\ColissimoLabel;
 use ColissimoLabel\Service\LabelService;
 use Picking\Event\GenerateLabelEvent;
 use Picking\Picking;
@@ -38,7 +39,7 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
         if ($deliveryModuleCode === "ColissimoHomeDelivery" || $deliveryModuleCode === "ColissimoPickupPoint"|| $deliveryModuleCode === "SoColissimo") {
             $data = [];
             $orderId = $event->getOrder()->getId();
-            $data['new_status'] = '';
+            $data['new_status'] = ColissimoLabel::getConfigValue("new_status", 'nochange');
             $data['order_id'][$orderId] = $orderId;
             $data['weight'][$orderId] = $event->getWeight();
             $data['signed'][$orderId] = $event->isSignedDelivery();
