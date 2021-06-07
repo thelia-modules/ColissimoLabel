@@ -1,12 +1,15 @@
 <?php
 
-
 namespace ColissimoLabel\Form;
 
-
 use ColissimoLabel\ColissimoLabel;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
 
@@ -20,14 +23,14 @@ class LabelGenerationForm extends BaseForm
                 ChoiceType::class, [
                     'label' => Translator::getInstance()->trans('Order status after export'),
                     'choices' => [
-                        'nochange' => Translator::getInstance()->trans("Do not change", [], ColissimoLabel::DOMAIN_NAME),
-                        'processing' => Translator::getInstance()->trans("Set orders status as processing", [], ColissimoLabel::DOMAIN_NAME),
-                        'sent' => Translator::getInstance()->trans("Set orders status as sent", [], ColissimoLabel::DOMAIN_NAME)
+                        'nochange' => Translator::getInstance()->trans('Do not change', [], ColissimoLabel::DOMAIN_NAME),
+                        'processing' => Translator::getInstance()->trans('Set orders status as processing', [], ColissimoLabel::DOMAIN_NAME),
+                        'sent' => Translator::getInstance()->trans('Set orders status as sent', [], ColissimoLabel::DOMAIN_NAME),
                     ],
                     'required' => 'false',
                     'expanded' => true,
                     'multiple' => false,
-                    'data'     => ColissimoLabel::getConfigValue("new_status", 'nochange')
+                    'data' => ColissimoLabel::getConfigValue('new_status', 'nochange'),
                 ]
             )
             ->add(
@@ -35,7 +38,7 @@ class LabelGenerationForm extends BaseForm
                 CollectionType::class,
                 [
                     'required' => 'false',
-                    'type' => 'integer',
+                    'entry_type' => IntegerType::class,
                     'allow_add' => true,
                     'allow_delete' => true,
                 ]
@@ -45,7 +48,7 @@ class LabelGenerationForm extends BaseForm
                 CollectionType::class,
                 [
                     'required' => 'false',
-                    'type' => 'number',
+                    'entry_type' => NumberType::class,
                     'allow_add' => true,
                     'allow_delete' => true,
                 ]
@@ -55,7 +58,7 @@ class LabelGenerationForm extends BaseForm
                 CollectionType::class,
                 [
                     'required' => 'false',
-                    'type' => 'checkbox',
+                    'entry_type' => CheckboxType::class,
                     'label' => 'Signature',
                     'allow_add' => true,
                     'allow_delete' => true,
@@ -67,9 +70,8 @@ class LabelGenerationForm extends BaseForm
     /**
      * @return string the name of you form. This name must be unique
      */
-    public function getName()
+    public static function getName()
     {
-        return "colissimolabel_export_form";
+        return 'colissimolabel_export_form';
     }
-
 }

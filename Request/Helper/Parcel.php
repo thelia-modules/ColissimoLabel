@@ -30,11 +30,13 @@ class Parcel
 
     /**
      * @param int $weight
+     *
      * @return self
      */
     public function setWeight($weight)
     {
         $this->weight = $weight;
+
         return $this;
     }
 
@@ -48,11 +50,13 @@ class Parcel
 
     /**
      * @param bool $signedDelivery
+     *
      * @return self
      */
     public function setSignedDelivery($signedDelivery)
     {
         $this->signedDelivery = $signedDelivery;
+
         return $this;
     }
 
@@ -66,11 +70,13 @@ class Parcel
 
     /**
      * @param string $instructions
+     *
      * @return self
      */
     public function setInstructions($instructions)
     {
         $this->instructions = $instructions;
+
         return $this;
     }
 
@@ -84,11 +90,13 @@ class Parcel
 
     /**
      * @param string $pickupLocationId
+     *
      * @return self
      */
     public function setPickupLocationId($pickupLocationId)
     {
         $this->pickupLocationId = $pickupLocationId;
+
         return $this;
     }
 }

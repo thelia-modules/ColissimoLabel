@@ -2,7 +2,6 @@
 
 namespace ColissimoLabel\Hook\Back;
 
-use ColissimoLabel\ColissimoLabel;
 use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Hook\BaseHook;
 

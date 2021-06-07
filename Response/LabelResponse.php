@@ -25,7 +25,7 @@ class LabelResponse
     public function getFile()
     {
         if ($this->isValid()) {
-            return $this->cacheAttachments[0]["data"];
+            return $this->cacheAttachments[0]['data'];
         }
 
         return null;
@@ -34,8 +34,8 @@ class LabelResponse
     public function getParcelNumber()
     {
         if ($this->isValid()) {
-            $pieces = explode("<parcelNumber>", $this->cacheSoapResponse["data"]);
-            $pieces = explode("</parcelNumber>", $pieces[1]);
+            $pieces = explode('<parcelNumber>', $this->cacheSoapResponse['data']);
+            $pieces = explode('</parcelNumber>', $pieces[1]);
 
             return $pieces[0];
         }
@@ -46,7 +46,7 @@ class LabelResponse
     public function hasFileCN23()
     {
         if ($this->isValid()) {
-            return isset($this->cacheAttachments[1]["data"]);
+            return isset($this->cacheAttachments[1]['data']);
         }
 
         return false;
@@ -56,7 +56,7 @@ class LabelResponse
     {
         if ($this->isValid()) {
             if (\count($this->cacheAttachments) > 1) {
-                return $this->cacheAttachments[1]["data"];
+                return $this->cacheAttachments[1]['data'];
             }
         }
 
@@ -65,16 +65,16 @@ class LabelResponse
 
     public function isValid()
     {
-        if (!isset($this->cacheSoapResponse["data"])) {
+        if (!isset($this->cacheSoapResponse['data'])) {
             return false;
         }
 
-        $soapResult = $this->cacheSoapResponse["data"];
-        $errorCode = explode("<id>", $soapResult);
-        $errorCode = explode("</id>", $errorCode[1]);
+        $soapResult = $this->cacheSoapResponse['data'];
+        $errorCode = explode('<id>', $soapResult);
+        $errorCode = explode('</id>', $errorCode[1]);
         //- Parse Web Service Response
         //+ Error handling and label saving
-        if ($errorCode[0] == 0) {
+        if (0 == $errorCode[0]) {
             return true;
         }
 
@@ -91,12 +91,12 @@ class LabelResponse
             return [];
         }
 
-        $soapResult = $this->cacheSoapResponse["data"];
-        $errorCode = explode("<id>", $soapResult);
-        $errorCode = explode("</id>", $errorCode[1]);
+        $soapResult = $this->cacheSoapResponse['data'];
+        $errorCode = explode('<id>', $soapResult);
+        $errorCode = explode('</id>', $errorCode[1]);
 
-        $errorMessage = explode("<messageContent>", $this->cacheSoapResponse["data"]);
-        $errorMessage = explode("</messageContent>", $errorMessage[1]);
+        $errorMessage = explode('<messageContent>', $this->cacheSoapResponse['data']);
+        $errorMessage = explode('</messageContent>', $errorMessage[1]);
 
         if ($messageOnly) {
             return $errorMessage;
@@ -107,11 +107,11 @@ class LabelResponse
 
     protected function parseResponse($response)
     {
-        $content = array ();
-        $matches = array ();
+        $content = [];
+        $matches = [];
         preg_match_all(self::UUID, $response, $matches, PREG_OFFSET_CAPTURE);
 
-        for ($i = 0; $i < count($matches[0]) -1; $i++) {
+        for ($i = 0; $i < count($matches[0]) - 1; ++$i) {
             if ($i + 1 < count($matches[0])) {
                 $content[$i] = substr($response, $matches[0][$i][1], $matches[0][$i + 1][1] - $matches[0][$i][1]);
             } else {
@@ -120,10 +120,10 @@ class LabelResponse
         }
 
         foreach ($content as $part) {
-            if ($this->uuid == null) {
-                $uuidStart = strpos($part, self::UUID, 0)+strlen(self::UUID);
+            if (null == $this->uuid) {
+                $uuidStart = strpos($part, self::UUID, 0) + strlen(self::UUID);
                 $uuidEnd = strpos($part, "\r\n", $uuidStart);
-                $this->uuid = substr($part, $uuidStart, $uuidEnd-$uuidStart);
+                $this->uuid = substr($part, $uuidStart, $uuidEnd - $uuidStart);
             }
             $header = $this->extractHeader($part);
             if (count($header) > 0) {
@@ -143,17 +143,18 @@ class LabelResponse
 
     protected function extractHeader($part)
     {
-        $header = array();
+        $header = [];
         $headerLineStart = strpos($part, self::CONTENT, 0);
         $endLine = 0;
         while (false !== $headerLineStart) {
             $header['offsetStart'] = $headerLineStart;
             $endLine = strpos($part, "\r\n", $headerLineStart);
-            $headerLine = explode(': ', substr($part, $headerLineStart, $endLine-$headerLineStart));
+            $headerLine = explode(': ', substr($part, $headerLineStart, $endLine - $headerLineStart));
             $header[$headerLine[0]] = $headerLine[1];
             $headerLineStart = strpos($part, self::CONTENT, $endLine);
         }
         $header['offsetEnd'] = $endLine;
+
         return $header;
     }
 }

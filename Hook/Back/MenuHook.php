@@ -1,6 +1,5 @@
 <?php
 
-
 namespace ColissimoLabel\Hook\Back;
 
 use Thelia\Core\Event\Hook\HookRenderEvent;

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace ColissimoLabel\Event;
-
 
 use ColissimoLabel\Model\ColissimoLabel;
 use Thelia\Core\Event\ActionEvent;
@@ -20,8 +18,10 @@ class LabelEvent extends ActionEvent
 
     /** @var bool|null */
     protected $signed = null;
+
     /**
      * LabelEvent constructor.
+     *
      * @param int $orderId
      */
     public function __construct($orderId)
@@ -47,11 +47,13 @@ class LabelEvent extends ActionEvent
 
     /**
      * @param ColissimoLabel $colissimoLabel
+     *
      * @return $this
      */
     public function setColissimoLabel($colissimoLabel)
     {
         $this->colissimoLabel = $colissimoLabel;
+
         return $this;
     }
 
@@ -70,11 +72,13 @@ class LabelEvent extends ActionEvent
 
     /**
      * @param float|null $weight
+     *
      * @return $this
      */
     public function setWeight($weight)
     {
         $this->weight = $weight;
+
         return $this;
     }
 
@@ -88,11 +92,13 @@ class LabelEvent extends ActionEvent
 
     /**
      * @param bool|null $signed
+     *
      * @return $this
      */
     public function setSigned($signed)
     {
         $this->signed = $signed;
+
         return $this;
     }
 }

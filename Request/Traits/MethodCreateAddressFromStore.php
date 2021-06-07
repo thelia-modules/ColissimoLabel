@@ -4,7 +4,6 @@ namespace ColissimoLabel\Request\Traits;
 
 use ColissimoLabel\ColissimoLabel;
 use ColissimoLabel\Request\Helper\Address;
-use Thelia\Model\ConfigQuery;
 use Thelia\Model\CountryQuery;
 use Thelia\Model\LangQuery;
 

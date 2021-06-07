@@ -2,44 +2,34 @@
 
 namespace ColissimoLabel\EventListeners;
 
-
 use ColissimoLabel\ColissimoLabel;
 use ColissimoLabel\Service\LabelService;
 use Picking\Event\GenerateLabelEvent;
 use Picking\Picking;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Thelia\Controller\Admin\BaseAdminController;
 
 /**
- * Class GenerateLabelListener
+ * Class GenerateLabelListener.
  *
  * This class is used only when you have the Picking module
- *
- * @package ColissimoLabel\EventListeners
  */
 class GenerateLabelListener extends BaseAdminController implements EventSubscriberInterface
 {
     protected $labelService;
 
-    /**
-     * @param LabelService $labelService
-     */
     public function __construct(LabelService $labelService)
     {
         $this->labelService = $labelService;
     }
 
-    /**
-     * @param GenerateLabelEvent $event
-     */
     public function generateLabel(GenerateLabelEvent $event)
     {
         $deliveryModuleCode = $event->getOrder()->getModuleRelatedByDeliveryModuleId()->getCode();
-        if ($deliveryModuleCode === "ColissimoHomeDelivery" || $deliveryModuleCode === "ColissimoPickupPoint"|| $deliveryModuleCode === "SoColissimo") {
+        if ('ColissimoHomeDelivery' === $deliveryModuleCode || 'ColissimoPickupPoint' === $deliveryModuleCode || 'SoColissimo' === $deliveryModuleCode) {
             $data = [];
             $orderId = $event->getOrder()->getId();
-            $data['new_status'] = ColissimoLabel::getConfigValue("new_status", 'nochange');
+            $data['new_status'] = ColissimoLabel::getConfigValue('new_status', 'nochange');
             $data['order_id'][$orderId] = $orderId;
             $data['weight'][$orderId] = $event->getWeight();
             $data['signed'][$orderId] = $event->isSignedDelivery();
@@ -50,9 +40,10 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
     public static function getSubscribedEvents()
     {
         $events = [];
-        if (class_exists('Picking\Event\GenerateLabelEvent')){
+        if (class_exists('Picking\Event\GenerateLabelEvent')) {
             $events[GenerateLabelEvent::PICKING_GENERATE_LABEL] = ['generateLabel', 65];
         }
+
         return $events;
     }
 }

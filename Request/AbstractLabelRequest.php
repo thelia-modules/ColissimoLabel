@@ -26,12 +26,12 @@ abstract class AbstractLabelRequest extends AbstractRequest
     }
 
     /**
-     * @param OutputFormat $outputFormat
      * @return self
      */
     protected function setOutputFormat(OutputFormat $outputFormat)
     {
         $this->outputFormat = $outputFormat;
+
         return $this;
     }
 
@@ -44,17 +44,17 @@ abstract class AbstractLabelRequest extends AbstractRequest
     }
 
     /**
-     * @param Letter $letter
      * @return self
      */
     protected function setLetter(Letter $letter)
     {
         $this->letter = $letter;
+
         return $this;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function generateArrayRequest()
     {
@@ -62,7 +62,7 @@ abstract class AbstractLabelRequest extends AbstractRequest
             'outputFormat' => [
                 'x' => $this->getOutputFormat()->getX(),
                 'y' => $this->getOutputFormat()->getY(),
-                'outputPrintingType' => $this->getOutputFormat()->getOutputPrintingType()
+                'outputPrintingType' => $this->getOutputFormat()->getOutputPrintingType(),
             ],
             'letter' => [
                 'service' => [
@@ -76,7 +76,7 @@ abstract class AbstractLabelRequest extends AbstractRequest
                 ],
                 'parcel' => [
                     'weight' => $this->getLetter()->getParcel()->getWeight(),
-                    'pickupLocationId' => $this->getLetter()->getParcel()->getPickupLocationId()
+                    'pickupLocationId' => $this->getLetter()->getParcel()->getPickupLocationId(),
                 ],
                 'customsDeclarations' => [
                     'includeCustomsDeclarations' => $this->getLetter()->getCustomsDeclarations()->getIncludeCustomsDeclarations(),
@@ -84,9 +84,8 @@ abstract class AbstractLabelRequest extends AbstractRequest
                         'article' => 'falseArticle',
                         'category' => [
                             'value' => $this->getLetter()->getCustomsDeclarations()->getCategory(),
-                        ]
-                    ]
-
+                        ],
+                    ],
                 ],
                 'sender' => [
                     'senderParcelRef' => $this->getLetter()->getSender()->getSenderParcelRef(),
@@ -103,9 +102,9 @@ abstract class AbstractLabelRequest extends AbstractRequest
                         'zipCode' => $this->getLetter()->getSender()->getAddress()->getZipCode(),
                         'phoneNumber' => $this->getLetter()->getSender()->getAddress()->getPhoneNumber(),
                         'mobileNumber' => $this->getLetter()->getSender()->getAddress()->getMobileNumber(),
-                        'email'=> $this->getLetter()->getSender()->getAddress()->getEmail(),
-                        'language' => $this->getLetter()->getSender()->getAddress()->getLanguage()
-                    ]
+                        'email' => $this->getLetter()->getSender()->getAddress()->getEmail(),
+                        'language' => $this->getLetter()->getSender()->getAddress()->getLanguage(),
+                    ],
                 ],
                 'addressee' => [
                     'addresseeParcelRef' => $this->getLetter()->getAddressee()->getAddresseeParcelRef(),
@@ -122,11 +121,11 @@ abstract class AbstractLabelRequest extends AbstractRequest
                         'zipCode' => $this->getLetter()->getAddressee()->getAddress()->getZipCode(),
                         'phoneNumber' => $this->getLetter()->getAddressee()->getAddress()->getPhoneNumber(),
                         'mobileNumber' => $this->getLetter()->getAddressee()->getAddress()->getMobileNumber(),
-                        'email'=> $this->getLetter()->getAddressee()->getAddress()->getEmail(),
-                        'language' => $this->getLetter()->getAddressee()->getAddress()->getLanguage()
-                    ]
+                        'email' => $this->getLetter()->getAddressee()->getAddress()->getEmail(),
+                        'language' => $this->getLetter()->getAddressee()->getAddress()->getLanguage(),
+                    ],
                 ],
-            ]
+            ],
         ]);
     }
 }

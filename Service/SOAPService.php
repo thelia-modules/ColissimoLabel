@@ -2,7 +2,6 @@
 
 namespace ColissimoLabel\Service;
 
-use ColissimoLabel\Request\AbstractRequest;
 use ColissimoLabel\Request\Helper\APIConfiguration;
 use ColissimoLabel\Request\Helper\Article;
 use ColissimoLabel\Request\LabelRequest;
@@ -18,16 +17,15 @@ class SOAPService
     {
         //+ Generate SOAPRequest
         $xml = new \SimpleXMLElement('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" />');
-        $xml->addChild("soapenv:Header");
-        $children = $xml->addChild("soapenv:Body");
-        $children = $children->addChild("sls:generateBordereauByParcelsNumbers", null, 'http://sls.ws.coliposte.fr');
-        $children->addChild("contractNumber", $APIConfiguration->getContractNumber(), "");
-        $children->addChild("password", $APIConfiguration->getPassword(), "");
-        $children = $children->addChild("generateBordereauParcelNumberList", null, "");
+        $xml->addChild('soapenv:Header');
+        $children = $xml->addChild('soapenv:Body');
+        $children = $children->addChild('sls:generateBordereauByParcelsNumbers', null, 'http://sls.ws.coliposte.fr');
+        $children->addChild('contractNumber', $APIConfiguration->getContractNumber(), '');
+        $children->addChild('password', $APIConfiguration->getPassword(), '');
+        $children = $children->addChild('generateBordereauParcelNumberList', null, '');
 
-        foreach ($parcelNumbers as $parcelNumber)
-        {
-            $children->addChild("parcelsNumbers", $parcelNumber, "");
+        foreach ($parcelNumbers as $parcelNumber) {
+            $children->addChild('parcelsNumbers', $parcelNumber, '');
         }
 
         $soap = new \SoapClient($APIConfiguration->getWsdl());
@@ -48,10 +46,10 @@ class SOAPService
 
         //+ Generate SOAPRequest
         $xml = new \SimpleXMLElement('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" />');
-        $xml->addChild("soapenv:Header");
-        $children = $xml->addChild("soapenv:Body");
-        $children = $children->addChild("sls:generateLabel", null, 'http://sls.ws.coliposte.fr');
-        $children = $children->addChild("generateLabelRequest", null, "");
+        $xml->addChild('soapenv:Header');
+        $children = $xml->addChild('soapenv:Body');
+        $children = $children->addChild('sls:generateLabel', null, 'http://sls.ws.coliposte.fr');
+        $children = $children->addChild('generateLabelRequest', null, '');
 
         $this->arrayToXml($request->generateArrayRequest(), $children, $request->getLetter()->getCustomsDeclarations()->getArticles());
 
@@ -71,7 +69,7 @@ class SOAPService
     protected function arrayToXml(array $soapRequest, \SimpleXMLElement $soapRequestXml, $articles)
     {
         foreach ($soapRequest as $key => $value) {
-            if ($value === null || empty($value)) {
+            if (null === $value || empty($value)) {
                 continue;
             }
             if (is_array($value)) {
@@ -79,11 +77,11 @@ class SOAPService
                     $subnode = $soapRequestXml->addChild($key);
                     $this->arrayToXml($value, $subnode, $articles);
                 } else {
-                    $subnode = $soapRequestXml->addChild("item" . $key);
+                    $subnode = $soapRequestXml->addChild('item'.$key);
                     $this->arrayToXml($value, $subnode, $articles);
                 }
             } else {
-                if ($key === 'article') {
+                if ('article' === $key) {
                     /** @var Article $article */
                     foreach ($articles as $article) {
                         $xmlArticle = $soapRequestXml->addChild($key);

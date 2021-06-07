@@ -21,11 +21,13 @@ abstract class AbstractRequest
 
     /**
      * @param string $contractNumber
+     *
      * @return self
      */
     public function setContractNumber($contractNumber)
     {
         $this->contractNumber = $contractNumber;
+
         return $this;
     }
 
@@ -39,11 +41,13 @@ abstract class AbstractRequest
 
     /**
      * @param string $password
+     *
      * @return self
      */
     public function setPassword($password)
     {
         $this->password = $password;
+
         return $this;
     }
 
@@ -51,7 +55,7 @@ abstract class AbstractRequest
     {
         return [
             'contractNumber' => $this->getContractNumber(),
-            'password' => $this->getPassword()
+            'password' => $this->getPassword(),
         ];
     }
 }

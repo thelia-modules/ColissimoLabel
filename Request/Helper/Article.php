@@ -1,12 +1,9 @@
 <?php
 
-
 namespace ColissimoLabel\Request\Helper;
-
 
 use ColissimoLabel\ColissimoLabel;
 use Thelia\Model\CountryQuery;
-use Thelia\Model\Order;
 
 class Article
 {
@@ -36,7 +33,6 @@ class Article
 
     public function __construct($description, $quantity, $weight, $value, $hsCode, $currency)
     {
-
         $this->description = $description;
         $this->quantity = $quantity;
         $this->weight = (float) $weight;
@@ -55,11 +51,13 @@ class Article
 
     /**
      * @param $description
+     *
      * @return $this
      */
     public function setDescription($description)
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -73,11 +71,13 @@ class Article
 
     /**
      * @param $quantity
+     *
      * @return $this
      */
     public function setQuantity($quantity)
     {
         $this->quantity = $quantity;
+
         return $this;
     }
 
@@ -91,11 +91,13 @@ class Article
 
     /**
      * @param float|int $weight
+     *
      * @return self
      */
     public function setWeight($weight)
     {
         $this->weight = $weight;
+
         return $this;
     }
 
@@ -109,11 +111,13 @@ class Article
 
     /**
      * @param float|int $value
+     *
      * @return $this
      */
     public function setValue($value)
     {
         $this->value = $value;
+
         return $this;
     }
 
@@ -127,35 +131,41 @@ class Article
 
     /**
      * @param $hsCode
+     *
      * @return $this
      */
     public function setHsCode($hsCode)
     {
         $this->hsCode = $hsCode;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getOriginCountry() {
+    public function getOriginCountry()
+    {
         return CountryQuery::create()->findOneById(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_FROM_COUNTRY))->getIsoalpha2();
     }
 
     /**
      * @param $currency
+     *
      * @return $this
      */
     public function setCurrency($currency)
     {
         $this->currency = $currency;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getCurrency() {
+    public function getCurrency()
+    {
         return $this->currency;
     }
 }

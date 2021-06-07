@@ -22,14 +22,15 @@ use Thelia\Model\ModuleQuery;
 class BordereauController extends AdminController
 {
     /**
-     * Render the bordereau list page
+     * Render the bordereau list page.
      *
      * @param null $error
+     *
      * @return \Thelia\Core\HttpFoundation\Response
      */
     public function listBordereauAction($error = null)
     {
-        /** We make sure the folders exist, and create them otherwise */
+        /* We make sure the folders exist, and create them otherwise */
         ColissimoLabel::checkLabelFolder();
         $lastBordereauDate = ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE);
 
@@ -46,16 +47,16 @@ class BordereauController extends AdminController
             ];
         }
 
-        /** We sort the bordereau by last created date */
+        /* We sort the bordereau by last created date */
         sort($bordereaux);
         $bordereaux = array_reverse($bordereaux);
 
-        /** We render the page */
+        /* We render the page */
         return $this->render('colissimo-label/bordereau-list', compact('lastBordereauDate', 'bordereaux', 'error'));
     }
 
     /**
-     * Render the label list page
+     * Render the label list page.
      *
      * @return \Thelia\Core\HttpFoundation\Response
      */
@@ -68,14 +69,15 @@ class BordereauController extends AdminController
 
     /**
      * Generate the bordereau, using the tracking/parcel numbers from the labels and the date since the
-     * last time it was done
+     * last time it was done.
      *
      * @return \Thelia\Core\HttpFoundation\Response
+     *
      * @throws \Exception
      */
     public function generateBordereauAction()
     {
-        /** Checking that the folder exists, and creates it otherwise */
+        /* Checking that the folder exists, and creates it otherwise */
         ColissimoLabel::checkLabelFolder();
 
         $lastBordereauDate = ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE);
@@ -92,13 +94,13 @@ class BordereauController extends AdminController
             $parcelNumbers[] = $label->getTrackingNumber();
         }
 
-        /** Compatibility with ColissimoWS < 2.0.0 */
+        /* Compatibility with ColissimoWS < 2.0.0 */
         if (ModuleQuery::create()->findOneByCode('ColissimoWs')) {
             $labelsWs = ColissimowsLabelQuery::create()
                 ->filterByCreatedAt($lastBordereauDate, Criteria::GREATER_THAN)
                 ->find();
 
-            /** @var ColissimowsLabel $label */
+            /* @var ColissimowsLabel $label */
             foreach ($labelsWs as $labelWs) {
                 $parcelNumbers[] = $labelWs->getTrackingNumber();
             }
@@ -115,7 +117,8 @@ class BordereauController extends AdminController
             if (!isset($parseResponse->soapResponse['data'])) {
                 return $this->listBordereauAction('No label found');
             }
-            return $this->listBordereauAction('Error : ' . $this->getError($parseResponse->soapResponse['data']));
+
+            return $this->listBordereauAction('Error : '.$this->getError($parseResponse->soapResponse['data']));
         }
         $bordereauContent = $resultAttachment[0];
         $fileContent = $bordereauContent['data'];
@@ -125,48 +128,50 @@ class BordereauController extends AdminController
         }
 
         /** We save the file on the server */
-        $filePath = ColissimoLabel::getBordereauPath('bordereau_' .(new \DateTime())->format('Y-m-d_H-i-s'));
+        $filePath = ColissimoLabel::getBordereauPath('bordereau_'.(new \DateTime())->format('Y-m-d_H-i-s'));
         $fileSystem = new Filesystem();
         $fileSystem->dumpFile(
             $filePath,
             $fileContent
         );
 
-        /** We set the new date for the next time we want to use this method */
+        /* We set the new date for the next time we want to use this method */
         ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE, (new \DateTime())->format('Y-m-d H:i:s'));
 
-        /** We reload the list of bordereau */
+        /* We reload the list of bordereau */
         return $this->listBordereauAction();
     }
 
     /**
-     * Return the error message contained in the SOAP response from Colissimo
+     * Return the error message contained in the SOAP response from Colissimo.
      *
      * @param $data
+     *
      * @return array
      */
-    protected function getError($data) {
-        $errorMessage = explode("<messageContent>", $data);
-        $errorMessage = explode("</messageContent>", $errorMessage[1]);
+    protected function getError($data)
+    {
+        $errorMessage = explode('<messageContent>', $data);
+        $errorMessage = explode('</messageContent>', $errorMessage[1]);
 
         return $errorMessage[0];
     }
 
     /**
-     * Retrieve a bordereau on the server given its filename passed in the request, and return it as a binary response
+     * Retrieve a bordereau on the server given its filename passed in the request, and return it as a binary response.
      *
      * @return BinaryFileResponse
      */
-    public function downloadBordereauAction()
+    public function downloadBordereauAction(Request $request)
     {
-        $filePath = $this->getRequest()->get('filePath');
+        $filePath = $request->get('filePath');
         $filePathArray = explode('/', $filePath);
         $fileName = array_pop($filePathArray);
-        $download = $this->getRequest()->get('stay');
+        $download = $request->get('stay');
 
         $response = new BinaryFileResponse($filePath);
 
-        /** Download instead of opening the label in a window, if requested */
+        /* Download instead of opening the label in a window, if requested */
         if ($download) {
             $response->setContentDisposition(
                 ResponseHeaderBag::DISPOSITION_ATTACHMENT,
@@ -174,18 +179,18 @@ class BordereauController extends AdminController
             );
         }
 
-
         return $response;
     }
 
     /**
-     * Deletes a bordereau file, then reload the page
+     * Deletes a bordereau file, then reload the page.
      *
      * @return \Thelia\Core\HttpFoundation\Response
      */
-    public function deleteBordereauAction() {
+    public function deleteBordereauAction(Request $request)
+    {
         $fs = new Filesystem();
-        $filePath = $this->getRequest()->get('filePath');
+        $filePath = $request->get('filePath');
 
         $fs->remove($filePath);
 

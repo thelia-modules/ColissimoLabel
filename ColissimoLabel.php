@@ -1,14 +1,13 @@
 <?php
-/*************************************************************************************/
+
 /*      This file is part of the Thelia package.                                     */
-/*                                                                                   */
+
 /*      Copyright (c) OpenStudio                                                     */
 /*      email : dev@thelia.net                                                       */
 /*      web : http://www.thelia.net                                                  */
-/*                                                                                   */
+
 /*      For the full copyright and license information, please view the LICENSE.txt  */
 /*      file that was distributed with this source code.                             */
-/*************************************************************************************/
 
 namespace ColissimoLabel;
 
@@ -20,13 +19,14 @@ use ColissimoWs\ColissimoWs;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\PropelException;
 use SoColissimo\SoColissimo;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Thelia\Install\Database;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\ModuleQuery;
 use Thelia\Model\Order;
 use Thelia\Module\BaseModule;
-use Thelia\Install\Database;
 
 /**
  * @author Gilles Bourgeat >gilles.bourgeat@gmail.com>
@@ -36,9 +36,9 @@ class ColissimoLabel extends BaseModule
     /** Constants */
     const DOMAIN_NAME = 'colissimolabel';
 
-    const LABEL_FOLDER = THELIA_LOCAL_DIR . 'colissimo-label';
+    const LABEL_FOLDER = THELIA_LOCAL_DIR.'colissimo-label';
 
-    const BORDEREAU_FOLDER = self::LABEL_FOLDER . DIRECTORY_SEPARATOR . 'bordereau';
+    const BORDEREAU_FOLDER = self::LABEL_FOLDER.DIRECTORY_SEPARATOR.'bordereau';
 
     const AUTHORIZED_MODULES = ['ColissimoWs', 'SoColissimo', 'ColissimoHomeDelivery', 'ColissimoPickupPoint'];
 
@@ -99,26 +99,26 @@ class ColissimoLabel extends BaseModule
     /**
      * @param ConnectionInterface $con
      */
-    public function postActivation(ConnectionInterface $con = null)
+    public function postActivation(ConnectionInterface $con = null): void
     {
         static::checkLabelFolder();
 
         if (!self::getConfigValue('is_initialized', false)) {
             $database = new Database($con);
-            $database->insertSql(null, [__DIR__ . '/Config/thelia.sql']);
+            $database->insertSql(null, [__DIR__.'/Config/thelia.sql']);
             self::setConfigValue('is_initialized', true);
         }
 
         $this->checkConfigurationsValues();
     }
 
-    public function update($currentVersion, $newVersion, ConnectionInterface $con = null)
+    public function update($currentVersion, $newVersion, ConnectionInterface $con = null): void
     {
         $finder = Finder::create()
             ->name('*.sql')
             ->depth(0)
             ->sortByName()
-            ->in(__DIR__ . DS . 'Config' . DS . 'update');
+            ->in(__DIR__.DS.'Config'.DS.'update');
 
         $database = new Database($con);
 
@@ -131,11 +131,11 @@ class ColissimoLabel extends BaseModule
     }
 
     /**
-     * Check if config values exist in the module config table exists. Creates them with a default value otherwise
+     * Check if config values exist in the module config table exists. Creates them with a default value otherwise.
      */
     public function checkConfigurationsValues()
     {
-        /** Check if the default label format config value exists, and sets it to PDF_10x15_300dpi is it doesn't exists */
+        /* Check if the default label format config value exists, and sets it to PDF_10x15_300dpi is it doesn't exists */
         if (null === self::getConfigValue(self::CONFIG_KEY_DEFAULT_LABEL_FORMAT)) {
             self::setConfigValue(
                 self::CONFIG_KEY_DEFAULT_LABEL_FORMAT,
@@ -143,7 +143,7 @@ class ColissimoLabel extends BaseModule
             );
         }
 
-        /**
+        /*
          * Check if the contract number config value exists, and sets it to either of the following :
          * The contract number of the ColissimoHomeDelivery config, if the module is installed
          * Otherwise : the contract number of the ColissimoPickupPoint config, if the module is installed
@@ -152,7 +152,6 @@ class ColissimoLabel extends BaseModule
          * Otherwise : a blanck string : ""
          */
         if (null === self::getConfigValue(self::CONFIG_KEY_CONTRACT_NUMBER)) {
-
             $contractNumber = '';
             if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[1])) {
                 $contractNumber = SoColissimo::getConfigValue('socolissimo_username');
@@ -173,7 +172,7 @@ class ColissimoLabel extends BaseModule
             );
         }
 
-        /**
+        /*
          * Check if the contract password config value exists, and sets it to either of the following :
          * The contract password of the ColissimoHomeDelivery config, if the module is activated
          * Otherwise : the contract password of the ColissimoPickupPoint config, if the module is activated
@@ -182,7 +181,6 @@ class ColissimoLabel extends BaseModule
          * Otherwise : a blank string : ""
          */
         if (null === self::getConfigValue(self::CONFIG_KEY_PASSWORD)) {
-
             $contractPassword = '';
             if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[1])) {
                 $contractPassword = SoColissimo::getConfigValue('socolissimo_password');
@@ -203,7 +201,7 @@ class ColissimoLabel extends BaseModule
             );
         }
 
-        /** Check if the config value for the status change exists, creates it with a default value of 'nochange' otherwise */
+        /* Check if the config value for the status change exists, creates it with a default value of 'nochange' otherwise */
         if (null === self::getConfigValue(self::CONFIG_KEY_STATUS_CHANGE)) {
             self::setConfigValue(
                 self::CONFIG_KEY_STATUS_CHANGE,
@@ -211,7 +209,7 @@ class ColissimoLabel extends BaseModule
             );
         }
 
-        /** Check if the config value for the endpoint exists, creates it with a default value otherwise */
+        /* Check if the config value for the endpoint exists, creates it with a default value otherwise */
         if (null === self::getConfigValue(self::CONFIG_KEY_ENDPOINT)) {
             self::setConfigValue(
                 self::CONFIG_KEY_ENDPOINT,
@@ -219,7 +217,7 @@ class ColissimoLabel extends BaseModule
             );
         }
 
-        /** Check if the config value for the last bordereau date exists, creates it with a default value of 1970 otherwise */
+        /* Check if the config value for the last bordereau date exists, creates it with a default value of 1970 otherwise */
         if (null === self::getConfigValue(self::CONFIG_KEY_LAST_BORDEREAU_DATE)) {
             self::setConfigValue(
                 self::CONFIG_KEY_LAST_BORDEREAU_DATE,
@@ -227,7 +225,7 @@ class ColissimoLabel extends BaseModule
             );
         }
 
-        /** Check if the config value for the default signed state for labels exists, creates it with a value of true otherwise */
+        /* Check if the config value for the default signed state for labels exists, creates it with a value of true otherwise */
         if (null === self::getConfigValue(self::CONFIG_KEY_DEFAULT_SIGNED)) {
             self::setConfigValue(
                 self::CONFIG_KEY_DEFAULT_SIGNED,
@@ -235,15 +233,15 @@ class ColissimoLabel extends BaseModule
             );
         }
 
-        /** Check if the config value for whether bordereau should be generated with labels exists, creates it with a value of false otherwise */
+        /* Check if the config value for whether bordereau should be generated with labels exists, creates it with a value of false otherwise */
         if (null === self::getConfigValue(self::CONFIG_KEY_GENERATE_BORDEREAU)) {
             self::setConfigValue(
                 self::CONFIG_KEY_GENERATE_BORDEREAU,
-                (int)self::CONFIG_DEFAULT_KEY_GENERATE_BORDEREAU
+                (int) self::CONFIG_DEFAULT_KEY_GENERATE_BORDEREAU
             );
         }
 
-        /** Check if the config value for whether invoices should be automatically generated exists, creates it with a value of true otherwise */
+        /* Check if the config value for whether invoices should be automatically generated exists, creates it with a value of true otherwise */
         if (null === self::getConfigValue(self::CONFIG_KEY_GET_INVOICES)) {
             self::setConfigValue(
                 self::CONFIG_KEY_GET_INVOICES,
@@ -251,7 +249,7 @@ class ColissimoLabel extends BaseModule
             );
         }
 
-        /** Check if the config value for whether customs invoices should be automatically generated exists, creates it with a value of false otherwise */
+        /* Check if the config value for whether customs invoices should be automatically generated exists, creates it with a value of false otherwise */
         if (null === self::getConfigValue(self::CONFIG_KEY_GET_CUSTOMS_INVOICES)) {
             self::setConfigValue(
                 self::CONFIG_KEY_GET_CUSTOMS_INVOICES,
@@ -259,7 +257,7 @@ class ColissimoLabel extends BaseModule
             );
         }
 
-        /** Check if the config value for the customs product HsCode exists, creates it without value otherwise */
+        /* Check if the config value for the customs product HsCode exists, creates it without value otherwise */
         if (null === self::getConfigValue(self::CONFIG_KEY_CUSTOMS_PRODUCT_HSCODE)) {
             self::setConfigValue(
                 self::CONFIG_KEY_CUSTOMS_PRODUCT_HSCODE,
@@ -267,7 +265,7 @@ class ColissimoLabel extends BaseModule
             );
         }
 
-        /** Check if the config values for the sender address exist, create them otherwise with the store address values otherwise */
+        /* Check if the config values for the sender address exist, create them otherwise with the store address values otherwise */
         if (null === self::getConfigValue(self::CONFIG_KEY_FROM_NAME)) {
             self::setConfigValue(
                 self::CONFIG_KEY_FROM_NAME,
@@ -323,7 +321,7 @@ class ColissimoLabel extends BaseModule
                 ConfigQuery::read('store_phone')
             );
         }
-        /** Sender address values check end here */
+        /* Sender address values check end here */
     }
 
     /**
@@ -341,33 +339,36 @@ class ColissimoLabel extends BaseModule
         }
     }
 
-    /** Get the path of a given label file, according to its number
+    /** Get the path of a given label file, according to its number.
      * @param $fileName
      * @param $extension
+     *
      * @return string
      */
     public static function getLabelPath($fileName, $extension)
     {
-        return self::LABEL_FOLDER . DS . $fileName . '.' . $extension;
+        return self::LABEL_FOLDER.DS.$fileName.'.'.$extension;
     }
 
-    /** Get the path of a given CN23 customs file, according to the order ref
+    /** Get the path of a given CN23 customs file, according to the order ref.
      * @param $fileName
      * @param $extension
+     *
      * @return string
      */
     public static function getLabelCN23Path($fileName, $extension)
     {
-        return self::LABEL_FOLDER . DS . $fileName . '.' . $extension;
+        return self::LABEL_FOLDER.DS.$fileName.'.'.$extension;
     }
 
-    /** Get the path of a bordereau file, according to a date
+    /** Get the path of a bordereau file, according to a date.
      * @param $date
+     *
      * @return string
      */
     public static function getBordereauPath($date)
     {
-        return self::BORDEREAU_FOLDER . DS . $date . '.pdf';
+        return self::BORDEREAU_FOLDER.DS.$date.'.pdf';
     }
 
     /** Get the label files extension according to the file type indicated in the module config */
@@ -377,20 +378,19 @@ class ColissimoLabel extends BaseModule
     }
 
     /**
-     * Check if order has to be signed or if it is optional (aka if its in Europe or not)
+     * Check if order has to be signed or if it is optional (aka if its in Europe or not).
      *
-     * @param Order $order
      * @return bool
+     *
      * @throws PropelException
      */
     public static function canOrderBeNotSigned(Order $order)
     {
         $countryIsoCode = $order->getOrderAddressRelatedByDeliveryOrderAddressId()->getCountry()->getIsocode();
 
-        /** Checking if the delivery country is in Europe or a DOMTOM. If not, it HAS to be signed */
+        /* Checking if the delivery country is in Europe or a DOMTOM. If not, it HAS to be signed */
         if (!in_array($countryIsoCode, Service::DOMTOM_ISOCODES, false)
-        && !in_array($countryIsoCode, Service::EUROPE_ISOCODES, false))
-        {
+        && !in_array($countryIsoCode, Service::EUROPE_ISOCODES, false)) {
             return false;
         }
 
@@ -402,9 +402,19 @@ class ColissimoLabel extends BaseModule
      * latin ASCII characters. Does the same to cyrillic.
      *
      * @param $str
+     *
      * @return false|string
      */
-    public static function removeAccents($str) {
-        return iconv("UTF-8", "ASCII//TRANSLIT//IGNORE", transliterator_transliterate('Any-Latin; Latin-ASCII; Upper()', $str));
+    public static function removeAccents($str)
+    {
+        return iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', transliterator_transliterate('Any-Latin; Latin-ASCII; Upper()', $str));
+    }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void
+    {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR.ucfirst(self::getModuleCode()).'/I18n/*'])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 }

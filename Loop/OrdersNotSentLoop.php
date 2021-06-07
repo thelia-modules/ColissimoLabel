@@ -1,8 +1,6 @@
 <?php
 
-
 namespace ColissimoLabel\Loop;
-
 
 use ColissimoLabel\ColissimoLabel;
 use Propel\Runtime\ActiveQuery\Criteria;
@@ -22,7 +20,7 @@ class OrdersNotSentLoop extends Order
     }
 
     /**
-     * This method returns a Propel ModelCriteria
+     * This method returns a Propel ModelCriteria.
      *
      * @return \Propel\Runtime\ActiveQuery\ModelCriteria
      */
@@ -31,14 +29,14 @@ class OrdersNotSentLoop extends Order
         /** Get an array composed of the paid and processing order statuses */
         $status = OrderStatusQuery::create()
             ->filterByCode(
-                array(
+                [
                     OrderStatus::CODE_PAID,
                     OrderStatus::CODE_PROCESSING,
-                ),
+                ],
                 Criteria::IN
             )
             ->find()
-            ->toArray("code");
+            ->toArray('code');
 
         /** Verify what modules are installed */
         $moduleIds = [];
@@ -61,10 +59,10 @@ class OrdersNotSentLoop extends Order
                 Criteria::IN
             )
             ->filterByStatusId(
-                array(
+                [
                     $status[OrderStatus::CODE_PAID]['Id'],
-                    $status[OrderStatus::CODE_PROCESSING]['Id']
-                ),
+                    $status[OrderStatus::CODE_PROCESSING]['Id'],
+                ],
                 Criteria::IN
             );
 

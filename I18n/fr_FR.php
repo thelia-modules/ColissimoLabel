@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
     'Account number' => 'N° de compte',
     'Adresse' => 'Adresse',
     'Adresse (suite)' => 'Adresse (suite)',
@@ -26,4 +26,4 @@ return array(
     'Sorry, you\'re not allowed to perform this action' => 'Désolé, vous n\'êtes pas autorisé à performer cette action',
     'Téléphone' => 'Téléphone',
     'Ville' => 'Ville',
-);
+];

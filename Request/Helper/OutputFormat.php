@@ -10,12 +10,12 @@ use ColissimoLabel\Exception\InvalidArgumentException;
 class OutputFormat
 {
     const OUTPUT_PRINTING_TYPE = [
-        0 => 'ZPL_10x15_203dpi',
-        1 => 'ZPL_10x15_300dpi',
-        2 => 'DPL_10x15_203dpi',
-        3 => 'DPL_10x15_300dpi',
-        4 => 'PDF_10x15_300dpi',
-        5 => 'PDF_A4_300dpi'
+        'ZPL_10x15_203dpi' => 0,
+        'ZPL_10x15_300dpi' => 1,
+        'DPL_10x15_203dpi' => 2,
+        'DPL_10x15_300dpi' => 3,
+        'PDF_10x15_300dpi' => 4,
+        'PDF_A4_300dpi' => 5,
     ];
 
     /** Default label format is : PDF_10x15_300dpi */
@@ -37,11 +37,13 @@ class OutputFormat
 
     /**
      * @param int $x
+     *
      * @return self
      */
     public function setX($x)
     {
         $this->x = (int) $x;
+
         return $this;
     }
 
@@ -55,11 +57,13 @@ class OutputFormat
 
     /**
      * @param int $y
+     *
      * @return self
      */
     public function setY($y)
     {
         $this->y = (int) $y;
+
         return $this;
     }
 
@@ -73,15 +77,17 @@ class OutputFormat
 
     /**
      * @param string $outputPrintingType value of the list ColissimoAPI\Request\Helper\LabelOutputFormat::OUTPUT_PRINTING_TYPE
+     *
      * @return self
      */
     public function setOutputPrintingType($outputPrintingType)
     {
         if (\in_array($outputPrintingType, self::OUTPUT_PRINTING_TYPE)) {
-            new InvalidArgumentException('Invalid value "' . $outputPrintingType . '" for argument $outputPrintingType');
+            new InvalidArgumentException('Invalid value "'.$outputPrintingType.'" for argument $outputPrintingType');
         }
 
         $this->outputPrintingType = $outputPrintingType;
+
         return $this;
     }
 }

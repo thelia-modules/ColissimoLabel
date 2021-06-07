@@ -1,8 +1,6 @@
 <?php
 
-
 namespace ColissimoLabel\Controller\Admin;
-
 
 use ColissimoLabel\ColissimoLabel;
 use ColissimoLabel\Form\ConfigureColissimoLabel;
@@ -14,35 +12,36 @@ use Thelia\Tools\URL;
 
 class ConfigurationController extends AdminController
 {
-    public function renderConfigPageAction() {
-        (new \ColissimoLabel\ColissimoLabel)->checkConfigurationsValues();
+    public function renderConfigPageAction()
+    {
+        (new \ColissimoLabel\ColissimoLabel())->checkConfigurationsValues();
 
         return $this->render('colissimo-label/module-configuration');
     }
 
     public function saveConfig()
     {
-        if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ColissimoLabel'), AccessManager::UPDATE)) {
+        if (null !== $response = $this->checkAuth([AdminResources::MODULE], ['ColissimoLabel'], AccessManager::UPDATE)) {
             return $response;
         }
 
-        $form = new ConfigureColissimoLabel($this->getRequest());
+        $form = $this->createForm(ConfigureColissimoLabel::getName());
         try {
             $vform = $this->validateForm($form);
 
-            /** General config values */
+            /* General config values */
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_CONTRACT_NUMBER, $vform->get(ColissimoLabel::CONFIG_KEY_CONTRACT_NUMBER)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD, $vform->get(ColissimoLabel::CONFIG_KEY_PASSWORD)->getData());
-            ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_SIGNED, (int)$vform->get(ColissimoLabel::CONFIG_KEY_DEFAULT_SIGNED)->getData());
-            ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_GENERATE_BORDEREAU, (int)$vform->get(ColissimoLabel::CONFIG_KEY_GENERATE_BORDEREAU)->getData());
+            ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_SIGNED, (int) $vform->get(ColissimoLabel::CONFIG_KEY_DEFAULT_SIGNED)->getData());
+            ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_GENERATE_BORDEREAU, (int) $vform->get(ColissimoLabel::CONFIG_KEY_GENERATE_BORDEREAU)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_LABEL_FORMAT, $vform->get(ColissimoLabel::CONFIG_KEY_DEFAULT_LABEL_FORMAT)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE, $vform->get(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE)->getData());
-            ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_GET_INVOICES, (int)$vform->get(ColissimoLabel::CONFIG_KEY_GET_INVOICES)->getData());
-            ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_GET_CUSTOMS_INVOICES, (int)$vform->get(ColissimoLabel::CONFIG_KEY_GET_CUSTOMS_INVOICES)->getData());
+            ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_GET_INVOICES, (int) $vform->get(ColissimoLabel::CONFIG_KEY_GET_INVOICES)->getData());
+            ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_GET_CUSTOMS_INVOICES, (int) $vform->get(ColissimoLabel::CONFIG_KEY_GET_CUSTOMS_INVOICES)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_CUSTOMS_PRODUCT_HSCODE, $vform->get(ColissimoLabel::CONFIG_KEY_CUSTOMS_PRODUCT_HSCODE)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_ENDPOINT, $vform->get(ColissimoLabel::CONFIG_KEY_ENDPOINT)->getData());
 
-            /** Sender's address values */
+            /* Sender's address values */
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_FROM_NAME, $vform->get(ColissimoLabel::CONFIG_KEY_FROM_NAME)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_FROM_ADDRESS_1, $vform->get(ColissimoLabel::CONFIG_KEY_FROM_ADDRESS_1)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_FROM_ADDRESS_2, $vform->get(ColissimoLabel::CONFIG_KEY_FROM_ADDRESS_2)->getData());
@@ -51,7 +50,7 @@ class ConfigurationController extends AdminController
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_FROM_COUNTRY, $vform->get(ColissimoLabel::CONFIG_KEY_FROM_COUNTRY)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_FROM_CONTACT_EMAIL, $vform->get(ColissimoLabel::CONFIG_KEY_FROM_CONTACT_EMAIL)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_FROM_PHONE, $vform->get(ColissimoLabel::CONFIG_KEY_FROM_PHONE)->getData());
-            if ($vform->get(ColissimoLabel::CONFIG_KEY_FROM_ADDRESS_2)->getData() === ' ') {
+            if (' ' === $vform->get(ColissimoLabel::CONFIG_KEY_FROM_ADDRESS_2)->getData()) {
                 ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_FROM_ADDRESS_2, null);
             }
 

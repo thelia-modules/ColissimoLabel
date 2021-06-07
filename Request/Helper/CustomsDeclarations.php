@@ -1,8 +1,6 @@
 <?php
 
-
 namespace ColissimoLabel\Request\Helper;
-
 
 class CustomsDeclarations
 {
@@ -27,16 +25,19 @@ class CustomsDeclarations
         if (!$this->includeCustomsDeclarations) {
             return 'false';
         }
+
         return $this->includeCustomsDeclarations;
     }
 
     /**
      * @param $includeCustomsDeclarations
+     *
      * @return $this
      */
     public function setIncludeCustomsDeclarations($includeCustomsDeclarations)
     {
         $this->includeCustomsDeclarations = $includeCustomsDeclarations;
+
         return $this;
     }
 
@@ -50,11 +51,13 @@ class CustomsDeclarations
 
     /**
      * @param $category
+     *
      * @return $this
      */
     public function setCategory($category)
     {
         $this->category = $category;
+
         return $this;
     }
 
@@ -68,11 +71,13 @@ class CustomsDeclarations
 
     /**
      * @param $articles
+     *
      * @return $this
      */
     public function setArticles($articles)
     {
         $this->articles[] = $articles;
+
         return $this;
     }
 }

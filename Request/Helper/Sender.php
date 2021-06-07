@@ -28,11 +28,13 @@ class Sender
 
     /**
      * @param string $senderParcelRef
+     *
      * @return self
      */
     public function setSenderParcelRef($senderParcelRef)
     {
         $this->senderParcelRef = $senderParcelRef;
+
         return $this;
     }
 

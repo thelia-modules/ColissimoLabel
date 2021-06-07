@@ -7,7 +7,7 @@ namespace ColissimoLabel\Request\Helper;
  */
 class Address
 {
-    protected $companyName ='';
+    protected $companyName = '';
 
     protected $lastName = '';
 
@@ -45,11 +45,13 @@ class Address
 
     /**
      * @param string $language
+     *
      * @return Address
      */
     public function setLanguage($language)
     {
         $this->language = $language;
+
         return $this;
     }
 
@@ -63,11 +65,13 @@ class Address
 
     /**
      * @param string $phoneNumber
+     *
      * @return Address
      */
     public function setPhoneNumber($phoneNumber)
     {
         $this->phoneNumber = $phoneNumber;
+
         return $this;
     }
 
@@ -81,11 +85,13 @@ class Address
 
     /**
      * @param string $mobileNumber
+     *
      * @return Address
      */
     public function setMobileNumber($mobileNumber)
     {
         $this->mobileNumber = $mobileNumber;
+
         return $this;
     }
 
@@ -99,11 +105,13 @@ class Address
 
     /**
      * @param string $email
+     *
      * @return Address
      */
     public function setEmail($email)
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -117,11 +125,13 @@ class Address
 
     /**
      * @param string $companyName
+     *
      * @return self
      */
     public function setCompanyName($companyName)
     {
         $this->companyName = $companyName;
+
         return $this;
     }
 
@@ -135,11 +145,13 @@ class Address
 
     /**
      * @param string $lastName
+     *
      * @return self
      */
     public function setLastName($lastName)
     {
         $this->lastName = $lastName;
+
         return $this;
     }
 
@@ -153,11 +165,13 @@ class Address
 
     /**
      * @param string $firstName
+     *
      * @return self
      */
     public function setFirstName($firstName)
     {
         $this->firstName = $firstName;
+
         return $this;
     }
 
@@ -171,11 +185,13 @@ class Address
 
     /**
      * @param string $line0
+     *
      * @return self
      */
     public function setLine0($line0)
     {
         $this->line0 = $line0;
+
         return $this;
     }
 
@@ -189,11 +205,13 @@ class Address
 
     /**
      * @param string $line1
+     *
      * @return self
      */
     public function setLine1($line1)
     {
         $this->line1 = $line1;
+
         return $this;
     }
 
@@ -207,11 +225,13 @@ class Address
 
     /**
      * @param string $line2
+     *
      * @return self
      */
     public function setLine2($line2)
     {
         $this->line2 = $line2;
+
         return $this;
     }
 
@@ -225,11 +245,13 @@ class Address
 
     /**
      * @param string $line3
+     *
      * @return self
      */
     public function setLine3($line3)
     {
         $this->line3 = $line3;
+
         return $this;
     }
 
@@ -243,11 +265,13 @@ class Address
 
     /**
      * @param string $countryCode
+     *
      * @return self
      */
     public function setCountryCode($countryCode)
     {
         $this->countryCode = $countryCode;
+
         return $this;
     }
 
@@ -261,11 +285,13 @@ class Address
 
     /**
      * @param string $city
+     *
      * @return self
      */
     public function setCity($city)
     {
         $this->city = $city;
+
         return $this;
     }
 
@@ -279,11 +305,13 @@ class Address
 
     /**
      * @param string $zipCode
+     *
      * @return self
      */
     public function setZipCode($zipCode)
     {
         $this->zipCode = $zipCode;
+
         return $this;
     }
 }

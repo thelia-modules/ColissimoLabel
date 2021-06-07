@@ -34,7 +34,7 @@ class LabelRequest extends AbstractLabelRequest
         /**
          * If a pickup type was given (relay point delivery), we set the delivery code $productCode as this.
          * Otherwise, we check in getProductCode which delivery type is necessary given the delivery country and whether this
-         * is a signed delivery or not, and set $productCode as what ie returns
+         * is a signed delivery or not, and set $productCode as what ie returns.
          */
         if (null === $productCode = $pickupType) {
             $productCode = $this->getProductCode($order, $signedDelivery);
@@ -54,7 +54,7 @@ class LabelRequest extends AbstractLabelRequest
         }
 
         $this->setLetter(new Letter(
-            /** We set the general delivery informations */
+            /* We set the general delivery informations */
             new Service(
                 $productCode,
                 new DateTime(),
@@ -62,11 +62,11 @@ class LabelRequest extends AbstractLabelRequest
                 $order->getPostage(),
                 3
             ),
-            /** We set the sender address */
+            /* We set the sender address */
             new Sender(
                 $this->createAddressFromStore()
             ),
-            /** We set the receiver address */
+            /* We set the receiver address */
             new Addressee(
                 $this->createAddressFromOrderAddress(
                     $orderAddress,
@@ -77,13 +77,13 @@ class LabelRequest extends AbstractLabelRequest
                 $order->getWeight()
             ),
             new CustomsDeclarations(
-                (bool)ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GET_CUSTOMS_INVOICES),
+                (bool) ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GET_CUSTOMS_INVOICES),
                 3,
                 $articles
             )
         ));
 
-        /** If this is a pickup/relay point delivery, we set the pickup location ID */
+        /* If this is a pickup/relay point delivery, we set the pickup location ID */
         if (null !== $pickupCode) {
             $this->getLetter()->getParcel()->setPickupLocationId($pickupCode);
         }
@@ -91,21 +91,22 @@ class LabelRequest extends AbstractLabelRequest
         $this->getLetter()->getAddressee()->setAddresseeParcelRef($order->getRef());
         $this->getLetter()->getSender()->setSenderParcelRef($order->getRef());
 
-        /** We initialize the label format */
+        /* We initialize the label format */
         $this->setOutputFormat(new OutputFormat());
 
-        /** We set the label format from the one indicated in the module config table */
+        /* We set the label format from the one indicated in the module config table */
         $this->getOutputFormat()->setOutputPrintingType(
             OutputFormat::OUTPUT_PRINTING_TYPE[ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_LABEL_FORMAT)]
         );
     }
 
     /**
-     * Return a domicile delivery code given the order country and whether this is a signed delivery or not
+     * Return a domicile delivery code given the order country and whether this is a signed delivery or not.
      *
-     * @param Order $order
      * @param bool $signedDelivery
+     *
      * @return mixed
+     *
      * @throws \Propel\Runtime\Exception\PropelException
      */
     protected function getProductCode(Order $order, $signedDelivery = false)
@@ -115,31 +116,34 @@ class LabelRequest extends AbstractLabelRequest
 
         $code = $deliveryAddress->getCountry()->getIsocode();
 
-        /** France Case */
-        if ($code == '250') {
+        /* France Case */
+        if ('250' == $code) {
             if ($signedDelivery) {
                 return Service::PRODUCT_CODE_LIST[2];
             }
+
             return Service::PRODUCT_CODE_LIST[0];
         }
 
-        /** Europe Case */
+        /* Europe Case */
         if (in_array($code, Service::EUROPE_ISOCODES, false)) {
             if ($signedDelivery) {
                 return Service::PRODUCT_CODE_LIST[2];
             }
+
             return Service::PRODUCT_CODE_LIST[0];
         }
 
-        /** DOM TOM case */
+        /* DOM TOM case */
         if (in_array($code, Service::DOMTOM_ISOCODES, false)) {
             if ($signedDelivery) {
                 return Service::PRODUCT_CODE_LIST[11];
             }
+
             return Service::PRODUCT_CODE_LIST[10];
         }
 
-        /** Other cases */
+        /* Other cases */
         return Service::PRODUCT_CODE_LIST[14];
     }
 }

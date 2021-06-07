@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
     '/kg' => '/kg',
     'Action' => 'Action',
     'Advanced configuration' => 'Advanced configuration',
@@ -56,4 +56,4 @@ return array(
     'View' => 'View',
     'Weight' => 'Weight',
     'kg' => 'kg',
-);
+];

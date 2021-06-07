@@ -3,7 +3,6 @@
 namespace ColissimoLabel\Request\Helper;
 
 use ColissimoLabel\ColissimoLabel;
-use Thelia\Model\ConfigQuery;
 
 /**
  * @author Gilles Bourgeat >gilles.bourgeat@gmail.com>
@@ -37,11 +36,13 @@ abstract class APIConfiguration
 
     /**
      * @param string $contractNumber
+     *
      * @return self
      */
     public function setContractNumber($contractNumber)
     {
         $this->contractNumber = $contractNumber;
+
         return $this;
     }
 
@@ -55,11 +56,13 @@ abstract class APIConfiguration
 
     /**
      * @param string $password
+     *
      * @return self
      */
     public function setPassword($password)
     {
         $this->password = $password;
+
         return $this;
     }
 
@@ -73,11 +76,13 @@ abstract class APIConfiguration
 
     /**
      * @param string $version
+     *
      * @return self
      */
     public function setVersion($version)
     {
         $this->version = $version;
+
         return $this;
     }
 
@@ -91,11 +96,13 @@ abstract class APIConfiguration
 
     /**
      * @param string $wsdl
+     *
      * @return self
      */
     public function setWsdl($wsdl)
     {
         $this->wsdl = $wsdl;
+
         return $this;
     }
 
@@ -109,11 +116,13 @@ abstract class APIConfiguration
 
     /**
      * @param string $method
+     *
      * @return self
      */
     public function setMethod($method)
     {
         $this->method = $method;
+
         return $this;
     }
 }
