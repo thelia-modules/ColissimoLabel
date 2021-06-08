@@ -66,7 +66,7 @@ class ConfigureColissimoLabel extends BaseForm
                 [
                     'constraints' => [new NotBlank()],
                     'data' => ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_LABEL_FORMAT),
-                    'choices' => OutputFormat::OUTPUT_PRINTING_TYPE,
+                    'choices' => array_flip(OutputFormat::OUTPUT_PRINTING_TYPE),
                     'label' => $translator->trans('Label format', [], ColissimoLabel::DOMAIN_NAME),
                     'label_attr' => ['for' => ColissimoLabel::CONFIG_KEY_DEFAULT_LABEL_FORMAT],
                 ]

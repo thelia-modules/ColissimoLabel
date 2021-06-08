@@ -3,7 +3,7 @@
 namespace ColissimoLabel\Event;
 
 use ColissimoLabel\Request\LabelRequest;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @author Gilles Bourgeat >gilles.bourgeat@gmail.com>

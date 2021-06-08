@@ -6,10 +6,12 @@ use ColissimoLabel\ColissimoLabel;
 use ColissimoLabel\Form\LabelGenerationForm;
 use ColissimoLabel\Model\ColissimoLabelQuery;
 use ColissimoLabel\Request\Helper\BordereauRequestAPIConfiguration;
+use ColissimoLabel\Service\LabelService;
 use ColissimoLabel\Service\SOAPService;
 use ColissimoWs\Controller\LabelController;
 use ColissimoWs\Model\ColissimowsLabelQuery;
 use Propel\Runtime\Exception\PropelException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -29,7 +31,7 @@ use Thelia\Tools\URL;
 
 class OrderController extends AdminController
 {
-    public function generateLabelAction(Request $request)
+    public function generateLabelAction(Request $request, LabelService $labelService, EventDispatcherInterface $eventDispatcher)
     {
         if (null !== $response = $this->checkAuth([AdminResources::MODULE], ['ColissimoLabel'], AccessManager::UPDATE)) {
             return new JsonResponse([
@@ -53,15 +55,13 @@ class OrderController extends AdminController
 
             ColissimoLabel::setConfigValue('new_status', $data['new_status']);
 
-            $service = $this->getContainer()->get('colissimolabel.generate.label.service');
-            $response = $service->generateLabel($data, $isEditPage);
+            $response = $labelService->generateLabel($data, $isEditPage, $eventDispatcher);
 
             if ($isEditPage) {
                 return $response;
             }
 
         } catch (\Exception $ex) {
-            throw $ex;
             $this->setupFormErrorContext('Generation étiquettes Colissimo', $ex->getMessage(), $exportForm, $ex);
         }
 
@@ -70,7 +70,7 @@ class OrderController extends AdminController
                 $fileSystem = new Filesystem();
                 /* Generates and dump the invoice file if it is requested */
                 if (ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GET_INVOICES)) {
-                    $invoiceResponse = $this->generateOrderPdf($orderId, ConfigQuery::read('pdf_invoice_file', 'invoice'));
+                    $invoiceResponse = $this->generateOrderPdf($eventDispatcher, $orderId, ConfigQuery::read('pdf_invoice_file', 'invoice'));
                     $fileSystem->dumpFile(
                         $invoiceName = ColissimoLabel::getLabelPath($order->getRef().'-invoice', 'pdf'),
                         $invoiceResponse->getContent()

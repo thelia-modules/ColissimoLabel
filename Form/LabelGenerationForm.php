@@ -23,9 +23,9 @@ class LabelGenerationForm extends BaseForm
                 ChoiceType::class, [
                     'label' => Translator::getInstance()->trans('Order status after export'),
                     'choices' => [
-                        'nochange' => Translator::getInstance()->trans('Do not change', [], ColissimoLabel::DOMAIN_NAME),
-                        'processing' => Translator::getInstance()->trans('Set orders status as processing', [], ColissimoLabel::DOMAIN_NAME),
-                        'sent' => Translator::getInstance()->trans('Set orders status as sent', [], ColissimoLabel::DOMAIN_NAME),
+                        Translator::getInstance()->trans('Do not change', [], ColissimoLabel::DOMAIN_NAME) => 'nochange',
+                        Translator::getInstance()->trans('Set orders status as processing', [], ColissimoLabel::DOMAIN_NAME) => 'processing',
+                        Translator::getInstance()->trans('Set orders status as sent', [], ColissimoLabel::DOMAIN_NAME) => 'sent',
                     ],
                     'required' => 'false',
                     'expanded' => true,

@@ -14,7 +14,7 @@
 {/if}
 
 {block name="main-content"}
-{$conf}
+{$conf|default:null}
 <div class="row">
     <div class="col-md-12">
         <div class="general-block-decorator">
@@ -48,7 +48,7 @@
                                             <div class="panel-body">
                                                 {form_hidden_fields form=$form}
 
-                                                {render_form_field form=$form field='colissimolabel-endpoint' value={$value}}
+                                                {render_form_field form=$form field='colissimolabel-endpoint' value={$value|default:null}}
                                                 {form_field form=$form field='contract-number'}
                                                 <div class="form-group {if $error}has-error{/if}">
                                                     <label for="{$label_attr.for}" class="control-label">{$label}{if $required} <span class="required">*</span>{/if} : </label>

@@ -173,8 +173,8 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
 
         $service = new SOAPService();
         $this->dispatcher->dispatch(
-            ColissimoLabelEvents::LABEL_REQUEST,
-            new LabelRequestEvent($colissimoRequest)
+            new LabelRequestEvent($colissimoRequest),
+            ColissimoLabelEvents::LABEL_REQUEST
         );
 
         $response = $service->callAPI($APIConfiguration, $colissimoRequest);

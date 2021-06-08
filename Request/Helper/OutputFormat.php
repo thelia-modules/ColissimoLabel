@@ -10,12 +10,12 @@ use ColissimoLabel\Exception\InvalidArgumentException;
 class OutputFormat
 {
     const OUTPUT_PRINTING_TYPE = [
-        'ZPL_10x15_203dpi' => 0,
-        'ZPL_10x15_300dpi' => 1,
-        'DPL_10x15_203dpi' => 2,
-        'DPL_10x15_300dpi' => 3,
-        'PDF_10x15_300dpi' => 4,
-        'PDF_A4_300dpi' => 5,
+        0 => 'ZPL_10x15_203dpi',
+        1 => 'ZPL_10x15_300dpi',
+        2 => 'DPL_10x15_203dpi',
+        3 => 'DPL_10x15_300dpi',
+        4 => 'PDF_10x15_300dpi',
+        5 => 'PDF_A4_300dpi'
     ];
 
     /** Default label format is : PDF_10x15_300dpi */
