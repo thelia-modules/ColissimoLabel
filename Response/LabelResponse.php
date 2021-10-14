@@ -74,7 +74,7 @@ class LabelResponse
         $errorCode = explode("</id>", $errorCode[1]);
         //- Parse Web Service Response
         //+ Error handling and label saving
-        if ($errorCode[0] == 0) {
+        if ($errorCode[0] === "0") {
             return true;
         }
 
