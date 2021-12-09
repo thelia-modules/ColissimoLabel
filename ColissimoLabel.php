@@ -407,4 +407,9 @@ class ColissimoLabel extends BaseModule
     public static function removeAccents($str) {
         return iconv("UTF-8", "ASCII//TRANSLIT//IGNORE", transliterator_transliterate('Any-Latin; Latin-ASCII; Upper()', $str));
     }
+
+    public static function getTrackingLink(Order $order)
+    {
+        return "https://www.laposte.fr/outils/suivre-vos-envois?code=". $order->getDeliveryRef();
+    }
 }
