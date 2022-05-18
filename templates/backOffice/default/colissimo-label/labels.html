@@ -163,7 +163,7 @@
                                 </td>
 
                                 <td class="text-center">
-                                    {if $HAS_CUSTOMS_INVOICE}
+                                    {if $HAS_CUSTOMS_INVOICE|default:null}
                                     <a class="btn btn-default btn-xs" href="{$CUSTOMS_INVOICE_URL}" target="_blank" title="{intl d='colissimolabel.bo.default' l="Download customs invoice (PDF)"}">
                                     <i class="glyphicon glyphicon-download"></i>
                                     </a>
