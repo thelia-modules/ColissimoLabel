@@ -9,6 +9,7 @@ return [
     'Cancel' => 'Annuler',
     'Change to "Processing"' => 'Changer en "Traitement"',
     'Change to "Sent". If you choose this option, the delivery notification email is sent to the customer, and the processed order are removed from this page.' => 'Changer en "Envoyé". Choisir cette option retirera la commande de cette liste, et enverra un mail de notification au client.',
+    'Change to "Sent". If you choose this option, the delivery notification email is sent to the customer.' => 'Changer en "Envoyé". Choisir cette option enverra un mail de notification au client.',
     'Clear label' => 'Supprimer l\'étiquette',
     'Colissimo Labels' => 'Etiquettes Colissimo',
     'ColissimoLabel' => 'Etiquettes Colissimo',

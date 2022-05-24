@@ -53,7 +53,9 @@ class OrderController extends AdminController
 
             $isEditPage = $request->query->get('edit-order');
 
-            ColissimoLabel::setConfigValue('new_status', $data['new_status']);
+            if (!$isEditPage) {
+                ColissimoLabel::setConfigValue('new_status', $data['new_status']);
+            }
 
             $response = $labelService->generateLabel($data, $isEditPage, $eventDispatcher);
 

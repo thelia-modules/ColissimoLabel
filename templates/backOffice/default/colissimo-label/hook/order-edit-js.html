@@ -25,8 +25,10 @@
                         {form_hidden_fields}
                         <div class="modal-body">
 
-                            <div class="panel-body" hidden>
-                                {form_field field="new_status"}
+                            {form_field field="new_status"}
+                                <label>
+                                    {intl d='colissimolabel.bo.default' l="Order status change after processing"}
+                                </label>
                                 <div class="radio">
                                     <label>
                                         <input type="radio" name="{$name}" value="nochange" {if $data == "nochange"}checked{/if}>
@@ -42,11 +44,10 @@
                                 <div class="radio">
                                     <label>
                                         <input type="radio" name="{$name}" value="sent" {if $data == "sent"}checked{/if}>
-                                        {intl l="Change to \"Sent\". If you choose this option, the delivery notification email is sent to the customer, and the processed order are removed from this page." d='colissimolabel.bo.default'}
+                                        {intl l="Change to \"Sent\". If you choose this option, the delivery notification email is sent to the customer." d='colissimolabel.bo.default'}
                                     </label>
                                 </div>
-                                {/form_field}
-                            </div>
+                            {/form_field}
 
                             {loop type="colissimolabel.label-info" name="form-label-infos" order_id=$ID limit=1}
 
