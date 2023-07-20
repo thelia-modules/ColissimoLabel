@@ -97,7 +97,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
         $APIConfiguration->setPassword(ColissimoLabelModule::getConfigValue(ColissimoLabelModule::CONFIG_KEY_PASSWORD));
 
         /* Check if delivery is a relay point through ColissimoPickupPoint. Use relay point address if it is */
-        if (ColissimoLabelModule::AUTHORIZED_MODULES[3] === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
+        if (ColissimoLabelModule::AUTHORIZED_MODULES[1] === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
             null !== ($AddressColissimoPickupPoint = OrderAddressColissimoPickupPointQuery::create()
                 ->findOneById($order->getDeliveryOrderAddressId()))
             && $AddressColissimoPickupPoint) {
