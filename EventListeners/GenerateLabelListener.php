@@ -5,7 +5,7 @@ namespace ColissimoLabel\EventListeners;
 use ColissimoLabel\ColissimoLabel;
 use ColissimoLabel\Service\LabelService;
 use Picking\Event\GenerateLabelEvent;
-use Picking\Picking;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Thelia\Controller\Admin\BaseAdminController;
 
@@ -16,28 +16,26 @@ use Thelia\Controller\Admin\BaseAdminController;
  */
 class GenerateLabelListener extends BaseAdminController implements EventSubscriberInterface
 {
-    protected $labelService;
-
-    public function __construct(LabelService $labelService)
-    {
-        $this->labelService = $labelService;
-    }
+    public function __construct(
+        protected EventDispatcherInterface $eventDispatcher,
+        protected LabelService $labelService
+    ) {}
 
     public function generateLabel(GenerateLabelEvent $event)
     {
         $deliveryModuleCode = $event->getOrder()->getModuleRelatedByDeliveryModuleId()->getCode();
-        if ('ColissimoHomeDelivery' === $deliveryModuleCode || 'ColissimoPickupPoint' === $deliveryModuleCode || 'SoColissimo' === $deliveryModuleCode) {
+        if ('ColissimoHomeDelivery' === $deliveryModuleCode || 'ColissimoPickupPoint' === $deliveryModuleCode) {
             $data = [];
             $orderId = $event->getOrder()->getId();
             $data['new_status'] = ColissimoLabel::getConfigValue('new_status', 'nochange');
             $data['order_id'][$orderId] = $orderId;
             $data['weight'][$orderId] = $event->getWeight();
             $data['signed'][$orderId] = $event->isSignedDelivery();
-            $event->setResponse($this->labelService->generateLabel($data, true));
+            $event->setResponse($this->labelService->generateLabel($data, true, $this->eventDispatcher));
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         $events = [];
         if (class_exists('Picking\Event\GenerateLabelEvent')) {

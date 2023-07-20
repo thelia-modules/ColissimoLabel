@@ -10,14 +10,14 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class LabelRequestEvent extends Event
 {
-    protected $labelRequest;
+    protected LabelRequest $labelRequest;
 
     public function __construct(LabelRequest $labelRequest)
     {
         $this->labelRequest = $labelRequest;
     }
 
-    public function getLabelRequest()
+    public function getLabelRequest(): LabelRequest
     {
         return $this->labelRequest;
     }

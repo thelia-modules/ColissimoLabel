@@ -4,6 +4,7 @@ namespace ColissimoLabel\Loop;
 
 use ColissimoLabel\ColissimoLabel;
 use Propel\Runtime\ActiveQuery\Criteria;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Thelia\Core\Template\Loop\Argument\Argument;
 use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
 use Thelia\Core\Template\Loop\Order;
@@ -14,7 +15,7 @@ use Thelia\Model\OrderStatusQuery;
 
 class OrdersNotSentLoop extends Order
 {
-    public function getArgDefinitions()
+    public function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(Argument::createBooleanTypeArgument('with_prev_next_info', false));
     }
@@ -22,9 +23,9 @@ class OrdersNotSentLoop extends Order
     /**
      * This method returns a Propel ModelCriteria.
      *
-     * @return \Propel\Runtime\ActiveQuery\ModelCriteria
+     * @return ModelCriteria
      */
-    public function buildModelCriteria()
+    public function buildModelCriteria(): ModelCriteria
     {
         /** Get an array composed of the paid and processing order statuses */
         $status = OrderStatusQuery::create()
@@ -40,12 +41,6 @@ class OrdersNotSentLoop extends Order
 
         /** Verify what modules are installed */
         $moduleIds = [];
-        if ($colissimoWS = ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[0])) {
-            $moduleIds[] = $colissimoWS->getId();
-        }
-        if ($soColissimo = ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[1])) {
-            $moduleIds[] = $soColissimo->getId();
-        }
         if ($colissimoHomeDelivery = ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[2])) {
             $moduleIds[] = $colissimoHomeDelivery->getId();
         }
@@ -53,7 +48,7 @@ class OrdersNotSentLoop extends Order
             $moduleIds[] = $colissimoPickupPoint->getId();
         }
 
-        $query = OrderQuery::create()
+        return OrderQuery::create()
             ->filterByDeliveryModuleId(
                 $moduleIds,
                 Criteria::IN
@@ -65,7 +60,5 @@ class OrdersNotSentLoop extends Order
                 ],
                 Criteria::IN
             );
-
-        return $query;
     }
 }

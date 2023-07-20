@@ -4,21 +4,27 @@ namespace ColissimoLabel\Controller\Admin;
 
 use ColissimoLabel\ColissimoLabel;
 use ColissimoLabel\Form\ConfigureColissimoLabel;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\Annotation\Route;
 use Thelia\Controller\Admin\AdminController;
+use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Core\Translation\Translator;
 use Thelia\Tools\URL;
 
+#[Route('/admin/module/ColissimoLabel/configuration', name: 'colissimo_label_configuration_')]
 class ConfigurationController extends AdminController
 {
-    public function renderConfigPageAction()
+    #[Route('', name: 'configuration', methods: 'GET')]
+    public function renderConfigPageAction(): Response|RedirectResponse
     {
-        (new \ColissimoLabel\ColissimoLabel())->checkConfigurationsValues();
+        (new ColissimoLabel())->checkConfigurationsValues();
 
         return $this->render('colissimo-label/module-configuration');
     }
 
+    #[Route('/save', name: 'save', methods: 'POST')]
     public function saveConfig()
     {
         if (null !== $response = $this->checkAuth([AdminResources::MODULE], ['ColissimoLabel'], AccessManager::UPDATE)) {
@@ -55,7 +61,7 @@ class ConfigurationController extends AdminController
             }
 
             return $this->generateRedirect(
-                URL::getInstance()->absoluteUrl('/admin/module/colissimolabel/configuration')
+                URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/configuration')
             );
         } catch (\Exception $e) {
             $this->setupFormErrorContext(

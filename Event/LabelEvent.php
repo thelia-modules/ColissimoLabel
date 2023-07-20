@@ -8,23 +8,23 @@ use Thelia\Core\Event\ActionEvent;
 class LabelEvent extends ActionEvent
 {
     /** @var int */
-    protected $orderId;
+    protected int $orderId;
 
-    /** @var ColissimoLabel */
-    protected $colissimoLabel = null;
+    /** @var ColissimoLabel|null */
+    protected ?ColissimoLabel $colissimoLabel = null;
 
     /** @var float|null */
-    protected $weight = null;
+    protected ?float $weight = null;
 
     /** @var bool|null */
-    protected $signed = null;
+    protected ?bool $signed = null;
 
     /**
      * LabelEvent constructor.
      *
      * @param int $orderId
      */
-    public function __construct($orderId)
+    public function __construct(int $orderId)
     {
         $this->orderId = $orderId;
     }
@@ -32,15 +32,15 @@ class LabelEvent extends ActionEvent
     /**
      * @return int
      */
-    public function getOrderId()
+    public function getOrderId(): int
     {
         return $this->orderId;
     }
 
     /**
-     * @return ColissimoLabel
+     * @return ColissimoLabel|null
      */
-    public function getColissimoLabel()
+    public function getColissimoLabel(): ?ColissimoLabel
     {
         return $this->colissimoLabel;
     }
@@ -50,22 +50,22 @@ class LabelEvent extends ActionEvent
      *
      * @return $this
      */
-    public function setColissimoLabel($colissimoLabel)
+    public function setColissimoLabel(ColissimoLabel $colissimoLabel): static
     {
         $this->colissimoLabel = $colissimoLabel;
 
         return $this;
     }
 
-    public function hasLabel()
+    public function hasLabel(): bool
     {
-        return null !== $this->colissimoWsLabel;
+        return null !== $this->colissimoLabel;
     }
 
     /**
      * @return float|null
      */
-    public function getWeight()
+    public function getWeight(): ?float
     {
         return $this->weight;
     }
@@ -75,7 +75,7 @@ class LabelEvent extends ActionEvent
      *
      * @return $this
      */
-    public function setWeight($weight)
+    public function setWeight(?float $weight): static
     {
         $this->weight = $weight;
 
@@ -85,7 +85,7 @@ class LabelEvent extends ActionEvent
     /**
      * @return bool|null
      */
-    public function getSigned()
+    public function getSigned(): ?bool
     {
         return $this->signed;
     }
@@ -95,7 +95,7 @@ class LabelEvent extends ActionEvent
      *
      * @return $this
      */
-    public function setSigned($signed)
+    public function setSigned(?bool $signed): static
     {
         $this->signed = $signed;
 

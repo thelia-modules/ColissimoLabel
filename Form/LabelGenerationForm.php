@@ -66,12 +66,4 @@ class LabelGenerationForm extends BaseForm
             )
         ;
     }
-
-    /**
-     * @return string the name of you form. This name must be unique
-     */
-    public static function getName()
-    {
-        return 'colissimolabel_export_form';
-    }
 }

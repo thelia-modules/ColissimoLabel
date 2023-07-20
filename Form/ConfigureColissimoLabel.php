@@ -207,12 +207,4 @@ class ConfigureColissimoLabel extends BaseForm
 
         return $value;
     }
-
-    /**
-     * @return string the name of you form. This name must be unique
-     */
-    public static function getName()
-    {
-        return 'configure_colissimolabel';
-    }
 }
