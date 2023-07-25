@@ -12,6 +12,7 @@
 namespace ColissimoLabel;
 
 use ColissimoHomeDelivery\ColissimoHomeDelivery;
+use ColissimoLabel\Enum\AuthorizedModuleEnum;
 use ColissimoLabel\Request\Helper\OutputFormat;
 use ColissimoLabel\Request\Helper\Service;
 use ColissimoPickupPoint\ColissimoPickupPoint;
@@ -38,8 +39,6 @@ class ColissimoLabel extends BaseModule
     const LABEL_FOLDER = THELIA_LOCAL_DIR.'colissimo-label';
 
     const BORDEREAU_FOLDER = self::LABEL_FOLDER.DIRECTORY_SEPARATOR.'bordereau';
-
-    const AUTHORIZED_MODULES = ['ColissimoHomeDelivery', 'ColissimoPickupPoint'];
 
     const CONFIG_KEY_DEFAULT_LABEL_FORMAT = 'default-label-format';
 
@@ -150,10 +149,10 @@ class ColissimoLabel extends BaseModule
          */
         if (null === self::getConfigValue(self::CONFIG_KEY_CONTRACT_NUMBER)) {
             $contractNumber = '';
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[1])) {
+            if (ModuleQuery::create()->findOneByCode(AuthorizedModuleEnum::ColissimoPickupPoint->value)) {
                 $contractNumber = ColissimoPickupPoint::getConfigValue('colissimo_pickup_point_username');
             }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[0])) {
+            if (ModuleQuery::create()->findOneByCode(AuthorizedModuleEnum::ColissimoHomeDelivery->value)) {
                 $contractNumber = ColissimoHomeDelivery::getConfigValue('colissimo_home_delivery_username');
             }
 
@@ -171,10 +170,10 @@ class ColissimoLabel extends BaseModule
          */
         if (null === self::getConfigValue(self::CONFIG_KEY_PASSWORD)) {
             $contractPassword = '';
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[1])) {
+            if (ModuleQuery::create()->findOneByCode(AuthorizedModuleEnum::ColissimoPickupPoint->value)) {
                 $contractPassword = ColissimoPickupPoint::getConfigValue('colissimo_pickup_point_password');
             }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[0])) {
+            if (ModuleQuery::create()->findOneByCode(AuthorizedModuleEnum::ColissimoHomeDelivery->value)) {
                 $contractPassword = ColissimoHomeDelivery::getConfigValue('colissimo_home_delivery_password');
             }
 

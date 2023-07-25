@@ -3,6 +3,7 @@
 namespace ColissimoLabel\Service;
 
 use ColissimoLabel\ColissimoLabel;
+use ColissimoLabel\Enum\AuthorizedModuleEnum;
 use ColissimoLabel\Event\ColissimoLabelEvents;
 use ColissimoLabel\Event\LabelRequestEvent;
 use ColissimoLabel\Model\ColissimoLabelQuery;
@@ -65,7 +66,7 @@ class LabelService
                 $APIConfiguration->setPassword(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD));
 
                 /* Same thing with ColissimoPickupPoint */
-                if (ColissimoLabel::AUTHORIZED_MODULES[1] === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
+                if (AuthorizedModuleEnum::ColissimoPickupPoint->value === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
                     if (null !== $AddressColissimoPickupPoint = OrderAddressColissimoPickupPointQuery::create()
                             ->findOneById($order->getDeliveryOrderAddressId())) {
                         /* If the delivery is through a relay point, we create a new LabelRequest with the relay point and order infos */

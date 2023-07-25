@@ -9,6 +9,7 @@
 namespace ColissimoLabel\EventListeners;
 
 use ColissimoLabel\ColissimoLabel as ColissimoLabelModule;
+use ColissimoLabel\Enum\AuthorizedModuleEnum;
 use ColissimoLabel\Event\ColissimoLabelEvents;
 use ColissimoLabel\Event\LabelRequestEvent;
 use ColissimoLabel\Model\ColissimoLabel;
@@ -97,7 +98,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
         $APIConfiguration->setPassword(ColissimoLabelModule::getConfigValue(ColissimoLabelModule::CONFIG_KEY_PASSWORD));
 
         /* Check if delivery is a relay point through ColissimoPickupPoint. Use relay point address if it is */
-        if (ColissimoLabelModule::AUTHORIZED_MODULES[1] === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
+        if (AuthorizedModuleEnum::ColissimoPickupPoint->value === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
             null !== ($AddressColissimoPickupPoint = OrderAddressColissimoPickupPointQuery::create()
                 ->findOneById($order->getDeliveryOrderAddressId()))
             && $AddressColissimoPickupPoint) {
