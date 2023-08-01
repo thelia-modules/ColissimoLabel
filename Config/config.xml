@@ -9,34 +9,6 @@
         <loop name="colissimolabel.label-info" class="ColissimoLabel\Loop\ColissimoLabelInfo" />
     </loops>
 
-    <forms>
-        <form name="colissimolabel.configure" class="ColissimoLabel\Form\ConfigureColissimoLabel" />
-        <form name="colissimolabel_export_form" class="ColissimoLabel\Form\LabelGenerationForm" />
-    </forms>
-
-    <commands>
-        <!--
-        <command class="ColissimoLabel\Command\MySuperCommand" />
-        -->
-    </commands>
-
-<!--    <services>-->
-<!--        <service id="colissimolabel.update.oder.address.listener" class="ColissimoLabel\EventListeners\UpdateDeliveryAddressListener">-->
-<!--            <argument type="service" id="event_dispatcher"/>-->
-<!--            <argument type="service" id="service_container"/>-->
-<!--            <tag name="kernel.event_subscriber"/>-->
-<!--        </service>-->
-
-<!--        <service id="colissimolabel.generate.label.service" class="ColissimoLabel\Service\LabelService">-->
-<!--            <argument type="service" id="event_dispatcher"/>-->
-<!--        </service>-->
-
-<!--        <service id="picking.colissimolabel.generate.label.listener" class="ColissimoLabel\EventListeners\GenerateLabelListener">-->
-<!--            <argument type="service" id="colissimolabel.generate.label.service"/>-->
-<!--            <tag name="kernel.event_subscriber"/>-->
-<!--        </service>-->
-<!--    </services>-->
-
     <hooks>
         <hook id="colissimo.label.hook.back.order_edit" class="ColissimoLabel\Hook\Back\OrderEditHook">
             <tag name="hook.event_listener" event="order.edit-js" type="back" method="onOrderEditJs" />
@@ -45,16 +17,4 @@
             <tag name="hook.event_listener" event="main.in-top-menu-items" type="back"  />
         </hook>
     </hooks>
-
-    <!--
-    <exports>
-
-    </exports>
-    -->
-
-    <!--
-    <imports>
-
-    </imports>
-    -->
 </config>

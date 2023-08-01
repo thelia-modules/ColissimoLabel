@@ -12,13 +12,13 @@
 namespace ColissimoLabel;
 
 use ColissimoHomeDelivery\ColissimoHomeDelivery;
+use ColissimoLabel\Enum\AuthorizedModuleEnum;
 use ColissimoLabel\Request\Helper\OutputFormat;
 use ColissimoLabel\Request\Helper\Service;
 use ColissimoPickupPoint\ColissimoPickupPoint;
-use ColissimoWs\ColissimoWs;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\PropelException;
-use SoColissimo\SoColissimo;
+use SplFileInfo;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -39,8 +39,6 @@ class ColissimoLabel extends BaseModule
     const LABEL_FOLDER = THELIA_LOCAL_DIR.'colissimo-label';
 
     const BORDEREAU_FOLDER = self::LABEL_FOLDER.DIRECTORY_SEPARATOR.'bordereau';
-
-    const AUTHORIZED_MODULES = ['ColissimoWs', 'SoColissimo', 'ColissimoHomeDelivery', 'ColissimoPickupPoint'];
 
     const CONFIG_KEY_DEFAULT_LABEL_FORMAT = 'default-label-format';
 
@@ -97,7 +95,7 @@ class ColissimoLabel extends BaseModule
     const CONFIG_KEY_FROM_PHONE = 'colissimolabel-from-phone';
 
     /**
-     * @param ConnectionInterface $con
+     * @param ConnectionInterface|null $con
      */
     public function postActivation(ConnectionInterface $con = null): void
     {
@@ -105,7 +103,7 @@ class ColissimoLabel extends BaseModule
 
         if (!self::getConfigValue('is_initialized', false)) {
             $database = new Database($con);
-            $database->insertSql(null, [__DIR__.'/Config/thelia.sql']);
+            $database->insertSql(null, [__DIR__.'/Config/TheliaMain.sql']);
             self::setConfigValue('is_initialized', true);
         }
 
@@ -122,7 +120,7 @@ class ColissimoLabel extends BaseModule
 
         $database = new Database($con);
 
-        /** @var \SplFileInfo $file */
+        /** @var SplFileInfo $file */
         foreach ($finder as $file) {
             if (version_compare($currentVersion, $file->getBasename('.sql'), '<')) {
                 $database->insertSql(null, [$file->getPathname()]);
@@ -147,22 +145,14 @@ class ColissimoLabel extends BaseModule
          * Check if the contract number config value exists, and sets it to either of the following :
          * The contract number of the ColissimoHomeDelivery config, if the module is installed
          * Otherwise : the contract number of the ColissimoPickupPoint config, if the module is installed
-         * Otherwise : the contract number of the ColissimoWs config, if the module is installed
-         * Otherwise : the contract number of the SoColissimo config, if the module is installed
-         * Otherwise : a blanck string : ""
+         * Otherwise : a blank string : ""
          */
         if (null === self::getConfigValue(self::CONFIG_KEY_CONTRACT_NUMBER)) {
             $contractNumber = '';
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[1])) {
-                $contractNumber = SoColissimo::getConfigValue('socolissimo_username');
-            }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[0])) {
-                $contractNumber = ColissimoWs::getConfigValue('colissimo_username');
-            }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[3])) {
+            if (ModuleQuery::create()->findOneByCode(AuthorizedModuleEnum::ColissimoPickupPoint->value)) {
                 $contractNumber = ColissimoPickupPoint::getConfigValue('colissimo_pickup_point_username');
             }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[2])) {
+            if (ModuleQuery::create()->findOneByCode(AuthorizedModuleEnum::ColissimoHomeDelivery->value)) {
                 $contractNumber = ColissimoHomeDelivery::getConfigValue('colissimo_home_delivery_username');
             }
 
@@ -176,22 +166,14 @@ class ColissimoLabel extends BaseModule
          * Check if the contract password config value exists, and sets it to either of the following :
          * The contract password of the ColissimoHomeDelivery config, if the module is activated
          * Otherwise : the contract password of the ColissimoPickupPoint config, if the module is activated
-         * Otherwise : the contract password of the ColissimoWS config, if the module is activated
-         * Otherwise : the contract password of the SoColissimo config, if the module is activated
          * Otherwise : a blank string : ""
          */
         if (null === self::getConfigValue(self::CONFIG_KEY_PASSWORD)) {
             $contractPassword = '';
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[1])) {
-                $contractPassword = SoColissimo::getConfigValue('socolissimo_password');
-            }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[0])) {
-                $contractPassword = ColissimoWs::getConfigValue('colissimo_password');
-            }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[3])) {
+            if (ModuleQuery::create()->findOneByCode(AuthorizedModuleEnum::ColissimoPickupPoint->value)) {
                 $contractPassword = ColissimoPickupPoint::getConfigValue('colissimo_pickup_point_password');
             }
-            if (ModuleQuery::create()->findOneByCode(self::AUTHORIZED_MODULES[2])) {
+            if (ModuleQuery::create()->findOneByCode(AuthorizedModuleEnum::ColissimoHomeDelivery->value)) {
                 $contractPassword = ColissimoHomeDelivery::getConfigValue('colissimo_home_delivery_password');
             }
 
@@ -345,7 +327,7 @@ class ColissimoLabel extends BaseModule
      *
      * @return string
      */
-    public static function getLabelPath($fileName, $extension)
+    public static function getLabelPath($fileName, $extension): string
     {
         return self::LABEL_FOLDER.DS.$fileName.'.'.$extension;
     }
@@ -356,7 +338,7 @@ class ColissimoLabel extends BaseModule
      *
      * @return string
      */
-    public static function getLabelCN23Path($fileName, $extension)
+    public static function getLabelCN23Path($fileName, $extension): string
     {
         return self::LABEL_FOLDER.DS.$fileName.'.'.$extension;
     }
@@ -366,13 +348,13 @@ class ColissimoLabel extends BaseModule
      *
      * @return string
      */
-    public static function getBordereauPath($date)
+    public static function getBordereauPath($date): string
     {
         return self::BORDEREAU_FOLDER.DS.$date.'.pdf';
     }
 
     /** Get the label files extension according to the file type indicated in the module config */
-    public static function getFileExtension()
+    public static function getFileExtension(): string
     {
         return strtolower(substr(OutputFormat::OUTPUT_PRINTING_TYPE[self::getConfigValue(self::CONFIG_KEY_DEFAULT_LABEL_FORMAT)], 0, 3));
     }
@@ -380,17 +362,18 @@ class ColissimoLabel extends BaseModule
     /**
      * Check if order has to be signed or if it is optional (aka if its in Europe or not).
      *
+     * @param Order $order
      * @return bool
      *
      * @throws PropelException
      */
-    public static function canOrderBeNotSigned(Order $order)
+    public static function canOrderBeNotSigned(Order $order): bool
     {
         $countryIsoCode = $order->getOrderAddressRelatedByDeliveryOrderAddressId()->getCountry()->getIsocode();
 
         /* Checking if the delivery country is in Europe or a DOMTOM. If not, it HAS to be signed */
-        if (!in_array($countryIsoCode, Service::DOMTOM_ISOCODES, false)
-        && !in_array($countryIsoCode, Service::EUROPE_ISOCODES, false)) {
+        if (!in_array($countryIsoCode, Service::DOMTOM_ISOCODES)
+        && !in_array($countryIsoCode, Service::EUROPE_ISOCODES)) {
             return false;
         }
 
@@ -405,7 +388,7 @@ class ColissimoLabel extends BaseModule
      *
      * @return false|string
      */
-    public static function removeAccents($str)
+    public static function removeAccents($str): bool|string
     {
         return iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', transliterator_transliterate('Any-Latin; Latin-ASCII; Upper()', $str));
     }
@@ -414,7 +397,7 @@ class ColissimoLabel extends BaseModule
     {
         $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
             ->exclude([THELIA_MODULE_DIR.ucfirst(self::getModuleCode()).'/I18n/*'])
-            ->autowire(true)
-            ->autoconfigure(true);
+            ->autowire()
+            ->autoconfigure();
     }
 }

@@ -8,34 +8,41 @@ use ColissimoLabel\Model\ColissimoLabelQuery;
 use ColissimoLabel\Request\Helper\BordereauRequestAPIConfiguration;
 use ColissimoLabel\Service\LabelService;
 use ColissimoLabel\Service\SOAPService;
-use ColissimoWs\Controller\LabelController;
-use ColissimoWs\Model\ColissimowsLabelQuery;
+use Exception;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Annotation\Route;
 use Thelia\Controller\Admin\AdminController;
 use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\HttpFoundation\Request;
-use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
+use Thelia\Core\Translation\Translator;
 use Thelia\Exception\TheliaProcessException;
 use Thelia\Model\ConfigQuery;
-use Thelia\Model\ModuleQuery;
 use Thelia\Model\OrderQuery;
 use Thelia\Tools\URL;
+use ZipArchive;
 
+#[Route('/admin/module/ColissimoLabel', name: 'colissimo_label_order_')]
 class OrderController extends AdminController
 {
-    public function generateLabelAction(Request $request, LabelService $labelService, EventDispatcherInterface $eventDispatcher)
+    /**
+     * @throws Exception
+     */
+    #[Route('/export', name: 'export')]
+    public function generateLabelAction(Request $request, LabelService $labelService, EventDispatcherInterface $eventDispatcher): JsonResponse|RedirectResponse|Response
     {
-        if (null !== $response = $this->checkAuth([AdminResources::MODULE], ['ColissimoLabel'], AccessManager::UPDATE)) {
+        if (null !== $this->checkAuth([AdminResources::MODULE], ['ColissimoLabel'], AccessManager::UPDATE)) {
             return new JsonResponse([
-                'error' => $this->getTranslator()->trans("Sorry, you're not allowed to perform this action"),
+                'error' => Translator::getInstance()->trans("Sorry, you're not allowed to perform this action"),
             ], 403);
         }
 
@@ -46,7 +53,6 @@ class OrderController extends AdminController
         $files = $params = $parcelNumbers = [];
 
         try {
-
             $form = $this->validateForm($exportForm);
 
             $data = $form->getData();
@@ -63,7 +69,7 @@ class OrderController extends AdminController
                 return $response;
             }
 
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->setupFormErrorContext('Generation étiquettes Colissimo', $ex->getMessage(), $exportForm, $ex);
         }
 
@@ -82,7 +88,7 @@ class OrderController extends AdminController
             }
         }
 
-        /* If we get here, that means the form was called from the module label page so we put every file requested in a .zip */
+        /* If we get here, that means the form was called from the module label page, so we put every file requested in a .zip */
         if (count($files) > 0) {
             $bordereau = null;
             if (ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GENERATE_BORDEREAU)) {
@@ -90,10 +96,10 @@ class OrderController extends AdminController
                 $files[] = $bordereau;
             }
 
-            $zip = new \ZipArchive();
-            $zipFilename = sys_get_temp_dir().DS.uniqid('colissimo-label-', false);
+            $zip = new ZipArchive();
+            $zipFilename = sys_get_temp_dir().DS.uniqid('colissimo-label-');
 
-            if (true !== $zip->open($zipFilename, \ZipArchive::CREATE)) {
+            if (true !== $zip->open($zipFilename, ZipArchive::CREATE)) {
                 throw new TheliaProcessException("Cannot open zip file $zipFilename\n");
             }
 
@@ -112,7 +118,7 @@ class OrderController extends AdminController
         }
 
         /* We redirect to the module label page with parameters to download the zip file as well */
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/colissimolabel/labels', $params));
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/labels', $params));
     }
 
     /**
@@ -122,9 +128,9 @@ class OrderController extends AdminController
      *
      * @return string
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    protected function addBordereau($parcelNumbers)
+    protected function addBordereau($parcelNumbers): string
     {
         $service = new SOAPService();
         $APIConfiguration = new BordereauRequestAPIConfiguration();
@@ -137,7 +143,7 @@ class OrderController extends AdminController
         $fileContent = $bordereauContent['data'];
 
         if ('' == $fileContent) {
-            throw new \Exception('File is empty');
+            throw new Exception('File is empty');
         }
 
         $filePath = ColissimoLabel::getLabelPath('bordereau', 'pdf');
@@ -158,10 +164,11 @@ class OrderController extends AdminController
      *
      * @return Response
      */
-    public function getOrderLabelsAction($orderId)
+    #[Route('/order/{orderId}/ajax-get-labels', name: '_labels')]
+    public function getOrderLabelsAction($orderId): Response
     {
-        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
-            return new Response($this->getTranslator()->trans("Sorry, you're not allowed to perform this action"), 403);
+        if (null !== $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
+            return new Response(Translator::getInstance()->trans("Sorry, you're not allowed to perform this action"), 403);
         }
 
         return $this->render('colissimo-label/label-list', ['order_id' => $orderId]);
@@ -187,18 +194,19 @@ class OrderController extends AdminController
      * Delete a label file from server and delete its related table entry.
      *
      * Compatibility with ColissimoLabel < 1.0.0
-     * Compatibility with ColissimoWs < 2.0.0
      *
-     * @param $number
+     * @param Request $request
+     * @param int $number
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      *
      * @throws PropelException
      */
-    public function deleteLabelAction(Request $request, $number)
+    #[Route('/delete/{number}', name: 'delete', methods: 'GET')]
+    public function deleteLabelAction(Request $request, int $number): Response
     {
         $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($number);
-        /* We check if the label is from this module -- Compatibility with ColissimoWs */
+        /* We check if the label is from this module */
         if ($label) {
             /* We check if the label is from this version of the module -- Compatibility with ColissimoLabel < 1.0.0 */
             if ('' !== $orderRef = $label->getOrderRef()) {
@@ -206,37 +214,11 @@ class OrderController extends AdminController
                 $label->delete();
 
                 /* Handle the return when called from order edit */
-                if ($editOrder = $request->get('edit-order')) {
+                if ($request->get('edit-order')) {
                     return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/'.$label->getOrderId().'?tab=bill'));
                 }
 
-                return $this->generateRedirect(URL::getInstance()->absoluteUrl('admin/module/colissimolabel/labels#order-'.$label->getOrderId()));
-            }
-        }
-
-        /*
-         * If we're here, it means the label was not from this module or module version, so we get it by other means
-         * for compatibility reasons.
-         */
-
-        /* Trying to get it from ColissimoWs */
-        if ($orderId = $request->get('order')) {
-            /* Checking if ColissimoWs is installed */
-            if (ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[0])) {
-                /* Checking if the label entry exists in the deprecated ColissimoWsLabel table */
-                if ($colissimoWslabel = ColissimowsLabelQuery::create()->findOneByOrderId($orderId)) {
-                    $orderRef = $colissimoWslabel->getOrderRef();
-                    $this->deleteLabelFile($orderRef);
-
-                    $colissimoWslabel->delete();
-
-                    /* Handle the return when called from order edit */
-                    if ($editOrder = $request->get('edit-order')) {
-                        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/'.$orderId.'?tab=bill'));
-                    }
-
-                    return $this->generateRedirect(URL::getInstance()->absoluteUrl('admin/module/colissimolabel/labels#order-'.$orderId));
-                }
+                return $this->generateRedirect(URL::getInstance()->absoluteUrl('admin/module/ColissimoLabel/labels#order-'.$label->getOrderId()));
             }
         }
 
@@ -248,54 +230,54 @@ class OrderController extends AdminController
         $label->delete();
 
         /* Handle the return when called from order edit */
-        if ($editOrder = $request->get('edit-order')) {
+        if ($request->get('edit-order')) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/'.$label->getOrderId().'?tab=bill'));
         }
 
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl('admin/module/colissimolabel/labels#order-'.$label->getOrderId()));
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('admin/module/ColissimoLabel/labels#order-'.$label->getOrderId()));
     }
 
     /**
-     * Download the CN23 customs invoice, given an order Id.
+     * Download the CN23 customs invoice, given an order ID.
      *
      * @param $orderId
      *
-     * @return \Symfony\Component\HttpFoundation\Response|Response
+     * @return Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getCustomsInvoiceAction($orderId)
+    #[Route('/customs-invoice/{orderId}', name: 'customers_invoice')]
+    public function getCustomsInvoiceAction($orderId): Response
     {
-        if (null !== $order = OrderQuery::create()->findOneById($orderId)) {
+        if (null !== OrderQuery::create()->findOneById($orderId))
+        {
             if ($label = ColissimoLabelQuery::create()->findOneByOrderId($orderId)) {
                 $fileName = ColissimoLabel::getLabelCN23Path($label->getOrderRef().'CN23', 'pdf');
-            } else {
-                /** Compatibility with ColissimoWs < 2.0.0 */
-                $label = new LabelController();
-                $fileName = $label->createCustomsInvoice($orderId, $order->getRef());
-            }
 
-            return Response::create(
-                file_get_contents($fileName),
-                200,
-                [
-                    'Content-Type' => 'application/pdf',
-                    'Content-disposition' => 'Attachement;filename='.basename($fileName),
-                ]
-            );
+                return new Response(
+                    file_get_contents($fileName),
+                    200,
+                    [
+                        'Content-Type' => 'application/pdf',
+                        'Content-disposition' => 'Attachement;filename='.basename($fileName),
+                    ]
+                );
+            }
         }
 
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/colissimolabel/labels'));
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/labels'));
     }
 
     /**
      * Find the order label on the server and return it as a download response.
      *
-     * @param $number
+     * @param Request $request
+     * @param int $number
      *
      * @return mixed|BinaryFileResponse
      */
-    public function getLabelAction(Request $request, $number)
+    #[Route('/label/{number}', name: 'list', methods: 'GET')]
+    public function getLabelAction(Request $request, int $number): mixed
     {
         if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
             return $response;
@@ -303,20 +285,16 @@ class OrderController extends AdminController
 
         $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($number);
 
+        $orderRef = null;
+        $file = null;
+        $fileName = '';
+
         /* Compatibility for ColissimoLabel < 1.0.0 */
         if ($label) {
             $file = ColissimoLabel::getLabelPath($number, ColissimoLabel::getFileExtension());
             $fileName = $number;
 
             $orderRef = $label->getOrderRef();
-        }
-
-        /* Compatibility for ColissimoWs < 2.0.0 */
-        if (ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[0])) {
-            if ($labelWs = ColissimowsLabelQuery::create()->findOneByTrackingNumber($number)) {
-                $file = ColissimoLabel::getLabelPath($labelWs->getOrderRef(), $labelWs->getLabelType());
-                $fileName = $labelWs->getOrderRef();
-            }
         }
 
         /* The correct way to find the file for ColissimoLabel >= 1.0.0 */
@@ -340,13 +318,11 @@ class OrderController extends AdminController
     /**
      * Handles the download of the zip file given as hashed base 64 in the URL.
      *
-     * @param $orderId
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     *
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @param $base64EncodedZipFilename
+     * @return StreamedResponse|Response
      */
-    public function getLabelZip($base64EncodedZipFilename)
+    #[Route('/labels-zip/{base64EncodedZipFilename}', name: 'labels_zip')]
+    public function getLabelZip($base64EncodedZipFilename): StreamedResponse|Response
     {
         $zipFilename = base64_decode($base64EncodedZipFilename);
 
@@ -365,6 +341,6 @@ class OrderController extends AdminController
             );
         }
 
-        return new \Symfony\Component\HttpFoundation\Response('File no longer exists');
+        return new Response('File no longer exists');
     }
 }

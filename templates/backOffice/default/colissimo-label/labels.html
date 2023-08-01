@@ -20,9 +20,9 @@
             <div class="row">
                 <div class="col-md-12">
                     <ul id="tabbed-menu" class="nav nav-tabs">
-                        <li class="{if $tab eq "bordereaux"}active{/if}"><a href="{if $tab eq 'bordereaux'}#{else}{url path='/admin/module/colissimolabel/bordereaux'}{/if}">{intl l="Bordereaux" d='colissimolabel.bo.default'}</a> </li>
-                        <li class="{if $tab eq "labels"}active{/if}"><a href="{if $tab eq 'labels'}#{else}{url path='/admin/module/colissimolabel/labels'}{/if}">{intl l="Labels" d='colissimolabel.bo.default'}</a> </li>
-                        <li class="{if $tab eq "config"}active{/if}"><a href="{if $tab eq 'config'}#{else}{url path='/admin/module/colissimolabel/configuration'}{/if}">{intl l="Configuration" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "bordereaux"}active{/if}"><a href="{if $tab eq 'bordereaux'}#{else}{url path='/admin/module/ColissimoLabel/bordereaux'}{/if}">{intl l="Bordereaux" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "labels"}active{/if}"><a href="{if $tab eq 'labels'}#{else}{url path='/admin/module/ColissimoLabel/labels'}{/if}">{intl l="Labels" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "config"}active{/if}"><a href="{if $tab eq 'config'}#{else}{url path='/admin/module/ColissimoLabel/configuration'}{/if}">{intl l="Configuration" d='colissimolabel.bo.default'}</a> </li>
                     </ul>
 
                     <div class="tab-content">
@@ -32,10 +32,10 @@
                             {intl l="Download and print Colissimo labels for orders not yet sent" d='colissimolabel.bo.default'}
                         </div>
 
-                        {form name="colissimolabel_export_form"}
+                        {form name="colissimolabel_form_label_generation_form"}
                         {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
 
-                        <form action="{url path='/admin/module/colissimolabel/export'}" id="export-form" method="post">
+                        <form action="{url path='/admin/module/ColissimoLabel/export'}" id="export-form" method="post">
                             {form_hidden_fields}
                             <div class="panel panel-default">
                                 <div class="panel-heading clearfix">
@@ -218,7 +218,7 @@
 </div>
 {* Download zip file if we have the name in the URL parameters *}
 {if $smarty.get.zip|default:null}
-<iframe style="width:100%;height:20px;border:none" src="{url path="/admin/module/colissimolabel/labels-zip/%hash" hash={$smarty.get.zip}}"></iframe>
+<iframe style="width:100%;height:20px;border:none" src="{url path="/admin/module/ColissimoLabel/labels-zip/%hash" hash={$smarty.get.zip}}"></iframe>
 {/if}
 {/block}
 

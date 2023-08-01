@@ -2,7 +2,7 @@
     {$enable = false}
     {loop type="module" name="module-order" active="yes" backend_context=true id=$DELIVERY_MODULE}
         <!-- List of authorized modules -->
-        {if $CODE === "ColissimoWs" || $CODE === "SoColissimo" || $CODE === "ColissimoHomeDelivery" || $CODE === "ColissimoPickupPoint"}
+        {if $CODE === "ColissimoHomeDelivery" || $CODE === "ColissimoPickupPoint"}
             {$enable = true}
         {/if}
     {/loop}
@@ -18,10 +18,10 @@
                         <h4 class="modal-title" id="exampleModalLabel">{intl l="Colissimo Labels" d="colissimolabel.bo.default"}</h4>
                     </div>
 
-                    {form name="colissimolabel_export_form"}
+                    {form name="colissimolabel_form_label_generation_form"}
                     {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
 
-                    <form action="{url path='/admin/module/colissimolabel/export?edit-order=1'}" id="export-form" method="post">
+                    <form action="{url path='/admin/module/ColissimoLabel/export?edit-order=1'}" id="export-form" method="post">
                         {form_hidden_fields}
                         <div class="modal-body">
 
@@ -102,7 +102,7 @@
         </div>
 
         <script type="text/html" id="colissimo-label-tpl">
-            <table class="table table-striped" id="colissimo-label-table" data-url="{url path="/admin/module/colissimolabel/order/{$order_id}/ajax-get-labels"}">
+            <table class="table table-striped" id="colissimo-label-table" data-url="{url path="/admin/module/ColissimoLabel/order/{$order_id}/ajax-get-labels"}">
                 <caption>
                     {intl l="Labels Colissimo" d="colissimolabel.bo.default"}
                     <button class="btn btn-primary pull-right" name="target" data-toggle="modal" data-target="#modal-colissimo-label">

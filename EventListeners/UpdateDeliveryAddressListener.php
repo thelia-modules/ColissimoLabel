@@ -9,6 +9,7 @@
 namespace ColissimoLabel\EventListeners;
 
 use ColissimoLabel\ColissimoLabel as ColissimoLabelModule;
+use ColissimoLabel\Enum\AuthorizedModuleEnum;
 use ColissimoLabel\Event\ColissimoLabelEvents;
 use ColissimoLabel\Event\LabelRequestEvent;
 use ColissimoLabel\Model\ColissimoLabel;
@@ -17,9 +18,8 @@ use ColissimoLabel\Request\Helper\LabelRequestAPIConfiguration;
 use ColissimoLabel\Request\LabelRequest;
 use ColissimoLabel\Service\SOAPService;
 use ColissimoPickupPoint\Model\OrderAddressColissimoPickupPointQuery;
-use ColissimoWs\Model\ColissimowsLabelQuery;
-use SoColissimo\Model\OrderAddressSocolissimoQuery as OrderAddressSoColissimoPickupPointQuery;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Propel\Runtime\Exception\PropelException;
+use SoapFault;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -27,30 +27,18 @@ use Symfony\Component\Finder\Finder;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Event\Order\OrderAddressEvent;
 use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\HttpFoundation\Request;
 use Thelia\Model\ConfigQuery;
-use Thelia\Model\ModuleQuery;
 use Thelia\Model\Order;
 
 class UpdateDeliveryAddressListener extends BaseAdminController implements EventSubscriberInterface
 {
-    protected $dispatcher;
-    protected $container;
+    public function __construct(
+        protected EventDispatcherInterface $dispatcher
+    ) {}
 
     /**
-     * UpdateDeliveryAddressListener constructor.
-     *
-     * @param Request|null       $request
-     * @param ContainerInterface $container
-     */
-    public function __construct(EventDispatcherInterface $dispatcher = null, ContainerInterface $container = null)
-    {
-        $this->dispatcher = $dispatcher;
-        $this->container = $container;
-    }
-
-    /**
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
+     * @throws SoapFault
      */
     public function updateLabel(OrderAddressEvent $event)
     {
@@ -60,44 +48,28 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
             foreach ($labels as $label) {
                 $weight = $label->getWeight();
                 $signedDelivery = $label->getSigned();
-                $this->deleteLabel($label, $order);
+                $this->deleteLabel($label);
                 $this->generateLabel($order, $weight, $signedDelivery);
             }
         }
     }
 
     /**
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
-    protected function deleteLabel(ColissimoLabel $label, Order $order)
+    protected function deleteLabel(ColissimoLabel $label)
     {
-        /* We check if the label is from this module -- Compatibility with ColissimoWs */
-        if ($label) {
-            /* We check if the label is from this version of the module -- Compatibility with ColissimoLabel < 1.0.0 */
-            if ('' !== $orderRef = $label->getOrderRef()) {
-                $this->deleteLabelFile($orderRef);
-                $label->delete();
-            }
+
+        /* We check if the label is from this version of the module -- Compatibility with ColissimoLabel < 1.0.0 */
+        if ('' !== $orderRef = $label->getOrderRef()) {
+            $this->deleteLabelFile($orderRef);
+            $label->delete();
         }
 
         /*
          * If we're here, it means the label was not from this module or module version, so we get it by other means
          * for compatibility reasons.
          */
-
-        /* Trying to get it from ColissimoWs */
-        if ($orderId = $order->getId()) {
-            /* Checking if ColissimoWs is installed */
-            if (ModuleQuery::create()->findOneByCode(ColissimoLabelModule::AUTHORIZED_MODULES[0])) {
-                /* Checking if the label entry exists in the deprecated ColissimoWsLabel table */
-                if ($colissimoWslabel = ColissimowsLabelQuery::create()->findOneByOrderId($orderId)) {
-                    $orderRef = $colissimoWslabel->getOrderRef();
-                    $this->deleteLabelFile($orderRef);
-
-                    $colissimoWslabel->delete();
-                }
-            }
-        }
     }
 
     protected function deleteLabelFile($fileName)
@@ -112,10 +84,12 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
     }
 
     /**
+     * @param Order $order
      * @param $weight
      * @param $signedDelivery
      *
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
+     * @throws SoapFault
      */
     protected function generateLabel(Order $order, $weight, $signedDelivery)
     {
@@ -123,24 +97,8 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
         $APIConfiguration->setContractNumber(ColissimoLabelModule::getConfigValue(ColissimoLabelModule::CONFIG_KEY_CONTRACT_NUMBER));
         $APIConfiguration->setPassword(ColissimoLabelModule::getConfigValue(ColissimoLabelModule::CONFIG_KEY_PASSWORD));
 
-        /* Check if delivery is a relay point through SoColissimo. Use relay point address if it is */
-        if (ColissimoLabelModule::AUTHORIZED_MODULES[1] === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
-            null !== ($AddressColissimoPickupPoint = OrderAddressSoColissimoPickupPointQuery::create()
-            ->findOneById($order->getDeliveryOrderAddressId())) &&
-            $AddressColissimoPickupPoint) {
-            $colissimoRequest = new LabelRequest(
-                $order,
-                '0' === $AddressColissimoPickupPoint->getCode() ? null : $AddressColissimoPickupPoint->getCode(),
-                $AddressColissimoPickupPoint->getType()
-            );
-
-            $colissimoRequest->getLetter()->getService()->setCommercialName(
-                $colissimoRequest->getLetter()->getSender()->getAddress()->getCompanyName()
-            );
-        }
-
-        /* Same thing with ColissimoPickupPoint */
-        if (ColissimoLabelModule::AUTHORIZED_MODULES[3] === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
+        /* Check if delivery is a relay point through ColissimoPickupPoint. Use relay point address if it is */
+        if (AuthorizedModuleEnum::ColissimoPickupPoint->value === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
             null !== ($AddressColissimoPickupPoint = OrderAddressColissimoPickupPointQuery::create()
                 ->findOneById($order->getDeliveryOrderAddressId()))
             && $AddressColissimoPickupPoint) {
@@ -204,7 +162,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
 
             /* Generates and dump the invoice file if it is requested */
             if (ColissimoLabelModule::getConfigValue(ColissimoLabelModule::CONFIG_KEY_GET_INVOICES)) {
-                $invoiceResponse = $this->generateOrderPdf($order->getId(), ConfigQuery::read('pdf_invoice_file', 'invoice'));
+                $invoiceResponse = $this->generateOrderPdf($this->dispatcher, $order->getId(), ConfigQuery::read('pdf_invoice_file', 'invoice'));
                 $fileSystem->dumpFile(
                     $invoiceName = ColissimoLabelModule::getLabelPath($order->getRef().'-invoice', 'pdf'),
                     $invoiceResponse->getContent()
@@ -253,7 +211,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             TheliaEvents::ORDER_UPDATE_ADDRESS => ['updateLabel', 128],

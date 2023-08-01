@@ -5,9 +5,8 @@ namespace ColissimoLabel\Loop;
 use ColissimoLabel\ColissimoLabel;
 use ColissimoLabel\Model\ColissimoLabel as ColissimoLabelModel;
 use ColissimoLabel\Model\ColissimoLabelQuery;
-use ColissimoWs\ColissimoWs;
-use ColissimoWs\Model\ColissimowsLabel;
-use ColissimoWs\Model\ColissimowsLabelQuery;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
+use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\Finder\Finder;
 use Thelia\Core\Template\Element\BaseLoop;
 use Thelia\Core\Template\Element\LoopResult;
@@ -15,7 +14,6 @@ use Thelia\Core\Template\Element\LoopResultRow;
 use Thelia\Core\Template\Element\PropelSearchLoopInterface;
 use Thelia\Core\Template\Loop\Argument\Argument;
 use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
-use Thelia\Model\ModuleQuery;
 use Thelia\Model\OrderQuery;
 use Thelia\Tools\URL;
 
@@ -27,45 +25,26 @@ class ColissimoLabelInfo extends BaseLoop implements PropelSearchLoopInterface
     /**
      * @return ArgumentCollection
      */
-    protected function getArgDefinitions()
+    protected function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(
             Argument::createIntTypeArgument('order_id', null, true)
         );
     }
 
-    public function buildModelCriteria()
+    public function buildModelCriteria(): ColissimoLabelQuery|ModelCriteria
     {
-        $search = ColissimoLabelQuery::create()
+        return ColissimoLabelQuery::create()
             ->filterByOrderId($this->getOrderId());
-
-        /* Compatibility for old versions of ColissimoWS where the label info was on a ColissimoWs table */
-        if (null === $search->findOne()) {
-            /* We check that ColissimoWS is installed */
-            if (ModuleQuery::create()->findOneByCode(ColissimoLabel::AUTHORIZED_MODULES[0])) {
-                /* Security check to make sure the ColissimoWSLabel table exists */
-                try {
-                    $searchColissimoWS = ColissimowsLabelQuery::create()->filterByOrderId($this->getOrderId());
-                    /* If there is an old entry for a label in the ColissimoWSLabel table, we return that instead of the ColissimoLabel one */
-                    if (null !== $searchColissimoWS->findOne()) {
-                        return $searchColissimoWS;
-                    }
-                } catch (\Exception $ex) {
-                    /* If the table doesn't exist, we just return the original search */
-                    return $search;
-                }
-            }
-        }
-
-        return $search;
     }
 
     /**
+     * @param LoopResult $loopResult
      * @return LoopResult
      *
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
-    public function parseResults(LoopResult $loopResult)
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         if (0 === $loopResult->getResultDataCollectionCount()) {
             if (null !== $order = OrderQuery::create()->findPk($this->getOrderId())) {
@@ -88,7 +67,7 @@ class ColissimoLabelInfo extends BaseLoop implements PropelSearchLoopInterface
                 $loopResult->addRow($loopResultRow);
             }
         } else {
-            /** @var ColissimowsLabel|ColissimoLabelModel $result */
+            /** @var ColissimoLabelModel $result */
             foreach ($loopResult->getResultDataCollection() as $result) {
                 /* Compatibility for ColissimoLabel < 1.0.0 */
                 if ('' === $result->getOrderRef()) {
@@ -110,9 +89,9 @@ class ColissimoLabelInfo extends BaseLoop implements PropelSearchLoopInterface
                     ->set('HAS_LABEL', !empty($result->getLabelType()))
                     ->set('LABEL_TYPE', $result->getLabelType())
                     ->set('HAS_CUSTOMS_INVOICE', $result->getWithCustomsInvoice())
-                    ->set('LABEL_URL', URL::getInstance()->absoluteUrl('/admin/module/colissimolabel/label/'.$result->getTrackingNumber().'?download=1'))
-                    ->set('CUSTOMS_INVOICE_URL', URL::getInstance()->absoluteUrl('/admin/module/colissimolabel/customs-invoice/'.$result->getOrderId()))
-                    ->set('CLEAR_LABEL_URL', URL::getInstance()->absoluteUrl('/admin/module/colissimolabel/label/delete/'.$result->getTrackingNumber().'?order='.$result->getOrderId()))
+                    ->set('LABEL_URL', URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/label/'.$result->getTrackingNumber().'?download=1'))
+                    ->set('CUSTOMS_INVOICE_URL', URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/customs-invoice/'.$result->getOrderId()))
+                    ->set('CLEAR_LABEL_URL', URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/label/delete/'.$result->getTrackingNumber().'?order='.$result->getOrderId()))
                     ->set('CAN_BE_NOT_SIGNED', ColissimoLabel::canOrderBeNotSigned($result->getOrder()))
                     ->set('ORDER_DATE', $result->getOrder()->getCreatedAt())
                 ;

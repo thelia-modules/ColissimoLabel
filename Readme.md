@@ -1,6 +1,6 @@
 # ColissimoLabel
 
-Allows you to generate labels for orders passed through SoColissimo and ColissimoWs.
+Allows you to generate labels for orders passed with ColissimoHomeDelivery and ColissimoPickupPoint.
 
 ## Installation
 
@@ -14,7 +14,7 @@ Allows you to generate labels for orders passed through SoColissimo and Colissim
 Add it in your main thelia composer.json file
 
 ```
-composer require thelia/colissimo-label-module:~1.0.0
+composer require thelia/colissimo-label-module:~2.0.1
 ```
 
 ## Usage

@@ -21,9 +21,9 @@
             <div class="row">
                 <div class="col-md-12">
                     <ul id="tabbed-menu" class="nav nav-tabs">
-                        <li class="{if $tab eq "bordereaux"}active{/if}"><a href="{if $tab eq 'bordereaux'}#{else}{url path='/admin/module/colissimolabel/bordereaux'}{/if}">{intl l="Bordereaux" d='colissimolabel.bo.default'}</a> </li>
-                        <li class="{if $tab eq "labels"}active{/if}"><a href="{if $tab eq 'labels'}#{else}{url path='/admin/module/colissimolabel/labels'}{/if}">{intl l="Labels" d='colissimolabel.bo.default'}</a> </li>
-                        <li class="{if $tab eq "config"}active{/if}"><a href="{if $tab eq 'config'}#{else}{url path='/admin/module/colissimolabel/configuration'}{/if}">{intl l="Configuration" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "bordereaux"}active{/if}"><a href="{if $tab eq 'bordereaux'}#{else}{url path='/admin/module/ColissimoLabel/bordereaux'}{/if}">{intl l="Bordereaux" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "labels"}active{/if}"><a href="{if $tab eq 'labels'}#{else}{url path='/admin/module/ColissimoLabel/labels'}{/if}">{intl l="Labels" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "config"}active{/if}"><a href="{if $tab eq 'config'}#{else}{url path='/admin/module/ColissimoLabel/configuration'}{/if}">{intl l="Configuration" d='colissimolabel.bo.default'}</a> </li>
                     </ul>
 
                     <div class="row">
@@ -34,11 +34,11 @@
                                 </div>
 
                                 <div class="panel-body">
-                                    {form name="colissimolabel.configure"}
+                                    {form name="colissimolabel_form_configure_colissimo_label"}
                                     {if $form_error && $form_error_message}
                                     <div class="alert alert-danger">{$form_error_message}</div>
                                     {/if}
-                                    <form action="{url path='/admin/module/colissimolabel/configuration/save'}" method="post">
+                                    <form action="{url path='/admin/module/ColissimoLabel/configuration/save'}" method="post">
 
                                         <!-- Sender's address -->
                                         <div class="panel panel-default">

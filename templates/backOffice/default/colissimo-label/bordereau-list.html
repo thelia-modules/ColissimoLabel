@@ -20,9 +20,9 @@
             <div class="row">
                 <div class="col-md-12">
                     <ul id="tabbed-menu" class="nav nav-tabs">
-                        <li class="{if $tab eq "bordereaux"}active{/if}"><a href="{if $tab eq 'bordereaux'}#{else}{url path='/admin/module/colissimolabel/bordereaux'}{/if}">{intl l="Bordereaux" d='colissimolabel.bo.default'}</a> </li>
-                        <li class="{if $tab eq "labels"}active{/if}"><a href="{if $tab eq 'labels'}#{else}{url path='/admin/module/colissimolabel/labels'}{/if}">{intl l="Labels" d='colissimolabel.bo.default'}</a> </li>
-                        <li class="{if $tab eq "config"}active{/if}"><a href="{if $tab eq 'config'}#{else}{url path='/admin/module/colissimolabel/configuration'}{/if}">{intl l="Configuration" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "bordereaux"}active{/if}"><a href="{if $tab eq 'bordereaux'}#{else}{url path='/admin/module/ColissimoLabel/bordereaux'}{/if}">{intl l="Bordereaux" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "labels"}active{/if}"><a href="{if $tab eq 'labels'}#{else}{url path='/admin/module/ColissimoLabel/labels'}{/if}">{intl l="Labels" d='colissimolabel.bo.default'}</a> </li>
+                        <li class="{if $tab eq "config"}active{/if}"><a href="{if $tab eq 'config'}#{else}{url path='/admin/module/ColissimoLabel/configuration'}{/if}">{intl l="Configuration" d='colissimolabel.bo.default'}</a> </li>
                     </ul>
 
                     <div class="row">
@@ -37,7 +37,7 @@
                             {/if}
 
                             <div class="row">
-                                <a href="{url path="/admin/module/colissimolabel/bordereau/generate"}" class="btn btn-block btn-info">
+                                <a href="{url path="/admin/module/ColissimoLabel/bordereau/generate"}" class="btn btn-block btn-info">
                                 {intl l="Generate bordereau for label since : %date" date="{format_date date=$lastBordereauDate}" d="colissimolabel.bo.default"}
                                 </a>
                             </div>
@@ -59,15 +59,15 @@
                             {foreach from=$bordereaux item=bordereau}
                             <tr>
                                 <td class="text-left">
-                                    <a href="{url path="/admin/module/colissimolabel/bordereau/download" filePath="{$bordereau['path']}"}" target="_blank">
+                                    <a href="{url path="/admin/module/ColissimoLabel/bordereau/download" filePath="{$bordereau['path']}"}" target="_blank">
                                     {$bordereau['name']}
                                     </a>
                                 </td>
                                 <td class="text-center">
-                                    <a class="btn btn-default btn-xs" href="{url path="/admin/module/colissimolabel/bordereau/download" stay="1" filePath="{$bordereau['path']}"}" title="{intl d='colissimolabel.bo.default' l="Download bordereau"}">
+                                    <a class="btn btn-default btn-xs" href="{url path="/admin/module/ColissimoLabel/bordereau/download" stay="1" filePath="{$bordereau['path']}"}" title="{intl d='colissimolabel.bo.default' l="Download bordereau"}">
                                     <i class="glyphicon glyphicon-download"></i>
                                     </a>
-                                    <a class="btn btn-default btn-xs" href="{url path="/admin/module/colissimolabel/bordereau/delete" filePath="{$bordereau['path']}"}"" title="{intl d='colissimolabel.bo.default' l="Delete bordereau"}">
+                                    <a class="btn btn-default btn-xs" href="{url path="/admin/module/ColissimoLabel/bordereau/delete" filePath="{$bordereau['path']}"}"" title="{intl d='colissimolabel.bo.default' l="Delete bordereau"}">
                                     <i class="glyphicon glyphicon-trash"></i>
                                     </a>
                                 </td>
