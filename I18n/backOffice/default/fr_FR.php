@@ -18,6 +18,7 @@ return [
     'Date' => 'Date',
     'Delete' => 'Supprimer',
     'Delete bordereau' => 'Supprimer le bordereau',
+    'Delete packing slips selected' => 'Supprimer les bordereaux selectionnés',
     'Destination' => 'Destination',
     'Do not change' => 'Ne pas modifier',
     'Do you want to clear label and tracking number for this order ?' => 'Voulez-vous supprimer cette étiquette et le n° de suivi ?',

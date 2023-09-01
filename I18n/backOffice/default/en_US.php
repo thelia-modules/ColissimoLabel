@@ -17,6 +17,7 @@ return [
     'Date' => 'Date',
     'Delete' => 'Delete',
     'Delete bordereau' => 'Delete bordereau',
+    'Delete packing slips selected' => 'Delete packing slips selected',
     'Destination' => 'Destination',
     'Do not change' => 'Do not change',
     'Do you want to clear label and tracking number for this order ?' => 'Do you want to clear label and tracking number for this order ?',
