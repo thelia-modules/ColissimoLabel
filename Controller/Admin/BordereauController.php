@@ -193,4 +193,19 @@ class BordereauController extends AdminController
 
         return $this->listBordereauAction();
     }
+
+    /**
+     * @throws Exception
+     */
+    #[Route('/bordereau/delete-multiple', name: 'delete-multiple', methods: 'POST')]
+    public function deletePackingSlipsAction(Request $request): Response
+    {
+        $filePaths = $request->get('filePaths');
+        $fs = new Filesystem();
+        foreach ($filePaths as $filePath){
+            $fs->remove($filePath);
+        }
+        return $this->listBordereauAction();
+    }
+
 }

@@ -42,22 +42,29 @@
                                 </a>
                             </div>
                         </div>
-
+                        <div>
+                            <a id="select-all-packing-slips" onclick="toggleCheckBox()">  {intl l="select all" d="colissimolabel.bo.default"}</a>
+                        </div>
                         {if $bordereaux}
                         <table class="table table-condensed" style="width:100%">
                             <colgroup>
-                                <col style="width: 95%;">
+                                <col style="width: 5%;">
+                                <col style="width: 90%;">
                                 <col style="width: 5%;">
                             </colgroup>
                             <thead>
-                                <tr class="active">
-                                    <th class="text-left">{intl d='colissimolabel.bo.default' l="Bordereau"}</th>
-                                    <th class="text-center">{intl d='colissimolabel.bo.default' l="Action"}</th>
-                                </tr>
+                            <tr class="active">
+                                <th class="text-center">{intl d='colissimolabel.bo.default' l="Sel."}</th>
+                                <th class="text-left">{intl d='colissimolabel.bo.default' l="Bordereau"}</th>
+                                <th class="text-center">{intl d='colissimolabel.bo.default' l="Action"}</th>
+                            </tr>
                             </thead>
                             <tbody>
                             {foreach from=$bordereaux item=bordereau}
                             <tr>
+                                <td class="text-left">
+                                    <input type="checkbox" class="form-control packing-slip-checkbox" data-filepath="{$bordereau['path']}"}>
+                                </td>
                                 <td class="text-left">
                                     <a href="{url path="/admin/module/ColissimoLabel/bordereau/download" filePath="{$bordereau['path']}"}" target="_blank">
                                     {$bordereau['name']}
@@ -75,15 +82,49 @@
                             {/foreach}
                             </tbody>
                         </table>
+                        <div class="pull-right">
+                            <button id="delete-selected-packing-slip" class="btn btn-primary" title="{intl l='Delete packing slips selected' d='colissimolabel.bo.default'}">{intl l='Delete packing slips selected' d='colissimolabel.bo.default'}</button>
                         </div>
-                        {/if}
                     </div>
+                    {/if}
                 </div>
             </div>
         </div>
     </div>
 </div>
+</div>
 {/block}
 
 {block name="javascript-last-call"}
-{/block}
+<script>
+    $(function(){
+        function toggleCheckBox() {
+            var checkboxes = document.getElementsByClassName('packing-slip-checkbox');
+            for(var i=0, n=checkboxes.length;i<n;i++) {
+                checkboxes[i].checked = !checkboxes[i].checked;
+            }
+        }
+
+        function deleteSelectedPackingSlips() {
+            var data = [...document.querySelectorAll('.packing-slip-checkbox:checked')].map(e => e.dataset.filepath);
+            if(data.length > 0){
+                $.ajax({
+                    method: "POST",
+                    dataType: 'json',
+                    data: {
+                        filePaths: data
+                    },
+                    url: "{url path='/admin/module/ColissimoLabel/bordereau/delete-multiple'}"
+                }).done(function (data, textStatus, jqXHR) {
+                    location.reload();
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    document.getElementById("error-bordereau-message").innerHTML = jqXHR.responseJSON.message;
+                });
+            }
+        }
+        document.getElementById("select-all-packing-slips").onclick = toggleCheckBox;
+        document.getElementById("delete-selected-packing-slip").onclick = deleteSelectedPackingSlips;
+
+    })
+
+</script>{/block}
