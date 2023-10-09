@@ -196,14 +196,14 @@ class OrderController extends AdminController
      * Compatibility with ColissimoLabel < 1.0.0
      *
      * @param Request $request
-     * @param int $number
+     * @param string $number
      *
      * @return Response
      *
      * @throws PropelException
      */
-    #[Route('/delete/{number}', name: 'delete', methods: 'GET')]
-    public function deleteLabelAction(Request $request, int $number): Response
+    #[Route('/label/delete/{number}', name: 'delete', methods: 'GET')]
+    public function deleteLabelAction(Request $request, string $number): Response
     {
         $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($number);
         /* We check if the label is from this module */
@@ -272,12 +272,12 @@ class OrderController extends AdminController
      * Find the order label on the server and return it as a download response.
      *
      * @param Request $request
-     * @param int $number
+     * @param string $number
      *
      * @return mixed|BinaryFileResponse
      */
     #[Route('/label/{number}', name: 'list', methods: 'GET')]
-    public function getLabelAction(Request $request, int $number): mixed
+    public function getLabelAction(Request $request, string $number): mixed
     {
         if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
             return $response;
