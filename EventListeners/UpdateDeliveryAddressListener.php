@@ -20,6 +20,8 @@ use ColissimoLabel\Service\SOAPService;
 use ColissimoPickupPoint\Model\OrderAddressColissimoPickupPointQuery;
 use Propel\Runtime\Exception\PropelException;
 use SoapFault;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -33,8 +35,12 @@ use Thelia\Model\Order;
 class UpdateDeliveryAddressListener extends BaseAdminController implements EventSubscriberInterface
 {
     public function __construct(
-        protected EventDispatcherInterface $dispatcher
-    ) {}
+        protected EventDispatcherInterface $dispatcher,
+        ContainerInterface $container
+    )
+    {
+        $this->container = $container;
+    }
 
     /**
      * @throws PropelException
