@@ -11,7 +11,7 @@
             {format_date date=$ORDER_DATE}
         </td>
         <td>
-            <a href="https://www.laposte.fr/particulier/outils/suivre-vos-envois?code={$TRACKING_NUMBER}" target="_blank">https://www.laposte.fr/particulier/outils/suivre-vos-envois?code={$TRACKING_NUMBER}</a>
+            <a href="{intl l="https://www.laposte.fr/particulier/outils/suivre-vos-envois?code=%track" track={$TRACKING_NUMBER}}" target="_blank">{intl l="https://www.laposte.fr/particulier/outils/suivre-vos-envois?code=%track" track={$TRACKING_NUMBER}}</a>
         </td>
         <td>
             <a class="btn btn-primary pull-right" href="{url path="/admin/module/ColissimoLabel/label/{$TRACKING_NUMBER}" download=1}">{intl l="Download" d="colissimolabel.bo.default"}</a>
