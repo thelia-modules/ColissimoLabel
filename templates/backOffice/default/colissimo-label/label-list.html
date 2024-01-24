@@ -14,10 +14,17 @@
             <a href="{intl l="https://www.laposte.fr/particulier/outils/suivre-vos-envois?code=%track" track={$TRACKING_NUMBER}}" target="_blank">{intl l="https://www.laposte.fr/particulier/outils/suivre-vos-envois?code=%track" track={$TRACKING_NUMBER}}</a>
         </td>
         <td>
-            <a class="btn btn-primary pull-right" href="{url path="/admin/module/ColissimoLabel/label/{$TRACKING_NUMBER}" download=1}">{intl l="Download" d="colissimolabel.bo.default"}</a>
-            <a class="btn btn-info pull-right" target="_blank" href="{url path="/admin/module/ColissimoLabel/label/{$TRACKING_NUMBER}"}">{intl l="View" d="colissimolabel.bo.default"}</a>
-            <a class="btn btn-success pull-right js-action-print" data-number="{$TRACKING_NUMBER}" href="{url path="/admin/module/ColissimoLabel/label/{$TRACKING_NUMBER}"}">{intl l="Print" d="colissimolabel.bo.default"}</a>
-            <a class="btn btn-danger pull-right js-action-reload" onclick="return confirm('{intl l="Do you want to clear this label and tracking number ?"}')" href="{url path="/admin/module/ColissimoLabel/label/delete/{$TRACKING_NUMBER}" order={$ORDER_ID} edit-order=1}">{intl l="Delete" d="colissimolabel.bo.default"}</a>
+            <div class="pull-right">
+                <a class="btn btn-primary" href="{url path="/admin/module/ColissimoLabel/label/{$TRACKING_NUMBER}" download=1}">{intl l="Download" d="colissimolabel.bo.default"}</a>
+                <a class="btn btn-info" target="_blank" href="{url path="/admin/module/ColissimoLabel/label/{$TRACKING_NUMBER}"}">{intl l="View" d="colissimolabel.bo.default"}</a>
+                <a class="btn btn-success js-action-print" data-number="{$TRACKING_NUMBER}" href="{url path="/admin/module/ColissimoLabel/label/{$TRACKING_NUMBER}"}">{intl l="Print" d="colissimolabel.bo.default"}</a>
+                {if $HAS_CUSTOMS_INVOICE|default:null}
+                    <a class="btn btn-warning" href="{$CUSTOMS_INVOICE_URL}" target="_blank" title="{intl d='colissimolabel.bo.default' l="Download customs invoice (PDF)"}">
+                        {intl l="Customs invoice" d="colissimolabel.bo.default"}
+                    </a>
+                {/if}
+                <a class="btn btn-danger js-action-reload" onclick="return confirm('{intl l="Do you want to clear this label and tracking number ?"}')" href="{url path="/admin/module/ColissimoLabel/label/delete/{$TRACKING_NUMBER}" order={$ORDER_ID} edit-order=1}">{intl l="Delete" d="colissimolabel.bo.default"}</a>
+            </div>
         </td>
     </tr>
 {else}
