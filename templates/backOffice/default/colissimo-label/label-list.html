@@ -8,7 +8,7 @@
             {$WEIGHT} / Kg
         </td>
         <td>
-            {format_date date=$ORDER_DATE}
+            {format_date date=$CREATED_AT}
         </td>
         <td>
             <a href="{intl l="https://www.laposte.fr/particulier/outils/suivre-vos-envois?code=%track" track={$TRACKING_NUMBER}}" target="_blank">{intl l="https://www.laposte.fr/particulier/outils/suivre-vos-envois?code=%track" track={$TRACKING_NUMBER}}</a>

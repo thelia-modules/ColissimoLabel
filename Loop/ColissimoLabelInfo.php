@@ -94,6 +94,7 @@ class ColissimoLabelInfo extends BaseLoop implements PropelSearchLoopInterface
                     ->set('CLEAR_LABEL_URL', URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/label/delete/'.$result->getTrackingNumber().'?order='.$result->getOrderId()))
                     ->set('CAN_BE_NOT_SIGNED', ColissimoLabel::canOrderBeNotSigned($result->getOrder()))
                     ->set('ORDER_DATE', $result->getOrder()->getCreatedAt())
+                    ->set('CREATED_AT', $result->getCreatedAt())
                 ;
 
                 $loopResult->addRow($loopResultRow);
