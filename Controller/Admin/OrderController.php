@@ -26,6 +26,7 @@ use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Core\Translation\Translator;
 use Thelia\Exception\TheliaProcessException;
+use Thelia\Log\Tlog;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\OrderQuery;
 use Thelia\Tools\URL;
@@ -92,8 +93,9 @@ class OrderController extends AdminController
         if (count($files) > 0) {
             $bordereau = null;
             if (ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GENERATE_BORDEREAU)) {
-                $bordereau = $this->addBordereau($parcelNumbers);
-                $files[] = $bordereau;
+                if (null !== $bordereau = $this->addBordereau($parcelNumbers)) {
+                    $files[] = $bordereau;
+                }
             }
 
             $zip = new ZipArchive();
@@ -126,35 +128,51 @@ class OrderController extends AdminController
      *
      * @param $parcelNumbers
      *
-     * @return string
+     * @return string|null
      *
      * @throws Exception
      */
-    protected function addBordereau($parcelNumbers): string
+    protected function addBordereau($parcelNumbers): ?string
     {
         $service = new SOAPService();
         $APIConfiguration = new BordereauRequestAPIConfiguration();
         $APIConfiguration->setContractNumber(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_CONTRACT_NUMBER));
         $APIConfiguration->setPassword(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD));
 
-        $parseResponse = $service->callGenerateBordereauByParcelsNumbersAPI($APIConfiguration, $parcelNumbers);
-        $resultAttachment = $parseResponse->attachments;
-        $bordereauContent = $resultAttachment[0];
-        $fileContent = $bordereauContent['data'];
+        try {
+            $parseResponse = $service->callGenerateBordereauByParcelsNumbersAPI($APIConfiguration, $parcelNumbers);
+            $resultAttachment = $parseResponse->attachments;
 
-        if ('' == $fileContent) {
-            throw new Exception('File is empty');
+            if (! isset($resultAttachment[0])) {
+                throw new TheliaProcessException('Bordereau request : no attached data.');
+            }
+
+            $bordereauContent = $resultAttachment[0];
+
+            if (! isset($bordereauContent['data'])) {
+                throw new TheliaProcessException('Bordereau request : attachment is empty.');
+            }
+
+            $fileContent = $bordereauContent['data'];
+
+            if (empty($fileContent)) {
+                throw new TheliaProcessException('Bordereau request : Bordereau file is empty');
+            }
+
+            $filePath = ColissimoLabel::getLabelPath('bordereau', 'pdf');
+
+            $fileSystem = new Filesystem();
+            $fileSystem->dumpFile(
+                $filePath,
+                $fileContent
+            );
+
+            return $filePath;
+        } catch (Exception $ex) {
+            Tlog::getInstance()->error("Failed to get Bordereau : " . $ex->getMessage());
         }
 
-        $filePath = ColissimoLabel::getLabelPath('bordereau', 'pdf');
-
-        $fileSystem = new Filesystem();
-        $fileSystem->dumpFile(
-            $filePath,
-            $fileContent
-        );
-
-        return $filePath;
+        return null;
     }
 
     /**
@@ -209,8 +227,8 @@ class OrderController extends AdminController
         /* We check if the label is from this module */
         if ($label) {
             /* We check if the label is from this version of the module -- Compatibility with ColissimoLabel < 1.0.0 */
-            if ('' !== $orderRef = $label->getOrderRef()) {
-                $this->deleteLabelFile($orderRef);
+            if ('' !== $trackNo = $label->getTrackingNumber()) {
+                $this->deleteLabelFile($trackNo);
                 $label->delete();
 
                 /* Handle the return when called from order edit */
@@ -252,7 +270,7 @@ class OrderController extends AdminController
         if (null !== OrderQuery::create()->findOneById($orderId))
         {
             if ($label = ColissimoLabelQuery::create()->findOneByOrderId($orderId)) {
-                $fileName = ColissimoLabel::getLabelCN23Path($label->getOrderRef().'CN23', 'pdf');
+                $fileName = ColissimoLabel::getLabelCN23Path($label->getTrackingNumber().'-CN23', 'pdf');
 
                 return new Response(
                     file_get_contents($fileName),
@@ -299,8 +317,8 @@ class OrderController extends AdminController
 
         /* The correct way to find the file for ColissimoLabel >= 1.0.0 */
         if ($orderRef && '' !== $orderRef) {
-            $file = ColissimoLabel::getLabelPath($label->getOrderRef(), ColissimoLabel::getFileExtension());
-            $fileName = $label->getOrderRef();
+            $file = ColissimoLabel::getLabelPath($label->getTrackingNumber(), ColissimoLabel::getFileExtension());
+            $fileName = $label->getOrderRef() . '-' . $label->getTrackingNumber();
         }
 
         $response = new BinaryFileResponse($file);

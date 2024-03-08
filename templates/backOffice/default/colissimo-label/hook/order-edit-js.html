@@ -57,8 +57,12 @@
 
                             <td class="text-center">
                                 {form_field field="signed" value_key=$ORDER_ID}
-                                <label for="colissimolabel-input-signedDelivery">{intl l="Livraison avec signature :" d="colissimolabel.bo.default"}</label>
-                                <input id="colissimolabel-input-signedDelivery" class="form-control order_checkbox" type="checkbox" name="{$name}" {if $SIGNED} checked {/if} {if !$CAN_BE_NOT_SIGNED} disabled {/if}>
+                                    <div class="checkbox">
+                                        <label for="colissimolabel-input-signedDelivery">
+                                            <input id="colissimolabel-input-signedDelivery" class="order_checkbox" type="checkbox" name="{$name}" {if $SIGNED} checked {/if} {if !$CAN_BE_NOT_SIGNED} disabled {/if}>
+                                            {intl l="Livraison avec signature" d="colissimolabel.bo.default"}
+                                        </label>
+                                    </div>
                                 {/form_field}
                             </td>
 
