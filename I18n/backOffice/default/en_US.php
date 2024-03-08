@@ -33,7 +33,7 @@ return [
     'Label cannot be created. Error is: ' => 'Label cannot be created. Error is: ',
     'Labels' => 'Labels',
     'Labels Colissimo' => 'Labels Colissimo',
-    'Livraison avec signature :' => 'Delivery w/ signature',
+    'Livraison avec signature' => 'Delivery with signature',
     'Module' => 'Module',
     'No existing label for this order' => 'No existing label for this order',
     'Non disponible' => 'Non disponible',

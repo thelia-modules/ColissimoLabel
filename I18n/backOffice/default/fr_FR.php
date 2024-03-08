@@ -34,7 +34,7 @@ return [
     'Label cannot be created. Error is: ' => 'L\'étiquette n\'a pas pu être créée. Erreur: ',
     'Labels' => 'Etiquettes',
     'Labels Colissimo' => 'Étiquette Colissimo',
-    'Livraison avec signature :' => 'Livraison avec signature :',
+    'Livraison avec signature' => 'Livraison avec signature',
     'Module' => 'Module',
     'No existing label for this order' => 'Aucune étiquette pour cette commande',
     'Non disponible' => 'Non disponible',

@@ -45,7 +45,7 @@ class LabelService
         foreach ($data['order_id'] as $orderId) {
             if (null !== $order = OrderQuery::create()->findOneById($orderId)) {
                 /* DO NOT use strict comparison here */
-                if (!isset($weightArray[$orderId]) || 0 == (float) $weightArray[$orderId]) {
+                if (!isset($weightArray[$orderId]) || (float) $weightArray[$orderId] === 0.0) {
                     $weight = $order->getWeight();
                 } else {
                     $weight = (float) $weightArray[$orderId];
@@ -89,7 +89,10 @@ class LabelService
                     $colissimoRequest = new LabelRequest($order, null, null, $signedDelivery);
                 }
 
-                $colissimoRequest->getLetter()->getParcel()->setWeight($weight);
+                /* We set the weight as the one indicated from the form */
+                if (null !== $weight) {
+                    $colissimoRequest->getLetter()->getParcel()->setWeight($weight);
+                }
 
                 /* We set whether the delivery is a signed one or not thanks to the 'signed' checkbox in the form */
                 if (null !== $signedDelivery) {
@@ -111,7 +114,7 @@ class LabelService
 
                     /* We dump / save the label on the server */
                     $fileSystem->dumpFile(
-                        $labelName = ColissimoLabel::getLabelPath($order->getRef(), ColissimoLabel::getFileExtension()),
+                        $labelName = ColissimoLabel::getLabelPath($response->getParcelNumber(), ColissimoLabel::getFileExtension()),
                         $response->getFile()
                     );
 
@@ -121,7 +124,7 @@ class LabelService
                     /* Dump the CN23 customs file if there is one */
                     if ($response->hasFileCN23()) {
                         $fileSystem->dumpFile(
-                            $customsFileName = ColissimoLabel::getLabelCN23Path($order->getRef().'CN23', 'pdf'),
+                            $customsFileName = ColissimoLabel::getLabelCN23Path($response->getParcelNumber().'-CN23', 'pdf'),
                             $response->getFileCN23()
                         );
                         $files[] = $customsFileName;
@@ -172,7 +175,7 @@ class LabelService
                     if ($isEditPage) {
                         return new JsonResponse([
                             'id' => $colissimoLabelModel->getId(),
-                            'url' => URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/label/'.$response->getParcelNumber()),
+                            'url' => URL::getInstance()?->absoluteUrl('/admin/module/ColissimoLabel/label/'.$response->getParcelNumber()),
                             'number' => $response->getParcelNumber(),
                             'order' => [
                                 'id' => $order->getId(),
