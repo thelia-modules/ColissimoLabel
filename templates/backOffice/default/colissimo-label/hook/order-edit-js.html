@@ -1,25 +1,25 @@
 {loop type="order" name="the-order" id=$order_id customer="*" backend_context=true}
-    {$enable = false}
-    {loop type="module" name="module-order" active="yes" backend_context=true id=$DELIVERY_MODULE}
-        <!-- List of authorized modules -->
-        {if $CODE === "ColissimoHomeDelivery" || $CODE === "ColissimoPickupPoint"}
-            {$enable = true}
-        {/if}
-    {/loop}
+{$enable = false}
+{loop type="module" name="module-order" active="yes" backend_context=true id=$DELIVERY_MODULE}
+    <!-- List of authorized modules -->
+{if $CODE === "ColissimoHomeDelivery" || $CODE === "ColissimoPickupPoint"}
+    {$enable = true}
+{/if}
+{/loop}
 
-    {if $enable}
-        <div class="modal fade" id="modal-colissimo-label" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title" id="exampleModalLabel">{intl l="Colissimo Labels" d="colissimolabel.bo.default"}</h4>
-                    </div>
+{if $enable}
+    <div class="modal fade" id="modal-colissimo-label" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">{intl l="Colissimo Labels" d="colissimolabel.bo.default"}</h4>
+                </div>
 
-                    {form name="colissimolabel_form_label_generation_form"}
-                    {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
+                {form name="colissimolabel_form_label_generation_form"}
+                {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
 
                     <form action="{url path='/admin/module/ColissimoLabel/export?edit-order=1'}" id="export-form" method="post">
                         {form_hidden_fields}
@@ -57,26 +57,22 @@
 
                             <td class="text-center">
                                 {form_field field="signed" value_key=$ORDER_ID}
-                                    <div class="checkbox">
-                                        <label for="colissimolabel-input-signedDelivery">
-                                            <input id="colissimolabel-input-signedDelivery" class="order_checkbox" type="checkbox" name="{$name}" {if $SIGNED} checked {/if} {if !$CAN_BE_NOT_SIGNED} disabled {/if}>
-                                            {intl l="Livraison avec signature" d="colissimolabel.bo.default"}
-                                        </label>
-                                    </div>
+                                    <label for="colissimolabel-input-signedDelivery">{intl l="Livraison avec signature :" d="colissimolabel.bo.default"}</label>
+                                    <input id="colissimolabel-input-signedDelivery" class="form-control order_checkbox" type="checkbox" name="{$name}" {if $SIGNED} checked {/if} {if !$CAN_BE_NOT_SIGNED} disabled {/if}>
                                 {/form_field}
                             </td>
 
                             <td class="text-center">
                                 {form_field field="weight" value_key=$ORDER_ID}
-                                <label for="colissimo-input-weight">{intl l="Shipping weight :" d="colissimolabel.bo.default"}</label>
-                                <div class="input-group">
-                                    {$weightValue = {$WEIGHT|round:2}}
-                                    {if $weightValue == 0}
-                                        {$weightValue = ''}
-                                    {/if}
-                                    <input id="colissimo-input-weight" type="text" required class="form-control input-sm" name="{$name}" value="{$weightValue}">
-                                    <div class="input-group-addon">{intl l="/kg" d='colissimolabel.bo.default'}</div>
-                                </div>
+                                    <label for="colissimo-input-weight">{intl l="Shipping weight :" d="colissimolabel.bo.default"}</label>
+                                    <div class="input-group">
+                                        {$weightValue = {$WEIGHT|round:2}}
+                                        {if $weightValue == 0}
+                                            {$weightValue = ''}
+                                        {/if}
+                                        <input id="colissimo-input-weight" type="text" required class="form-control input-sm" name="{$name}" value="{$weightValue}">
+                                        <div class="input-group-addon">{intl l="/kg" d='colissimolabel.bo.default'}</div>
+                                    </div>
                                 {/form_field}
                             </td>
 
@@ -100,157 +96,190 @@
                         {/loop}
 
                     </form>
-                    {/form}
-                </div>
+                {/form}
             </div>
         </div>
+    </div>
 
-        <script type="text/html" id="colissimo-label-tpl">
-            <table class="table table-striped" id="colissimo-label-table" data-url="{url path="/admin/module/ColissimoLabel/order/{$order_id}/ajax-get-labels"}">
-                <caption>
-                    {intl l="Labels Colissimo" d="colissimolabel.bo.default"}
-                    <button class="btn btn-primary pull-right" name="target" data-toggle="modal" data-target="#modal-colissimo-label">
-                        {intl l="Generate new label" d="colissimolabel.bo.default"}
-                    </button>
-                </caption>
-                <thead>
-                <tr>
-                    <th>
-                        {intl l="Number" d="colissimolabel.bo.default"}
-                    </th>
-                    <th>
-                        {intl l="Weight" d="colissimolabel.bo.default"}
-                    </th>
-                    <th>
-                        {intl l="Date" d="colissimolabel.bo.default"}
-                    </th>
-                    <th>
-                        {intl l="Tracking URL" d="colissimolabel.bo.default"}
-                    </th>
-                    <th>
+    <script type="text/html" id="colissimo-label-tpl">
+        <table class="table table-striped" id="colissimo-label-table" data-url="{url path="/admin/module/ColissimoLabel/order/{$order_id}/ajax-get-labels"}">
+            <caption>
+                {intl l="Labels Colissimo" d="colissimolabel.bo.default"}
+                <button class="btn btn-primary pull-right" name="target" data-toggle="modal" data-target="#modal-colissimo-label">
+                    {intl l="Generate new label" d="colissimolabel.bo.default"}
+                </button>
+            </caption>
+            <thead>
+            <tr>
+                <th>
+                    {intl l="Number" d="colissimolabel.bo.default"}
+                </th>
+                <th>
+                    {intl l="Weight" d="colissimolabel.bo.default"}
+                </th>
+                <th>
+                    {intl l="Date" d="colissimolabel.bo.default"}
+                </th>
+                <th>
+                    {intl l="Tracking URL" d="colissimolabel.bo.default"}
+                </th>
+                <th>
 
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                {include file="colissimo-label/label-list.html"}
-                </tbody>
-            </table>
-        </script>
-        <script>
-            (function(){
-                // ajout de bloc colissimo
-                $('#bill').prepend($('#colissimo-label-tpl').html());
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {include file="colissimo-label/label-list.html"}
+            </tbody>
+        </table>
+    </script>
+    <script>
+        (function(){
+            // ajout de bloc colissimo
+            $('#bill').prepend($('#colissimo-label-tpl').html());
 
-                var $modal = $('#modal-colissimo-label'),
-                    $modalBody = $modal.find('.modal-body'),
-                    $modalFooter = $modal.find('.modal-footer'),
-                    $modalError = $modal.find('.modal-error'),
-                    $modalLoader = $modal.find('.modal-loader'),
-                    $modalErrorAlert = $modalError.find('.alert'),
-                    $modalInputWeight = $modal.find('#colissimo-input-weight'),
-                    $modalInputSignedDelivery = $modal.find("input[name='signedDelivery']"),
-                    $table = $('#colissimo-label-table');
+            var $modal = $('#modal-colissimo-label'),
+                $modalBody = $modal.find('.modal-body'),
+                $modalFooter = $modal.find('.modal-footer'),
+                $modalError = $modal.find('.modal-error'),
+                $modalLoader = $modal.find('.modal-loader'),
+                $modalErrorAlert = $modalError.find('.alert'),
+                $modalInputWeight = $modal.find('#colissimo-input-weight'),
+                $modalInputSignedDelivery = $modal.find("input[name='signedDelivery']"),
+                $table = $('#colissimo-label-table');
 
-                function print(url, number) {
-                    var iframeName = 'iframe-colissimo-label-' + number;
+            function print(url, number) {
+                var iframeName = 'iframe-colissimo-label-' + number;
 
-                    if (typeof window.frames[iframeName] !== 'undefined') {
-                        window.frames[iframeName].remove();
-                    }
-
-                    var iframe = document.createElement('iframe');
-                    iframe.src = url;
-                    iframe.id = iframeName;
-                    iframe.name = iframeName;
-                    iframe.style.display = "none";
-                    $('body').append(iframe);
-                    window.frames[iframeName].onload = function() {
-                        window.frames[iframeName].focus();
-                        window.frames[iframeName].print();
-                    };
+                if (typeof window.frames[iframeName] !== 'undefined') {
+                    window.frames[iframeName].remove();
                 }
 
-                function refreshTable() {
-                    var request = $.ajax({
-                        url: $table.data('url')
-                    });
+                var iframe = document.createElement('iframe');
+                iframe.src = url;
+                iframe.id = iframeName;
+                iframe.name = iframeName;
+                iframe.style.display = "none";
+                $('body').append(iframe);
+                window.frames[iframeName].onload = function() {
+                    window.frames[iframeName].focus();
+                    window.frames[iframeName].print();
+                };
+            }
 
-                    request.done(function(html) {
-                        $table.find('tbody').html(html);
-                    });
-
-                    request.fail(function(jqXHR, textStatus) {
-                        $table.find('tbody').html('<tr><td colspan="99">' + textStatus + '</td></tr>');
-                    });
-                }
-
-                $modal.on('show.bs.modal', function (event) {
-                    $modalInputWeight.focus();
-                    $modalBody.removeClass('hide');
-                    $modalFooter.removeClass('hide');
-                    $modalLoader.addClass('hide');
-                    $modalError.addClass('hide');
-                    $modalErrorAlert.html('')
+            function refreshTable() {
+                var request = $.ajax({
+                    url: $table.data('url')
                 });
 
-                $modal.on('shown.bs.modal', function (event) {
-                    $modalInputWeight.focus();
-
-                    var elem = $modalInputWeight[0];
-
-                    var val = elem.value; //store the value of the element
-                    elem.value = ''; //clear the value of the element
-                    elem.value = val;
+                request.done(function(html) {
+                    $table.find('tbody').html(html);
                 });
 
-                // modal action print
-                $table.on('click', '.js-action-print', function(e){
-                    e.preventDefault();
-                    print($(this).attr('href'), this.dataset.number);
+                request.fail(function(jqXHR, textStatus) {
+                    $table.find('tbody').html('<tr><td colspan="99">' + textStatus + '</td></tr>');
                 });
+            }
 
-                $modal.find('form').on('submit', function(e){
-                    e.preventDefault();
-                    $modalBody.addClass('hide');
-                    $modalFooter.addClass('hide');
-                    $modalLoader.removeClass('hide');
+            $modal.on('show.bs.modal', function (event) {
+                $modalInputWeight.focus();
+                $modalBody.removeClass('hide');
+                $modalFooter.removeClass('hide');
+                $modalLoader.addClass('hide');
+                $modalError.addClass('hide');
+                $modalErrorAlert.html('')
+            });
 
-                    var request = $.ajax({
-                        url: $(this).attr('action'),
-                        data: $(this).serialize(),
-                        type: 'POST',
-                        dataType: 'json'
-                    });
+            $modal.on('shown.bs.modal', function (event) {
+                $modalInputWeight.focus();
 
-                    request.done(function(json) {
-                        $modalLoader.addClass('hide');
-                        if (json.error) {
-                            $modalError.removeClass('hide');
-                            $modalErrorAlert.html('');
+                var elem = $modalInputWeight[0];
 
-                            for (var i in json.error) {
-                                $modalErrorAlert.html('Code : ' + i + ' : ' + ((Array.isArray(json.error[i])) ? json.error[i][0] : json.error[i]));
+                var val = elem.value; //store the value of the element
+                elem.value = ''; //clear the value of the element
+                elem.value = val;
+            });
+
+            // modal action print
+            $table.on('click', '.js-action-print', function(e){
+                e.preventDefault();
+                // we prevent other listeners to trigger print()
+                e.stopImmediatePropagation();
+
+                try {
+                    fetch($(this).attr('href'), {
+                        method: 'GET',
+                    })
+                        .then((res) => {
+
+                            if (res.status === 500) {
+                                alert(`Une erreur est survenue, le fichier existe t-il ?`);
+                                return;
                             }
-                        } else {
-                            $('input[name="delivery_ref"]').val(json.number);
 
-                            print(json.url, json.number);
-                            refreshTable();
-                            $modal.modal('hide');
+                            return res.text();
+                        })
+                        .then((data) => {
+                            if (!data) return;
 
-                            $('select[name="status_id"]').val(json.order.status.id).selectpicker('refresh');
-                        }
-                    });
+                            // detect if it is really  pdf
+                            if (data.startsWith("%PDF-")) {
+                                print($(this).attr('href'), this.dataset.number);
+                            } else {
+                                alert(`Le fichier ne semble pas être au format PDF, vous ne pouvez pas imprimer sur une imprimante classique`)
+                            }
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                            alert(err.message);
+                        })
+                }
+                catch (err) {
+                    alert(err.message)
+                }
+            });
 
-                    request.fail(function(jqXHR, textStatus) {
-                        console.log('jsonfail');
-                        $modalLoader.addClass('hide');
-                        $modalError.removeClass('hide');
-                        $modalErrorAlert.html(textStatus);
-                    });
+            $modal.find('form').on('submit', function(e){
+                e.preventDefault();
+                $modalBody.addClass('hide');
+                $modalFooter.addClass('hide');
+                $modalLoader.removeClass('hide');
+
+                var request = $.ajax({
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(),
+                    type: 'POST',
+                    dataType: 'json'
                 });
-            }());
-        </script>
-    {/if}
+
+                request.done(function(json) {
+                    $modalLoader.addClass('hide');
+                    if (json.error) {
+                        $modalError.removeClass('hide');
+                        $modalErrorAlert.html('');
+
+                        for (var i in json.error) {
+                            $modalErrorAlert.html('Code : ' + i + ' : ' + ((Array.isArray(json.error[i])) ? json.error[i][0] : json.error[i]));
+                        }
+                    } else {
+                        $('input[name="delivery_ref"]').val(json.number);
+
+                        print(json.url, json.number);
+                        refreshTable();
+                        $modal.modal('hide');
+
+                        $('select[name="status_id"]').val(json.order.status.id).selectpicker('refresh');
+                    }
+                });
+
+                request.fail(function(jqXHR, textStatus) {
+                    console.log('jsonfail');
+                    $modalLoader.addClass('hide');
+                    $modalError.removeClass('hide');
+                    $modalErrorAlert.html(textStatus);
+                });
+            });
+        }());
+    </script>
+{/if}
 {/loop}
