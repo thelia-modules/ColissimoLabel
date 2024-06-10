@@ -22,7 +22,11 @@ trait MethodCreateAddressFromOrderAddress
             ->setZipCode($orderAddress->getZipcode())
             ->setCountryCode($orderAddress->getCountry()->getIsoalpha2())
             ->setLine2($orderAddress->getAddress1())
-            ->setLine3($orderAddress->getAddress2())
+            ->setLine3(
+                $orderAddress->getAddress3() ?
+                    $orderAddress->getAddress2().' - '.$orderAddress->getAddress3() :
+                    $orderAddress->getAddress2()
+            )
             ->setPhoneNumber(trim(str_replace(' ', '', $orderAddress->getPhone())))
             ->setMobileNumber(trim(str_replace(' ', '', $orderAddress->getCellphone())))
             ->setEmail($customer->getEmail())
