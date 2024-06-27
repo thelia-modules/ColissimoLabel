@@ -144,7 +144,7 @@
                             </td>
                             <td class="text-center">
                                 {if $TRACKING_NUMBER}
-                                    <a href="https://www.colissimo.fr/portail_colissimo/suivreResultat.do?parcelnumber={$TRACKING_NUMBER}">{$TRACKING_NUMBER}</a>
+                                    <a href="https://www.colissimo.fr/portail_colissimo/suivreResultat.do?parcelnumber={$TRACKING_NUMBER}" target="_blank">{$TRACKING_NUMBER}</a>
                                 {else}
                                     <i title="{intl l="Non disponible" d='colissimolabel.bo.default'}" class="glyphicon glyphicon-ban-circle"></i>
                                 {/if}
@@ -202,8 +202,10 @@
                         {/elseloop}
 
                         {ifloop rel="orders.not.sent"}
-                        <div class="pull-right">
-                            <button type="submit" value="stay" class="btn btn-primary" title="{intl l='Process selected orders' d='colissimolabel.bo.default'}">{intl l='Process selected orders' d='colissimolabel.bo.default'}</button>
+                        <div class="clearfix">
+                            <div class="pull-right">
+                                <button type="submit" value="stay" class="btn btn-primary" title="{intl l='Process selected orders' d='colissimolabel.bo.default'}">{intl l='Process selected orders' d='colissimolabel.bo.default'}</button>
+                            </div>
                         </div>
                         {/ifloop}
                     </form>

@@ -86,8 +86,8 @@
                             {intl l="Please wait ..." d="colissimolabel.bo.default"}
                         </div>
 
-                        <div class="modal-error hide">
-                            <div class="alert alert-danger">
+                        <div class="modal-error hide" style="padding: 10px">
+                            <div class="alert alert-danger" style="margin:0;">
 
                             </div>
                         </div>
@@ -226,21 +226,16 @@
                     request.done(function(json) {
                         $modalLoader.addClass('hide');
                         if (json.error) {
+                            $modalErrorAlert.html(Array.isArray(json.error) ? json.error[0] : json.error);
+
                             $modalError.removeClass('hide');
-                            $modalErrorAlert.html('');
-
-                            for (var i in json.error) {
-                                $modalErrorAlert.html('Code : ' + i + ' : ' + ((Array.isArray(json.error[i])) ? json.error[i][0] : json.error[i]));
-                            }
-                        } else {
-                            $('input[name="delivery_ref"]').val(json.number);
-
-                            print(json.url, json.number);
-                            refreshTable();
-                            $modal.modal('hide');
-
-                            $('select[name="status_id"]').val(json.order.status.id).selectpicker('refresh');
+                            return;
                         }
+                        $('input[name="delivery_ref"]').val(json.number);
+
+                        print(json.url, json.number);
+                        refreshTable();
+                        $modal.modal('hide');
                     });
 
                     request.fail(function(jqXHR, textStatus) {

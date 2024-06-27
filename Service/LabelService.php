@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace ColissimoLabel\Service;
 
 use ColissimoLabel\ColissimoLabel;
@@ -10,13 +20,13 @@ use ColissimoLabel\Model\ColissimoLabelQuery;
 use ColissimoLabel\Request\Helper\LabelRequestAPIConfiguration;
 use ColissimoLabel\Request\LabelRequest;
 use ColissimoPickupPoint\Model\OrderAddressColissimoPickupPointQuery;
-use Exception;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\HttpFoundation\JsonResponse;
+use Thelia\Exception\TheliaProcessException;
 use Thelia\Model\OrderQuery;
 use Thelia\Model\OrderStatusQuery;
 use Thelia\Tools\URL;
@@ -28,13 +38,17 @@ class LabelService
      */
     public function __construct(
         protected EventDispatcherInterface $dispatcher
-    ) {}
+    ) {
+    }
 
     /**
+     * @param $data
+     * @param EventDispatcherInterface $dispatcher
+     * @return array label data for each processed order
      * @throws PropelException
-     * @throws Exception
+     * @throws \SoapFault
      */
-    public function generateLabel($data, $isEditPage, EventDispatcherInterface $dispatcher)
+    public function generateLabel($data, EventDispatcherInterface $dispatcher): array
     {
         /** Check if status needs to be changed after processing */
         $newStatus = OrderStatusQuery::create()->findOneByCode($data['new_status']);
@@ -42,9 +56,10 @@ class LabelService
         $weightArray = $data['weight'];
         $signedArray = $data['signed'];
 
+        $results = [];
+
         foreach ($data['order_id'] as $orderId) {
             if (null !== $order = OrderQuery::create()->findOneById($orderId)) {
-                /* DO NOT use strict comparison here */
                 if (!isset($weightArray[$orderId]) || (float) $weightArray[$orderId] === 0.0) {
                     $weight = $order->getWeight();
                 } else {
@@ -52,18 +67,20 @@ class LabelService
                 }
 
                 if (null === $weight) {
-                    throw new Exception('Please enter a weight for every selected order');
+                    throw new TheliaProcessException('Please enter a weight for every selected order');
                 }
 
                 /** Check if the 'signed' checkbox was checked for this particular order */
                 $signedDelivery = false;
-                if (array_key_exists($orderId, $signedArray)) {
+                if (\array_key_exists($orderId, $signedArray)) {
                     $signedDelivery = $signedArray[$orderId];
                 }
 
                 $APIConfiguration = new LabelRequestAPIConfiguration();
                 $APIConfiguration->setContractNumber(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_CONTRACT_NUMBER));
                 $APIConfiguration->setPassword(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD));
+
+                $colissimoRequest = null;
 
                 /* Same thing with ColissimoPickupPoint */
                 if (AuthorizedModuleEnum::ColissimoPickupPoint->value === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
@@ -85,14 +102,12 @@ class LabelService
                 }
 
                 /* If this is a domicile delivery, we only use the order information to create a Labelrequest, not the relay point */
-                if (!isset($colissimoRequest)) {
+                if (null === $colissimoRequest) {
                     $colissimoRequest = new LabelRequest($order, null, null, $signedDelivery);
                 }
 
                 /* We set the weight as the one indicated from the form */
-                if (null !== $weight) {
-                    $colissimoRequest->getLetter()->getParcel()->setWeight($weight);
-                }
+                $colissimoRequest->getLetter()->getParcel()->setWeight($weight);
 
                 /* We set whether the delivery is a signed one or not thanks to the 'signed' checkbox in the form */
                 if (null !== $signedDelivery) {
@@ -171,44 +186,126 @@ class LabelService
                         }
                     }
 
-                    /* Return JSON response when the form is called from order edit page */
-                    if ($isEditPage) {
-                        return new JsonResponse([
-                            'id' => $colissimoLabelModel->getId(),
-                            'url' => URL::getInstance()?->absoluteUrl('/admin/module/ColissimoLabel/label/'.$response->getParcelNumber()),
-                            'number' => $response->getParcelNumber(),
-                            'order' => [
-                                'id' => $order->getId(),
-                                'status' => [
-                                    'id' => $order->getOrderStatus()->getId(),
-                                ],
+                    $results[] = [
+                        'id' => $colissimoLabelModel->getId(),
+                        'url' => URL::getInstance()?->absoluteUrl('/admin/module/ColissimoLabel/label/'.$response->getParcelNumber()),
+                        'number' => $response->getParcelNumber(),
+                        'order' => [
+                            'id' => $order->getId(),
+                            'status' => [
+                                'id' => $order->getOrderStatus()->getId(),
                             ],
-                        ]);
-                    }
-                } else {
-                    /** Handling errors when the response is invalid */
-                    $colissimoLabelError = ColissimoLabelQuery::create()
-                        ->filterByOrder($order)
-                        ->filterByError(1)
-                        ->findOneOrCreate()
-                    ;
+                        ],
+                    ];
 
-                    $colissimoLabelError
-                        ->setError(1)
-                        ->setErrorMessage($response->getError(true)[0])
-                        ->setSigned($signedDelivery)
-                        ->setWeight($colissimoRequest->getLetter()->getParcel()->getWeight())
-                        ->save()
-                    ;
-
-                    /* Return JSON response when the form is called from the order edit page */
-                    if ($isEditPage) {
-                        return new JsonResponse([
-                            'error' => $response->getError(),
-                        ]);
-                    }
+                    continue;
                 }
+
+                /** Handling errors when the response is invalid */
+                $colissimoLabelError = ColissimoLabelQuery::create()
+                    ->filterByOrder($order)
+                    ->filterByError(1)
+                    ->findOneOrCreate()
+                ;
+
+                $colissimoLabelError
+                    ->setError(1)
+                    ->setErrorMessage($response->getError(true)[0])
+                    ->setSigned($signedDelivery)
+                    ->setWeight($colissimoRequest->getLetter()->getParcel()->getWeight())
+                    ->save()
+                ;
+
+                $results[] = [ 'error' => $response->getError(true)[0]];
             }
+        }
+
+        return $results;
+    }
+
+    public function getCustomsInvoicePath(int $orderId): ?string
+    {
+        if (null === $label = ColissimoLabelQuery::create()->findOneByOrderId($orderId)) {
+            return null;
+        }
+
+        return ColissimoLabel::getLabelCN23Path($label->getTrackingNumber().'-CN23', 'pdf');
+    }
+
+    public function getLabelPathByOrderId(int $orderId, &$prettyFileName = ''): ?string
+    {
+        if (null === $label = ColissimoLabelQuery::create()->findOneByOrderId($orderId)) {
+            return null;
+        }
+
+        return $this->getLabelPathByTrackingNumber($label->getTrackingNumber(), $prettyFileName);
+    }
+
+    public function getLabelPathByTrackingNumber(string $trackingNumber, &$prettyFileName = ''): ?string
+    {
+        $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($trackingNumber);
+
+        $orderRef = null;
+        $file = null;
+
+        /* Compatibility for ColissimoLabel < 1.0.0 */
+        if ($label) {
+            $file = ColissimoLabel::getLabelPath($trackingNumber, ColissimoLabel::getFileExtension());
+            $prettyFileName = $trackingNumber;
+
+            $orderRef = $label->getOrderRef();
+        }
+
+        /* The correct way to find the file for ColissimoLabel >= 1.0.0 */
+        if ($orderRef && '' !== $orderRef) {
+            $file = ColissimoLabel::getLabelPath($label->getTrackingNumber(), ColissimoLabel::getFileExtension());
+            $prettyFileName = $label->getOrderRef().'-'.$label->getTrackingNumber();
+        }
+
+        return $file;
+    }
+
+    /**
+     * @param string $trackingNumber
+     * @return void
+     * @throws PropelException
+     */
+    public function deleteLabel(string $trackingNumber): int
+    {
+        if (null === $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($trackingNumber)) {
+            throw new TheliaProcessException('The label for tracking number '.$trackingNumber.' was not found');
+        }
+
+        /* We check if the label is from this module */
+        /* We check if the label is from this version of the module -- Compatibility with ColissimoLabel < 1.0.0 */
+        if ($label && '' !== $trackNo = $label->getTrackingNumber()) {
+            $this->deleteLabelFile($trackNo);
+        }
+
+        /*
+         * If we're here, it means the label is coming from a version of ColissimoLabel < 1.0.0
+         * So we need to delete it with its tracking number instead of order ref, since it was named like that back then
+        */
+        $this->deleteLabelFile($trackingNumber);
+
+        $label->delete();
+
+        return $label->getOrderId();
+    }
+
+    /**
+     * Delete the label and invoice files on the server, given to the label name.
+     * @param $fileName
+     * @return void
+     */
+    protected function deleteLabelFile($fileName): void
+    {
+        $finder = new Finder();
+        $fileSystem = new Filesystem();
+
+        $finder->files()->name($fileName.'*')->in(ColissimoLabel::LABEL_FOLDER);
+        foreach ($finder as $file) {
+            $fileSystem->remove(ColissimoLabel::LABEL_FOLDER.DS.$file->getFilename());
         }
     }
 }

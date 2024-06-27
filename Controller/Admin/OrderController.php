@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace ColissimoLabel\Controller\Admin;
 
 use ColissimoLabel\ColissimoLabel;
@@ -8,7 +18,6 @@ use ColissimoLabel\Model\ColissimoLabelQuery;
 use ColissimoLabel\Request\Helper\BordereauRequestAPIConfiguration;
 use ColissimoLabel\Service\LabelService;
 use ColissimoLabel\Service\SOAPService;
-use Exception;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -30,13 +39,12 @@ use Thelia\Log\Tlog;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\OrderQuery;
 use Thelia\Tools\URL;
-use ZipArchive;
 
 #[Route('/admin/module/ColissimoLabel', name: 'colissimo_label_order_')]
 class OrderController extends AdminController
 {
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     #[Route('/export', name: 'export')]
     public function generateLabelAction(Request $request, LabelService $labelService, EventDispatcherInterface $eventDispatcher): JsonResponse|RedirectResponse|Response
@@ -64,73 +72,69 @@ class OrderController extends AdminController
                 ColissimoLabel::setConfigValue('new_status', $data['new_status']);
             }
 
-            $response = $labelService->generateLabel($data, $isEditPage, $eventDispatcher);
+            $responseData = $labelService->generateLabel($data, $eventDispatcher);
 
             if ($isEditPage) {
-                return $response;
+                return new JsonResponse($responseData[0]);
             }
 
-        } catch (Exception $ex) {
+            foreach ($data['order_id'] as $orderId) {
+                if (null !== $order = OrderQuery::create()->findOneById($orderId)) {
+                    $fileSystem = new Filesystem();
+                    /* Generates and dump the invoice file if it is requested */
+                    if (ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GET_INVOICES)) {
+                        $invoiceResponse = $this->generateOrderPdf($eventDispatcher, $orderId, ConfigQuery::read('pdf_invoice_file', 'invoice'));
+                        $fileSystem->dumpFile(
+                            $invoiceName = ColissimoLabel::getLabelPath($order->getRef().'-invoice', 'pdf'),
+                            $invoiceResponse->getContent()
+                        );
+                        $files[] = $invoiceName;
+                    }
+                }
+            }
+
+            // If we get here, that means the form was called from the module label page,
+            // so we put every file requested in a .zip
+            if (\count($files) > 0) {
+                $bordereau = null;
+                if (ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GENERATE_BORDEREAU)
+                    && null !== $bordereau = $this->addBordereau($parcelNumbers)
+                ) {
+                    $files[] = $bordereau;
+                }
+
+                $zip = new \ZipArchive();
+                $zipFilename = sys_get_temp_dir().DS.uniqid('colissimo-label-', true);
+
+                if (true !== $zip->open($zipFilename, \ZipArchive::CREATE)) {
+                    throw new TheliaProcessException("Cannot open zip file $zipFilename\n");
+                }
+
+                foreach ($files as $file) {
+                    $zip->addFile($file, basename($file));
+                }
+
+                $zip->close();
+
+                $params = ['zip' => base64_encode($zipFilename)];
+
+                if ($bordereau) {
+                    $fs = new Filesystem();
+                    $fs->remove($bordereau);
+                }
+            }
+        } catch (\Exception $ex) {
+            Tlog::getInstance()->err('Failed to create Colissimo label : '.$ex->getMessage());
             $this->setupFormErrorContext('Generation étiquettes Colissimo', $ex->getMessage(), $exportForm, $ex);
         }
 
-        foreach ($data['order_id'] as $orderId) {
-            if (null !== $order = OrderQuery::create()->findOneById($orderId)) {
-                $fileSystem = new Filesystem();
-                /* Generates and dump the invoice file if it is requested */
-                if (ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GET_INVOICES)) {
-                    $invoiceResponse = $this->generateOrderPdf($eventDispatcher, $orderId, ConfigQuery::read('pdf_invoice_file', 'invoice'));
-                    $fileSystem->dumpFile(
-                        $invoiceName = ColissimoLabel::getLabelPath($order->getRef().'-invoice', 'pdf'),
-                        $invoiceResponse->getContent()
-                    );
-                    $files[] = $invoiceName;
-                }
-            }
-        }
-
-        /* If we get here, that means the form was called from the module label page, so we put every file requested in a .zip */
-        if (count($files) > 0) {
-            $bordereau = null;
-            if (ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GENERATE_BORDEREAU)) {
-                if (null !== $bordereau = $this->addBordereau($parcelNumbers)) {
-                    $files[] = $bordereau;
-                }
-            }
-
-            $zip = new ZipArchive();
-            $zipFilename = sys_get_temp_dir().DS.uniqid('colissimo-label-');
-
-            if (true !== $zip->open($zipFilename, ZipArchive::CREATE)) {
-                throw new TheliaProcessException("Cannot open zip file $zipFilename\n");
-            }
-
-            foreach ($files as $file) {
-                $zip->addFile($file, basename($file));
-            }
-
-            $zip->close();
-
-            $params = ['zip' => base64_encode($zipFilename)];
-
-            if ($bordereau) {
-                $fs = new Filesystem();
-                $fs->remove($bordereau);
-            }
-        }
-
-        /* We redirect to the module label page with parameters to download the zip file as well */
         return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/labels', $params));
     }
 
     /**
      * Add a bordereau to the labels generated, if requested.
      *
-     * @param $parcelNumbers
-     *
-     * @return string|null
-     *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function addBordereau($parcelNumbers): ?string
     {
@@ -143,13 +147,13 @@ class OrderController extends AdminController
             $parseResponse = $service->callGenerateBordereauByParcelsNumbersAPI($APIConfiguration, $parcelNumbers);
             $resultAttachment = $parseResponse->attachments;
 
-            if (! isset($resultAttachment[0])) {
+            if (!isset($resultAttachment[0])) {
                 throw new TheliaProcessException('Bordereau request : no attached data.');
             }
 
             $bordereauContent = $resultAttachment[0];
 
-            if (! isset($bordereauContent['data'])) {
+            if (!isset($bordereauContent['data'])) {
                 throw new TheliaProcessException('Bordereau request : attachment is empty.');
             }
 
@@ -168,8 +172,8 @@ class OrderController extends AdminController
             );
 
             return $filePath;
-        } catch (Exception $ex) {
-            Tlog::getInstance()->error("Failed to get Bordereau : " . $ex->getMessage());
+        } catch (\Exception $ex) {
+            Tlog::getInstance()->error('Failed to get Bordereau : '.$ex->getMessage());
         }
 
         return null;
@@ -177,10 +181,6 @@ class OrderController extends AdminController
 
     /**
      * Return a template with a list of all labels for a given order.
-     *
-     * @param $orderId
-     *
-     * @return Response
      */
     #[Route('/order/{orderId}/ajax-get-labels', name: '_labels')]
     public function getOrderLabelsAction($orderId): Response
@@ -193,94 +193,40 @@ class OrderController extends AdminController
     }
 
     /**
-     * Delete the label and invoice files on the server, given to the label name.
-     *
-     * @param $fileName
-     */
-    protected function deleteLabelFile($fileName)
-    {
-        $finder = new Finder();
-        $fileSystem = new Filesystem();
-
-        $finder->files()->name($fileName.'*')->in(ColissimoLabel::LABEL_FOLDER);
-        foreach ($finder as $file) {
-            $fileSystem->remove(ColissimoLabel::LABEL_FOLDER.DS.$file->getFilename());
-        }
-    }
-
-    /**
      * Delete a label file from server and delete its related table entry.
      *
      * Compatibility with ColissimoLabel < 1.0.0
      *
-     * @param Request $request
-     * @param string $number
-     *
-     * @return Response
-     *
      * @throws PropelException
      */
     #[Route('/label/delete/{number}', name: 'delete', methods: 'GET')]
-    public function deleteLabelAction(Request $request, string $number): Response
+    public function deleteLabelAction(Request $request, string $number, LabelService $labelService): Response
     {
-        $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($number);
-        /* We check if the label is from this module */
-        if ($label) {
-            /* We check if the label is from this version of the module -- Compatibility with ColissimoLabel < 1.0.0 */
-            if ('' !== $trackNo = $label->getTrackingNumber()) {
-                $this->deleteLabelFile($trackNo);
-                $label->delete();
-
-                /* Handle the return when called from order edit */
-                if ($request->get('edit-order')) {
-                    return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/'.$label->getOrderId().'?tab=bill'));
-                }
-
-                return $this->generateRedirect(URL::getInstance()->absoluteUrl('admin/module/ColissimoLabel/labels#order-'.$label->getOrderId()));
-            }
-        }
-
-        /*
-         * If we're here, it means the label is coming from a version of ColissimoLabel < 1.0.0
-         * So we need to delete it with its tracking number instead of order ref, since it was named like that back then
-         */
-        $this->deleteLabelFile($number);
-        $label->delete();
+        $orderId = $labelService->deleteLabel($number);
 
         /* Handle the return when called from order edit */
         if ($request->get('edit-order')) {
-            return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/'.$label->getOrderId().'?tab=bill'));
+            return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/'.$orderId.'?tab=bill'));
         }
 
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl('admin/module/ColissimoLabel/labels#order-'.$label->getOrderId()));
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('admin/module/ColissimoLabel/labels#order-'.$orderId));
     }
 
     /**
      * Download the CN23 customs invoice, given an order ID.
-     *
-     * @param $orderId
-     *
-     * @return Response
-     *
-     * @throws Exception
      */
     #[Route('/customs-invoice/{orderId}', name: 'customers_invoice')]
-    public function getCustomsInvoiceAction($orderId): Response
+    public function getCustomsInvoiceAction($orderId, LabelService $labelService): Response
     {
-        if (null !== OrderQuery::create()->findOneById($orderId))
-        {
-            if ($label = ColissimoLabelQuery::create()->findOneByOrderId($orderId)) {
-                $fileName = ColissimoLabel::getLabelCN23Path($label->getTrackingNumber().'-CN23', 'pdf');
-
-                return new Response(
-                    file_get_contents($fileName),
-                    200,
-                    [
-                        'Content-Type' => 'application/pdf',
-                        'Content-disposition' => 'Attachement;filename='.basename($fileName),
-                    ]
-                );
-            }
+        if (null !== $fileName = $labelService->getCustomsInvoicePath($orderId)) {
+            return new Response(
+                file_get_contents($fileName),
+                200,
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-disposition' => 'Attachement;filename='.basename($fileName),
+                ]
+            );
         }
 
         return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/labels'));
@@ -288,38 +234,15 @@ class OrderController extends AdminController
 
     /**
      * Find the order label on the server and return it as a download response.
-     *
-     * @param Request $request
-     * @param string $number
-     *
-     * @return mixed|BinaryFileResponse
      */
     #[Route('/label/{number}', name: 'list', methods: 'GET')]
-    public function getLabelAction(Request $request, string $number): mixed
+    public function getLabelAction(Request $request, string $number, LabelService $labelService): mixed
     {
         if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
             return $response;
         }
 
-        $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($number);
-
-        $orderRef = null;
-        $file = null;
-        $fileName = '';
-
-        /* Compatibility for ColissimoLabel < 1.0.0 */
-        if ($label) {
-            $file = ColissimoLabel::getLabelPath($number, ColissimoLabel::getFileExtension());
-            $fileName = $number;
-
-            $orderRef = $label->getOrderRef();
-        }
-
-        /* The correct way to find the file for ColissimoLabel >= 1.0.0 */
-        if ($orderRef && '' !== $orderRef) {
-            $file = ColissimoLabel::getLabelPath($label->getTrackingNumber(), ColissimoLabel::getFileExtension());
-            $fileName = $label->getOrderRef() . '-' . $label->getTrackingNumber();
-        }
+        $file = $labelService->getLabelPathByTrackingNumber($number, $fileName);
 
         $response = new BinaryFileResponse($file);
 
@@ -335,9 +258,6 @@ class OrderController extends AdminController
 
     /**
      * Handles the download of the zip file given as hashed base 64 in the URL.
-     *
-     * @param $base64EncodedZipFilename
-     * @return StreamedResponse|Response
      */
     #[Route('/labels-zip/{base64EncodedZipFilename}', name: 'labels_zip')]
     public function getLabelZip($base64EncodedZipFilename): StreamedResponse|Response
@@ -346,7 +266,7 @@ class OrderController extends AdminController
 
         if (file_exists($zipFilename)) {
             return new StreamedResponse(
-                function () use ($zipFilename) {
+                function () use ($zipFilename): void {
                     readfile($zipFilename);
                     @unlink($zipFilename);
                 },
