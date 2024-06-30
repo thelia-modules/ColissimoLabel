@@ -353,10 +353,22 @@ class ColissimoLabel extends BaseModule
         return self::BORDEREAU_FOLDER.DS.$date.'.pdf';
     }
 
-    /** Get the label files extension according to the file type indicated in the module config */
-    public static function getFileExtension(): string
+    /**
+     * Get the label files extension according to the file type indicated in the module config, or the requested file type
+     *
+     * @param string|null $labelType
+     * @return string
+     */
+    public static function getFileExtension(?string $labelType = null): string
     {
-        return strtolower(substr(OutputFormat::OUTPUT_PRINTING_TYPE[self::getConfigValue(self::CONFIG_KEY_DEFAULT_LABEL_FORMAT)], 0, 3));
+        return
+            strtolower(
+                substr(
+                    OutputFormat::OUTPUT_PRINTING_TYPE[$labelType ?? self::getConfigValue(self::CONFIG_KEY_DEFAULT_LABEL_FORMAT)],
+                    0,
+                    3
+                )
+            );
     }
 
     /**

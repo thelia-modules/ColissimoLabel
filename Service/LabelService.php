@@ -20,6 +20,7 @@ use ColissimoLabel\Model\ColissimoLabelQuery;
 use ColissimoLabel\Request\Helper\LabelRequestAPIConfiguration;
 use ColissimoLabel\Request\LabelRequest;
 use ColissimoPickupPoint\Model\OrderAddressColissimoPickupPointQuery;
+use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -223,15 +224,24 @@ class LabelService
         return $results;
     }
 
+    /**
+     * @param int $orderId
+     * @return string|null
+     */
     public function getCustomsInvoicePath(int $orderId): ?string
     {
-        if (null === $label = ColissimoLabelQuery::create()->findOneByOrderId($orderId)) {
+        if (null === $label = ColissimoLabelQuery::create()->orderByCreatedAt(Criteria::DESC)->findOneByOrderId($orderId)) {
             return null;
         }
 
         return ColissimoLabel::getLabelCN23Path($label->getTrackingNumber().'-CN23', 'pdf');
     }
 
+    /**
+     * @param int $orderId
+     * @param $prettyFileName
+     * @return string|null
+     */
     public function getLabelPathByOrderId(int $orderId, &$prettyFileName = ''): ?string
     {
         if (null === $label = ColissimoLabelQuery::create()->findOneByOrderId($orderId)) {
@@ -241,28 +251,20 @@ class LabelService
         return $this->getLabelPathByTrackingNumber($label->getTrackingNumber(), $prettyFileName);
     }
 
+    /**
+     * @param string $trackingNumber
+     * @param $prettyFileName
+     * @return string|null
+     */
     public function getLabelPathByTrackingNumber(string $trackingNumber, &$prettyFileName = ''): ?string
     {
-        $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($trackingNumber);
-
-        $orderRef = null;
-        $file = null;
-
-        /* Compatibility for ColissimoLabel < 1.0.0 */
-        if ($label) {
-            $file = ColissimoLabel::getLabelPath($trackingNumber, ColissimoLabel::getFileExtension());
-            $prettyFileName = $trackingNumber;
-
-            $orderRef = $label->getOrderRef();
+        if (null === $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($trackingNumber)) {
+            throw new TheliaProcessException("No label information for tracking number $trackingNumber");
         }
 
-        /* The correct way to find the file for ColissimoLabel >= 1.0.0 */
-        if ($orderRef && '' !== $orderRef) {
-            $file = ColissimoLabel::getLabelPath($label->getTrackingNumber(), ColissimoLabel::getFileExtension());
-            $prettyFileName = $label->getOrderRef().'-'.$label->getTrackingNumber();
-        }
+        $prettyFileName = $label->getOrderRef().'-'.$label->getTrackingNumber();
 
-        return $file;
+        return ColissimoLabel::getLabelPath($label->getTrackingNumber(), $label->getLabelType() ?? ColissimoLabel::getFileExtension());
     }
 
     /**
