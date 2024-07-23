@@ -59,7 +59,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
     {
         $order = $event->getOrder();
 
-        if ($labels = ColissimoLabelQuery::create()->filterByOrderId($order->getId())->find()) {
+        if (null !== $order && $labels = ColissimoLabelQuery::create()->filterByOrderId($order->getId())->find()) {
             foreach ($labels as $label) {
                 $weight = $label->getWeight();
                 $signedDelivery = $label->getSigned();
