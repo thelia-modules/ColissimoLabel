@@ -64,8 +64,6 @@ class SOAPService
 
         $soap = new SoapClient($APIConfiguration->getWsdl());
 
-        $test = $xml->asXML();
-
         return new LabelResponse($soap->__doRequest(
             $xml->asXML(),
             $APIConfiguration->getWsdl(),

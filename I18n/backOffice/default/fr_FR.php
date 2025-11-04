@@ -30,6 +30,7 @@ return [
     'General informations' => 'Informations générales',
     'Generate bordereau for label since : %date' => 'Générer un bordereau pour les étiquettes créée depuis : %date',
     'Generate new label' => 'Générer une étiquette',
+    'Generate return label' => 'Générer une étiquette de retour',
     'Label' => 'Etiquette',
     'Label cannot be created. Error is: ' => 'L\'étiquette n\'a pas pu être créée. Erreur: ',
     'Labels' => 'Etiquettes',

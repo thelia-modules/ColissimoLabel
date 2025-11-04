@@ -56,6 +56,7 @@ class LabelService
 
         $weightArray = $data['weight'];
         $signedArray = $data['signed'];
+        $isReturn = filter_var($data['return_label'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $results = [];
 
@@ -92,7 +93,9 @@ class LabelService
                             $colissimoRequest = new LabelRequest(
                                 $order,
                                 '0' == $AddressColissimoPickupPoint->getCode() ? null : $AddressColissimoPickupPoint->getCode(),
-                                $AddressColissimoPickupPoint->getType()
+                                $AddressColissimoPickupPoint->getType(),
+                                $signedDelivery,
+                                $isReturn
                             );
 
                             $colissimoRequest->getLetter()->getService()->setCommercialName(
@@ -104,7 +107,7 @@ class LabelService
 
                 /* If this is a domicile delivery, we only use the order information to create a Labelrequest, not the relay point */
                 if (null === $colissimoRequest) {
-                    $colissimoRequest = new LabelRequest($order, null, null, $signedDelivery);
+                    $colissimoRequest = new LabelRequest($order, null, null, $signedDelivery, $isReturn);
                 }
 
                 /* We set the weight as the one indicated from the form */

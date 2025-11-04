@@ -29,6 +29,7 @@ return [
     'General informations' => 'General informations',
     'Generate bordereau for label since : %date' => 'Generate bordereau for label since : %date',
     'Generate new label' => 'Generate new label',
+    'Generate return label' => 'Generate return label',
     'Label' => 'Label',
     'Label cannot be created. Error is: ' => 'Label cannot be created. Error is: ',
     'Labels' => 'Labels',

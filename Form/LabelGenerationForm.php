@@ -6,6 +6,7 @@ use ColissimoLabel\ColissimoLabel;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormEvent;
@@ -62,6 +63,13 @@ class LabelGenerationForm extends BaseForm
                     'label' => 'Signature',
                     'allow_add' => true,
                     'allow_delete' => true,
+                ]
+            )
+            ->add(
+                'return_label',
+                HiddenType::class,
+                [
+                    'required' => false,
                 ]
             )
         ;

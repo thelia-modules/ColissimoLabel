@@ -27,7 +27,7 @@ class LabelRequest extends AbstractLabelRequest
     use MethodCreateAddressFromStore;
     use MethodCreateAddressFromOrderAddress;
 
-    public function __construct(Order $order, $pickupCode = null, $pickupType = null, $signedDelivery = false)
+    public function __construct(Order $order, $pickupCode = null, $pickupType = null, $signedDelivery = false, $isReturn = false)
     {
         $orderAddress = OrderAddressQuery::create()->findOneById($order->getDeliveryOrderAddressId());
 
@@ -35,8 +35,21 @@ class LabelRequest extends AbstractLabelRequest
          * If a pickup type was given (relay point delivery), we set the delivery code $productCode as this.
          * Otherwise, we check in getProductCode which delivery type is necessary given the delivery country and whether this
          * is a signed delivery or not, and set $productCode as what ie returns.
+         * If this is a return label, override product code accordingly.
          */
-        if (null === $productCode = $pickupType) {
+        $productCode = $pickupType;
+        if ($isReturn) {
+            $deliveryAddress = $order->getOrderAddressRelatedByDeliveryOrderAddressId();
+            $code = $deliveryAddress->getCountry()->getIsocode();
+            if ('250' == $code) {
+                $productCode = Service::PRODUCT_CODE_LIST[6]; // CORE - Retour France
+            } else {
+                $productCode = Service::PRODUCT_CODE_LIST[9]; // CORI - Retour International/OM
+            }
+            $pickupCode = null;
+        }
+
+        if (null === $productCode) {
             $productCode = $this->getProductCode($order, $signedDelivery);
         }
 
@@ -53,6 +66,15 @@ class LabelRequest extends AbstractLabelRequest
             );
         }
 
+        $storeAddress = $this->createAddressFromStore();
+        $customerAddress = $this->createAddressFromOrderAddress(
+            $orderAddress,
+            $order->getCustomer()
+        );
+
+        $senderForLetter = $isReturn ? $customerAddress : $storeAddress;
+        $addresseeForLetter = $isReturn ? $storeAddress : $customerAddress;
+
         $this->setLetter(new Letter(
             /* We set the general delivery informations */
             new Service(
@@ -64,14 +86,11 @@ class LabelRequest extends AbstractLabelRequest
             ),
             /* We set the sender address */
             new Sender(
-                $this->createAddressFromStore()
+                $senderForLetter
             ),
             /* We set the receiver address */
             new Addressee(
-                $this->createAddressFromOrderAddress(
-                    $orderAddress,
-                    $order->getCustomer()
-                )
+                $addresseeForLetter
             ),
             new Parcel(
                 $order->getWeight()
