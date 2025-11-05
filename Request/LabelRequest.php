@@ -30,6 +30,7 @@ class LabelRequest extends AbstractLabelRequest
     public function __construct(Order $order, $pickupCode = null, $pickupType = null, $signedDelivery = false, $isReturn = false)
     {
         $orderAddress = OrderAddressQuery::create()->findOneById($order->getDeliveryOrderAddressId());
+        $orderInvoiceAddress = OrderAddressQuery::create()->findOneById($order->getInvoiceOrderAddressId());
 
         /**
          * If a pickup type was given (relay point delivery), we set the delivery code $productCode as this.
@@ -72,7 +73,12 @@ class LabelRequest extends AbstractLabelRequest
             $order->getCustomer()
         );
 
-        $senderForLetter = $isReturn ? $customerAddress : $storeAddress;
+        $customerInvoiceAddress = $this->createAddressFromOrderAddress(
+            $orderInvoiceAddress,
+            $order->getCustomer()
+        );
+
+        $senderForLetter = $isReturn ? $customerInvoiceAddress : $storeAddress;
         $addresseeForLetter = $isReturn ? $storeAddress : $customerAddress;
 
         $this->setLetter(new Letter(
