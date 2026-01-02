@@ -53,8 +53,11 @@
                             {form_field form=$form field='password'}
                             <div class="form-group {if $error}has-error{/if}">
                                 <label for="{$label_attr.for}" class="control-label">{$label}{if $required} <span class="required">*</span>{/if} : </label>
-                                <input type="text" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}">
-                            </div>
+                                <input type="password" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}" title="{$label}">
+                                <button type="button" class="eye btn btn-primary btn-responsive" style="color:#FFF;background-color:#f6993c" onclick="togglePwd('{$label_attr.for}');">
+                                    <i class="glyphicon glyphicon-eye-open"></i>
+                                </button>
+                            </div>x
                             {/form_field}
                             {form_field form=$form field='default-signed'}
                             <div class="form-group {if $error}has-error{/if}">
@@ -63,6 +66,7 @@
                                     {$label}{if $required} <span class="required">*</span>{/if}
                                 </label>
                             </div>
+
                             {/form_field}
                             {form_field form=$form field='generate-bordereau'}
                             <div class="form-group {if $error}has-error{/if}">
@@ -71,6 +75,7 @@
                                     {$label}{if $required} <span class="required">*</span>{/if}
                                 </label>
                             </div>
+
                             {/form_field}
                             {render_form_field form=$form field='default-label-format' value={$value}}
                             {render_form_field form=$form field='last-bordereau-date' value={$value}}
@@ -144,6 +149,13 @@
         </div>
     </div>
 </div>
+<script>
+    function togglePwd(id)
+    {
+        var x = document.getElementById(id);
+        x.type = (x.type === "password")? "text" : "password";
+    }
+</script>
 {/block}
 
 {block name="javascript-last-call"}
