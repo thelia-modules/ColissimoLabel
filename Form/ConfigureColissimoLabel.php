@@ -114,6 +114,21 @@ class ConfigureColissimoLabel extends BaseForm
                 ]
             )
             ->add(
+                ColissimoLabel::CONFIG_KEY_POSTAL_NETWORK,
+                ChoiceType::class,
+                [
+                    'required' => false,
+                    'data' => (string) ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_POSTAL_NETWORK) ?: 'none',
+                    'choices' => [
+                        $translator->trans('Default', [], ColissimoLabel::DOMAIN_NAME) => 'none',
+                        $translator->trans('DPD', [], ColissimoLabel::DOMAIN_NAME) => '0',
+                        $translator->trans('Local Postal Network', [], ColissimoLabel::DOMAIN_NAME) => '1',
+                    ],
+                    'label' => $translator->trans('Postal Partner Network', [], ColissimoLabel::DOMAIN_NAME),
+                    'label_attr' => ['for' => ColissimoLabel::CONFIG_KEY_POSTAL_NETWORK],
+                ]
+            )
+            ->add(
                 ColissimoLabel::CONFIG_KEY_ENDPOINT,
                 TextType::class,
                 [

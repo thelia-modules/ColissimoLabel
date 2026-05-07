@@ -14,6 +14,7 @@ use ColissimoLabel\Request\Helper\Service;
 use ColissimoLabel\Request\Traits\MethodCreateAddressFromOrderAddress;
 use ColissimoLabel\Request\Traits\MethodCreateAddressFromStore;
 use DateTime;
+use Propel\Runtime\ActiveQuery\Criteria;
 use Thelia\Model\CurrencyQuery;
 use Thelia\Model\Order;
 use Thelia\Model\OrderAddress;
@@ -81,6 +82,27 @@ class LabelRequest extends AbstractLabelRequest
         $senderForLetter = $isReturn ? $customerInvoiceAddress : $storeAddress;
         $addresseeForLetter = $isReturn ? $storeAddress : $customerAddress;
 
+        $labelFormat = ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_LABEL_FORMAT);
+        $customsDeclarations = new CustomsDeclarations(
+            (bool) ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GET_CUSTOMS_INVOICES),
+            $isReturn ? 6 : 3,
+            $articles
+        );
+
+        if ($isReturn && $productCode === Service::PRODUCT_CODE_LIST[9]) {
+            $labelFormat = 5;
+            $customsDeclarations->setIncludeCustomsDeclarations(1);
+
+            $customsDeclarations->setOriginal([
+                'originalIdent' => $order->getDeliveryRef(),
+                'originalInvoiceNumber' => $order->getInvoiceRef(),
+                'originalInvoiceDate' => $order->getInvoiceDate()->format('Y-m-d'),
+                'originalParcelNumber' =>$order->getDeliveryRef(),
+            ]);
+        }
+
+
+
         $this->setLetter(new Letter(
             /* We set the general delivery informations */
             new Service(
@@ -88,7 +110,8 @@ class LabelRequest extends AbstractLabelRequest
                 new DateTime(),
                 $order->getRef(),
                 $order->getPostage(),
-                3
+                3,
+                ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_POSTAL_NETWORK)
             ),
             /* We set the sender address */
             new Sender(
@@ -101,11 +124,7 @@ class LabelRequest extends AbstractLabelRequest
             new Parcel(
                 $order->getWeight()
             ),
-            new CustomsDeclarations(
-                (bool) ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_GET_CUSTOMS_INVOICES),
-                3,
-                $articles
-            )
+            $customsDeclarations
         ));
 
         /* If this is a pickup/relay point delivery, we set the pickup location ID */
@@ -121,7 +140,7 @@ class LabelRequest extends AbstractLabelRequest
 
         /* We set the label format from the one indicated in the module config table */
         $this->getOutputFormat()->setOutputPrintingType(
-            OutputFormat::OUTPUT_PRINTING_TYPE[ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_LABEL_FORMAT)]
+            OutputFormat::OUTPUT_PRINTING_TYPE[$labelFormat]
         );
     }
 

@@ -58,7 +58,7 @@ abstract class AbstractLabelRequest extends AbstractRequest
      */
     public function generateArrayRequest()
     {
-        return array_merge_recursive(parent::generateArrayRequest(), [
+        $request = [
             'outputFormat' => [
                 'x' => $this->getOutputFormat()->getX(),
                 'y' => $this->getOutputFormat()->getY(),
@@ -73,6 +73,7 @@ abstract class AbstractLabelRequest extends AbstractRequest
                     'orderNumber' => $this->getLetter()->getService()->getOrderNumber(),
                     'commercialName' => $this->getLetter()->getService()->getCommercialName(),
                     'returnTypeChoice' => $this->getLetter()->getService()->getReturnTypeChoice(),
+                    'reseauPostal' => $this->getLetter()->getService()->getPostalNetwork(),
                 ],
                 'parcel' => [
                     'weight' => $this->getLetter()->getParcel()->getWeight(),
@@ -126,6 +127,17 @@ abstract class AbstractLabelRequest extends AbstractRequest
                     ],
                 ],
             ],
-        ]);
+        ];
+
+        if ($original = $this->getLetter()->getCustomsDeclarations()->getOriginal()) {
+            $request['letter']['customsDeclarations']['contents']['original'] = [
+                'originalIdent' => $original['originalIdent'] ?? '',
+                'originalInvoiceNumber' => $original['originalInvoiceNumber'] ?? '',
+                'originalInvoiceDate' => $original['originalInvoiceDate'] ?? '',
+                'originalParcelNumber' => $original['originalParcelNumber'] ?? '',
+            ];
+        }
+
+        return array_merge_recursive(parent::generateArrayRequest(), $request);
     }
 }

@@ -10,6 +10,8 @@ class CustomsDeclarations
 
     protected $category = 3;
 
+    protected array $original = [];
+
     public function __construct($includeCustomsDeclarations, $category, $articles)
     {
         $this->includeCustomsDeclarations = $includeCustomsDeclarations;
@@ -77,6 +79,18 @@ class CustomsDeclarations
     public function setArticles($articles)
     {
         $this->articles[] = $articles;
+
+        return $this;
+    }
+
+    public function getOriginal(): array
+    {
+        return $this->original;
+    }
+
+    public function setOriginal($original): self
+    {
+        $this->original = $original;
 
         return $this;
     }

@@ -94,6 +94,10 @@ class ColissimoLabel extends BaseModule
 
     const CONFIG_KEY_FROM_PHONE = 'colissimolabel-from-phone';
 
+    const CONFIG_KEY_POSTAL_NETWORK = 'postal-network';
+
+    const CONFIG_DEFAULT_KEY_POSTAL_NETWORK = null;
+
     /**
      * @param ConnectionInterface|null $con
      */
@@ -301,6 +305,13 @@ class ColissimoLabel extends BaseModule
             self::setConfigValue(
                 self::CONFIG_KEY_FROM_PHONE,
                 ConfigQuery::read('store_phone')
+            );
+        }
+
+        if (null === self::getConfigValue(self::CONFIG_KEY_POSTAL_NETWORK)) {
+            self::setConfigValue(
+                self::CONFIG_KEY_POSTAL_NETWORK,
+                self::CONFIG_DEFAULT_KEY_POSTAL_NETWORK
             );
         }
         /* Sender address values check end here */

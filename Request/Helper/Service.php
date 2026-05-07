@@ -115,8 +115,9 @@ class Service
     protected $transportationAmount = '';
 
     protected $returnTypeChoice = 3;
+    protected $postalNetwork;
 
-    public function __construct($productCode, \DateTime $depositDate, $orderNumber, $transportationAmount, $returnTypeChoice)
+    public function __construct($productCode, \DateTime $depositDate, $orderNumber, $transportationAmount, $returnTypeChoice, $postalNetwork = null)
     {
         if (empty($orderNumber)) {
             throw new InvalidArgumentException('Invalid argument orderNumber');
@@ -131,6 +132,7 @@ class Service
         $this->productCode = $productCode;
         $this->transportationAmount = $transportationAmount;
         $this->returnTypeChoice = $returnTypeChoice;
+        $this->postalNetwork = $postalNetwork;
     }
 
     /**
@@ -236,6 +238,26 @@ class Service
     public function setReturnTypeChoice($returnTypeChoice)
     {
         $this->returnTypeChoice = $returnTypeChoice;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPostalNetwork()
+    {
+        return $this->postalNetwork;
+    }
+
+    /**
+     * @param string|null $postalNetwork
+     *
+     * @return $this
+     */
+    public function setPostalNetwork($postalNetwork)
+    {
+        $this->postalNetwork = $postalNetwork;
 
         return $this;
     }
