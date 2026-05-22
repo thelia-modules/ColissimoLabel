@@ -46,7 +46,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
      * @throws PropelException
      * @throws SoapFault
      */
-    public function updateLabel(OrderAddressEvent $event)
+    public function updateLabel(OrderAddressEvent $event): void
     {
         $order = $event->getOrder();
 
@@ -63,7 +63,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
     /**
      * @throws PropelException
      */
-    protected function deleteLabel(ColissimoLabel $label)
+    protected function deleteLabel(ColissimoLabel $label): void
     {
 
         /* We check if the label is from this version of the module -- Compatibility with ColissimoLabel < 1.0.0 */
@@ -78,7 +78,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
          */
     }
 
-    protected function deleteLabelFile($fileName)
+    protected function deleteLabelFile($fileName): void
     {
         $finder = new Finder();
         $fileSystem = new Filesystem();
@@ -97,7 +97,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
      * @throws PropelException
      * @throws SoapFault
      */
-    protected function generateLabel(Order $order, $weight, $signedDelivery)
+    protected function generateLabel(Order $order, $weight, $signedDelivery): void
     {
         $APIConfiguration = new LabelRequestAPIConfiguration();
         $APIConfiguration->setContractNumber(ColissimoLabelModule::getConfigValue(ColissimoLabelModule::CONFIG_KEY_CONTRACT_NUMBER));

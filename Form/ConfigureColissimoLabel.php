@@ -14,7 +14,7 @@ use Thelia\Form\BaseForm;
 
 class ConfigureColissimoLabel extends BaseForm
 {
-    protected function buildForm()
+    protected function buildForm(): void
     {
         $translator = Translator::getInstance();
         $this->formBuilder

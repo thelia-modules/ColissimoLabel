@@ -28,7 +28,7 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
     ) {
     }
 
-    public function generateLabel(GenerateLabelEvent $event)
+    public function generateLabel(GenerateLabelEvent $event): void
     {
         $deliveryModuleCode = $event->getOrder()->getModuleRelatedByDeliveryModuleId()?->getCode();
         if ($deliveryModuleCode === "ColissimoHomeDelivery" || $deliveryModuleCode === "ColissimoPickupPoint"|| $deliveryModuleCode === "SoColissimo") {
@@ -42,7 +42,7 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         $events = [];
         if (class_exists('Picking\Event\GenerateLabelEvent')){
