@@ -35,6 +35,20 @@ class Address
 
     protected $language = '';
 
+    protected $stateOrProvinceCode = '';
+
+    public function getStateOrProvinceCode(): string
+    {
+        return $this->stateOrProvinceCode;
+    }
+
+    public function setStateOrProvinceCode(?string $stateOrProvinceCode): self
+    {
+        $this->stateOrProvinceCode = (string) $stateOrProvinceCode;
+
+        return $this;
+    }
+
     /**
      * @return string
      */

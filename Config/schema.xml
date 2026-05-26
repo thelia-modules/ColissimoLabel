@@ -22,5 +22,21 @@
         <behavior name="timestampable" />
     </table>
 
+    <table name="colissimo_label_product_customs" namespace="ColissimoLabel\Model">
+        <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER" />
+        <column name="product_id" required="true" type="INTEGER" />
+        <column name="hs_code" type="VARCHAR" size="50" required="true" defaultValue="" />
+
+        <foreign-key foreignTable="product" onDelete="CASCADE" onUpdate="RESTRICT">
+            <reference local="product_id" foreign="id" />
+        </foreign-key>
+
+        <unique name="colissimo_label_product_customs_product_id_unique">
+            <unique-column name="product_id" />
+        </unique>
+
+        <behavior name="timestampable" />
+    </table>
+
     <external-schema filename="local/config/schema.xml" referenceOnly="true" />
 </database>

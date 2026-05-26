@@ -16,5 +16,8 @@
         <hook id="colissimo.label.hook.hook.main.in.top.menu.items" class="ColissimoLabel\Hook\Back\MenuHook">
             <tag name="hook.event_listener" event="main.in-top-menu-items" type="back"  />
         </hook>
+        <hook id="colissimo.label.hook.back.product_tab" class="ColissimoLabel\Hook\Back\ProductTabHook">
+            <tag name="hook.event_listener" event="product.tab" type="back" method="onProductTab" />
+        </hook>
     </hooks>
 </config>
