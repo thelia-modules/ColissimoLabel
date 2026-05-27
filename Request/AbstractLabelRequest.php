@@ -124,9 +124,16 @@ abstract class AbstractLabelRequest extends AbstractRequest
                         'mobileNumber' => $this->getLetter()->getAddressee()->getAddress()->getMobileNumber(),
                         'email' => $this->getLetter()->getAddressee()->getAddress()->getEmail(),
                         'language' => $this->getLetter()->getAddressee()->getAddress()->getLanguage(),
+                        'stateOrProvinceCode' => $this->getLetter()->getAddressee()->getAddress()->getStateOrProvinceCode(),
                     ],
                 ],
             ],
+            'fields' => [
+                'field' => [
+                    'key' => 'EORI',
+                    'value' => ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_EORI),
+                ]
+            ]
         ];
 
         if ($original = $this->getLetter()->getCustomsDeclarations()->getOriginal()) {

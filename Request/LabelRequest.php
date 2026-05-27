@@ -3,6 +3,7 @@
 namespace ColissimoLabel\Request;
 
 use ColissimoLabel\ColissimoLabel;
+use ColissimoLabel\Model\ColissimoLabelProductCustomsQuery;
 use ColissimoLabel\Request\Helper\Addressee;
 use ColissimoLabel\Request\Helper\Article;
 use ColissimoLabel\Request\Helper\CustomsDeclarations;
@@ -14,11 +15,12 @@ use ColissimoLabel\Request\Helper\Service;
 use ColissimoLabel\Request\Traits\MethodCreateAddressFromOrderAddress;
 use ColissimoLabel\Request\Traits\MethodCreateAddressFromStore;
 use DateTime;
-use Propel\Runtime\ActiveQuery\Criteria;
 use Thelia\Model\CurrencyQuery;
 use Thelia\Model\Order;
 use Thelia\Model\OrderAddress;
 use Thelia\Model\OrderAddressQuery;
+use Thelia\Model\OrderProduct;
+use Thelia\Model\ProductSaleElementsQuery;
 
 /**
  * @author Gilles Bourgeat >gilles.bourgeat@gmail.com>
@@ -55,6 +57,8 @@ class LabelRequest extends AbstractLabelRequest
             $productCode = $this->getProductCode($order, $signedDelivery);
         }
 
+        $defaultHsCode = (string) ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_CUSTOMS_PRODUCT_HSCODE);
+
         $articles = [];
         foreach ($order->getOrderProducts() as $orderProduct) {
             $productPrice = $orderProduct->getWasInPromo() ? $orderProduct->getPromoPrice() : $orderProduct->getPrice();
@@ -63,7 +67,7 @@ class LabelRequest extends AbstractLabelRequest
                 $orderProduct->getQuantity(),
                 $orderProduct->getWeight(),
                 $productPrice,
-                ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_CUSTOMS_PRODUCT_HSCODE),
+                $this->resolveHsCode($orderProduct, $defaultHsCode),
                 CurrencyQuery::create()->findOneById($order->getCurrencyId())->getCode()
             );
         }
@@ -189,5 +193,26 @@ class LabelRequest extends AbstractLabelRequest
 
         /* Other cases */
         return Service::PRODUCT_CODE_LIST[14];
+    }
+
+    protected function resolveHsCode(OrderProduct $orderProduct, string $defaultHsCode): string
+    {
+        $productId = null;
+
+        if (null !== $pseId = $orderProduct->getProductSaleElementsId()) {
+            $pse = ProductSaleElementsQuery::create()->findOneById($pseId);
+            $productId = $pse?->getProductId();
+        }
+
+        if (null !== $productId) {
+            $customs = ColissimoLabelProductCustomsQuery::create()->findOneByProductId($productId);
+            $hsCode = trim((string) $customs?->getHsCode());
+
+            if ('' !== $hsCode) {
+                return $hsCode;
+            }
+        }
+
+        return $defaultHsCode;
     }
 }

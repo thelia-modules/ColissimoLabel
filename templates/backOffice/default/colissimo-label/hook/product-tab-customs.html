@@ -1,0 +1,39 @@
+<div class="row">
+    <div class="col-md-8">
+        <form action="{url path='/admin/module/ColissimoLabel/product-customs/save'}" method="post">
+            <input type="hidden" name="product_id" value="{$product_id}">
+
+            <div class="form-group">
+                <label for="colissimolabel-hs-code">
+                    {intl l="HS Code (numéro tarifaire douanier)" d="colissimolabel.bo.default"}
+                </label>
+                <input
+                    type="text"
+                    id="colissimolabel-hs-code"
+                    name="hs_code"
+                    class="form-control"
+                    value="{$hs_code|escape}"
+                    placeholder="{$default_hs_code|default:''|escape}"
+                    maxlength="50"
+                >
+                <p class="help-block">
+                    {intl l="Code SH (6 à 10 chiffres) utilisé pour les déclarations douanières Colissimo." d="colissimolabel.bo.default"}
+                    {if $default_hs_code}
+                        <br>
+                        {intl l="Si laissé vide, la valeur globale du module sera utilisée :" d="colissimolabel.bo.default"}
+                        <code>{$default_hs_code|escape}</code>
+                    {else}
+                        <br>
+                        <span class="text-warning">
+                            {intl l="Aucun HS code global n'est défini dans la configuration du module." d="colissimolabel.bo.default"}
+                        </span>
+                    {/if}
+                </p>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                {intl l="Enregistrer" d="colissimolabel.bo.default"}
+            </button>
+        </form>
+    </div>
+</div>

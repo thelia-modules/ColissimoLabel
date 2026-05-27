@@ -21,6 +21,7 @@ trait MethodCreateAddressFromOrderAddress
             ->setCity($orderAddress->getCity())
             ->setZipCode($orderAddress->getZipcode())
             ->setCountryCode($orderAddress->getCountry()->getIsoalpha2())
+            ->setStateOrProvinceCode($orderAddress->getState()?->getIsocode())
             ->setLine2($orderAddress->getAddress1())
             ->setLine3(
                 $orderAddress->getAddress3() ?

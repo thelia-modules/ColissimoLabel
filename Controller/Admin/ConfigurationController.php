@@ -51,6 +51,7 @@ class ConfigurationController extends AdminController
             }
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_POSTAL_NETWORK, $postalNetwork);
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_ENDPOINT, $vform->get(ColissimoLabel::CONFIG_KEY_ENDPOINT)->getData());
+            ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_EORI, $vform->get(ColissimoLabel::CONFIG_KEY_EORI)->getData());
 
             /* Sender's address values */
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_FROM_NAME, $vform->get(ColissimoLabel::CONFIG_KEY_FROM_NAME)->getData());

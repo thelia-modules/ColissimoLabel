@@ -76,6 +76,8 @@ class ColissimoLabel extends BaseModule
 
     const CONFIG_KEY_ENDPOINT = 'colissimolabel-endpoint';
 
+    const CONFIG_KEY_EORI = 'colissimolabel-eori';
+
     const CONFIG_DEFAULT_KEY_ENDPOINT = 'https://ws.colissimo.fr/sls-ws/SlsServiceWS/2.0?wsdl';
 
     const CONFIG_KEY_FROM_NAME = 'colissimolabel-company-name';

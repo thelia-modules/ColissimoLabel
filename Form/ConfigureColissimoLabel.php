@@ -139,6 +139,16 @@ class ConfigureColissimoLabel extends BaseForm
                 ]
             )
             ->add(
+                ColissimoLabel::CONFIG_KEY_EORI,
+                TextType::class,
+                [
+                    'required' => true,
+                    'data' => ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_EORI),
+                    'label' => $this->translator->trans('EORI', [], ColissimoLabel::DOMAIN_NAME),
+                    'label_attr' => ['for' => ColissimoLabel::CONFIG_KEY_EORI],
+                ]
+            )
+            ->add(
                 ColissimoLabel::CONFIG_KEY_FROM_NAME,
                 TextType::class,
                 [
