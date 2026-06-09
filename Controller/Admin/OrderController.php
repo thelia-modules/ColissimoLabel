@@ -227,7 +227,7 @@ class OrderController extends AdminController
         $orderId = $labelService->deleteLabel($number);
 
         /* Handle the return when called from order edit */
-        if ($request->get('edit-order')) {
+        if ($request->query->get('edit-order')) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/'.$orderId.'?tab=bill'));
         }
 
@@ -268,7 +268,7 @@ class OrderController extends AdminController
 
         $response = new BinaryFileResponse($file);
 
-        if ($request->get('download')) {
+        if ($request->query->get('download')) {
             $response->setContentDisposition(
                 ResponseHeaderBag::DISPOSITION_ATTACHMENT,
                 $fileName.'.'.ColissimoLabel::getFileExtension()

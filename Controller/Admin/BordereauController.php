@@ -177,10 +177,10 @@ class BordereauController extends AdminController
     #[Route('/bordereau/download', name: 'bordereau_download', methods: 'GET')]
     public function downloadBordereauAction(Request $request): BinaryFileResponse
     {
-        $filePath = $request->get('filePath');
+        $filePath = $request->query->get('filePath');
         $filePathArray = explode('/', $filePath);
         $fileName = array_pop($filePathArray);
-        $download = $request->get('stay');
+        $download = $request->query->get('stay');
 
         $response = new BinaryFileResponse($filePath);
 
@@ -205,7 +205,7 @@ class BordereauController extends AdminController
     public function deleteBordereauAction(Request $request): Response
     {
         $fs = new Filesystem();
-        $filePath = $request->get('filePath');
+        $filePath = $request->query->get('filePath');
 
         $fs->remove($filePath);
 
