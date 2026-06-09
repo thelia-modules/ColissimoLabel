@@ -18,10 +18,15 @@ use Symfony\Component\Routing\Annotation\Route;
 use Thelia\Controller\Admin\AdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Twig\Environment;
 
 #[Route('/admin/module/ColissimoLabel', name: 'colissimo_label_')]
 class BordereauController extends AdminController
 {
+    public function __construct(private readonly Environment $twig)
+    {
+    }
+
     /**
      * Render the bordereau list page.
      *
@@ -54,7 +59,10 @@ class BordereauController extends AdminController
         $bordereaux = array_reverse($bordereaux);
 
         /* We render the page */
-        return $this->render('colissimo-label/bordereau-list', compact('lastBordereauDate', 'bordereaux', 'error'));
+        return new Response($this->twig->render(
+            '@ColissimoLabelModule/backOffice/default-twig/colissimo-label/bordereau-list.html.twig',
+            compact('lastBordereauDate', 'bordereaux', 'error')
+        ));
     }
 
     /**
@@ -63,11 +71,21 @@ class BordereauController extends AdminController
      * @return Response
      */
     #[Route('/labels', name: 'labels')]
-    public function listLabelsAction(): Response
-    {
+    public function listLabelsAction(
+        \Thelia\Core\Form\TheliaFormFactory $formFactory,
+        \ColissimoLabel\Service\OrdersNotSentProvider $ordersProvider
+    ): Response {
         ColissimoLabel::checkLabelFolder();
 
-        return $this->render('colissimo-label/labels');
+        $form = $formFactory->createForm(\ColissimoLabel\Form\LabelGenerationForm::getName());
+
+        return new Response($this->twig->render(
+            '@ColissimoLabelModule/backOffice/default-twig/colissimo-label/labels.html.twig',
+            [
+                'form' => $form->createView()->getView(),
+                'rows' => $ordersProvider->getRows($this->getCurrentEditionLocale()),
+            ]
+        ));
     }
 
     /**

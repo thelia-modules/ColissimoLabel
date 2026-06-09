@@ -1,0 +1,69 @@
+{% extends '@BackOfficeDefaultTwig/base.html.twig' %}
+
+{% set tab = app.request.query.get('tab')|default('bordereaux') %}
+
+{% block title %}{{ 'Bordereaux Colissimo'|trans({}, 'colissimolabel.bo.default') }}{% endblock %}
+{% block body_testid %}colissimo-label-bordereau-list{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <ul id="tabbed-menu" class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item"><a class="nav-link {{ tab == 'bordereaux' ? 'active' : '' }}" href="{{ path('colissimo_label_bordereau_list') }}">{{ 'Bordereaux'|trans({}, 'colissimolabel.bo.default') }}</a></li>
+                    <li class="nav-item"><a class="nav-link {{ tab == 'labels' ? 'active' : '' }}" href="{{ path('colissimo_label_labels') }}">{{ 'Labels'|trans({}, 'colissimolabel.bo.default') }}</a></li>
+                    <li class="nav-item"><a class="nav-link {{ tab == 'config' ? 'active' : '' }}" href="{{ path('colissimo_label_configuration_configuration') }}">{{ 'Configuration'|trans({}, 'colissimolabel.bo.default') }}</a></li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                {% if error %}
+                    <div class="alert alert-danger" id="error-bordereau">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span id="error-bordereau-message">{{ error }}</span>
+                    </div>
+                {% endif %}
+
+                <p>
+                    <a href="{{ path('colissimo_label_bordereau_generate') }}" class="btn btn-info">
+                        {{ 'Generate bordereau for label since : %date'|trans({'%date': lastBordereauDate}, 'colissimolabel.bo.default') }}
+                    </a>
+                </p>
+
+                {% if bordereaux is not empty %}
+                    <table class="table" style="width:100%">
+                        <colgroup>
+                            <col style="width: 95%;">
+                            <col style="width: 5%;">
+                        </colgroup>
+                        <thead>
+                            <tr class="table-active">
+                                <th class="text-start">{{ 'Bordereau'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                <th class="text-center">{{ 'Action'|trans({}, 'colissimolabel.bo.default') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for bordereau in bordereaux %}
+                            <tr>
+                                <td class="text-start">
+                                    <a href="{{ path('colissimo_label_bordereau_download') }}?filePath={{ bordereau.path|url_encode }}" target="_blank">{{ bordereau.name }}</a>
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn btn-secondary btn-sm" href="{{ path('colissimo_label_bordereau_download') }}?stay=1&filePath={{ bordereau.path|url_encode }}" title="{{ 'Download bordereau'|trans({}, 'colissimolabel.bo.default') }}">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                    <a class="btn btn-secondary btn-sm" href="{{ path('colissimo_label_delete') }}?filePath={{ bordereau.path|url_encode }}" title="{{ 'Delete bordereau'|trans({}, 'colissimolabel.bo.default') }}">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

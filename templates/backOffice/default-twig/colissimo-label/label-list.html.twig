@@ -1,0 +1,28 @@
+{% for label in labels|default([]) %}
+    <tr>
+        <td>{{ label.tracking_number }}</td>
+        <td>{{ label.weight }} / Kg</td>
+        <td>{{ label.created_at ? label.created_at|date('Y-m-d H:i:s') : '' }}</td>
+        <td>
+            {% set tracking_url = 'https://www.laposte.fr/particulier/outils/suivre-vos-envois?code=%track'|trans({'%track': label.tracking_number}, 'colissimolabel.bo.default') %}
+            <a href="{{ tracking_url }}" target="_blank">{{ tracking_url }}</a>
+        </td>
+        <td>
+            <div class="float-end">
+                <a class="btn btn-primary" href="{{ path('colissimo_label_order_list', {'number': label.tracking_number}) }}?download=1">{{ 'Download'|trans({}, 'colissimolabel.bo.default') }}</a>
+                <a class="btn btn-info" target="_blank" href="{{ path('colissimo_label_order_list', {'number': label.tracking_number}) }}">{{ 'View'|trans({}, 'colissimolabel.bo.default') }}</a>
+                <a class="btn btn-success js-action-print" data-number="{{ label.tracking_number }}" href="{{ path('colissimo_label_order_list', {'number': label.tracking_number}) }}">{{ 'Print'|trans({}, 'colissimolabel.bo.default') }}</a>
+                {% if label.has_customs_invoice|default(false) %}
+                    <a class="btn btn-warning" href="{{ label.customs_invoice_url }}" target="_blank" title="{{ 'Download customs invoice (PDF)'|trans({}, 'colissimolabel.bo.default') }}">
+                        {{ 'Customs invoice'|trans({}, 'colissimolabel.bo.default') }}
+                    </a>
+                {% endif %}
+                <a class="btn btn-danger js-action-reload" onclick="return confirm('{{ 'Do you want to clear this label and tracking number ?'|trans({}, 'colissimolabel.bo.default') }}')" href="{{ path('colissimo_label_order_delete', {'number': label.tracking_number}) }}?order={{ label.order_id }}&edit-order=1">{{ 'Delete'|trans({}, 'colissimolabel.bo.default') }}</a>
+            </div>
+        </td>
+    </tr>
+{% else %}
+    <tr>
+        <td colspan="99">{{ 'No existing label for this order'|trans({}, 'colissimolabel.bo.default') }}</td>
+    </tr>
+{% endfor %}

@@ -1,0 +1,256 @@
+{# Colissimo label modal + order-edit integration. Rendered by OrderEditHook on the order.edit-js hook. #}
+{% set li = label_info %}
+
+<div class="modal fade" id="modal-colissimo-label" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ 'Colissimo Labels'|trans({}, 'colissimolabel.bo.default') }}</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Cancel'|trans({}, 'colissimolabel.bo.default') }}"></button>
+            </div>
+
+            {{ form_start(form, {'action': path('colissimo_label_order_export') ~ '?edit-order=1', 'attr': {'id': 'export-form'}}) }}
+                <div class="modal-body">
+                    <div class="js-colissimo-field-status mb-3">
+                        <label class="form-label">{{ "Order status change after processing"|trans({}, 'colissimolabel.bo.default') }}</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="{{ form.new_status.vars.full_name }}" id="cl-status-nochange" value="nochange" checked>
+                            <label class="form-check-label" for="cl-status-nochange">{{ 'Do not change'|trans({}, 'colissimolabel.bo.default') }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="{{ form.new_status.vars.full_name }}" id="cl-status-processing" value="processing">
+                            <label class="form-check-label" for="cl-status-processing">{{ 'Change to "Processing"'|trans({}, 'colissimolabel.bo.default') }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="{{ form.new_status.vars.full_name }}" id="cl-status-sent" value="sent">
+                            <label class="form-check-label" for="cl-status-sent">{{ 'Change to "Sent". If you choose this option, the delivery notification email is sent to the customer.'|trans({}, 'colissimolabel.bo.default') }}</label>
+                        </div>
+                        {% do form.new_status.setRendered %}
+                    </div>
+
+                    <input type="checkbox" name="{{ form.order_id.vars.full_name }}[{{ li.order_id }}]" value="{{ li.order_id }}" checked hidden>
+                    {% do form.order_id.setRendered %}
+
+                    <input type="hidden" name="{{ form.return_label.vars.full_name }}" id="colissimo-return-label" value="0">
+                    {% do form.return_label.setRendered %}
+
+                    <div class="text-center js-colissimo-field-signed mb-3">
+                        <div class="form-check">
+                            <input id="colissimolabel-input-signedDelivery" class="form-check-input order_checkbox" type="checkbox"
+                                   name="{{ form.signed.vars.full_name }}[{{ li.order_id }}]"
+                                   {{ li.signed ? 'checked' : '' }}{{ not li.can_be_not_signed ? ' disabled' : '' }}>
+                            <label class="form-check-label" for="colissimolabel-input-signedDelivery">{{ 'Livraison avec signature'|trans({}, 'colissimolabel.bo.default') }}</label>
+                        </div>
+                        {% do form.signed.setRendered %}
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <label class="form-label" for="colissimo-input-weight">{{ 'Shipping weight :'|trans({}, 'colissimolabel.bo.default') }}</label>
+                        {% set weight_value = li.weight|round(2) %}
+                        <div class="input-group">
+                            <input id="colissimo-input-weight" type="text" required class="form-control form-control-sm"
+                                   name="{{ form.weight.vars.full_name }}[{{ li.order_id }}]" value="{{ weight_value == 0 ? '' : weight_value }}">
+                            <span class="input-group-text">{{ '/kg'|trans({}, 'colissimolabel.bo.default') }}</span>
+                        </div>
+                        {% do form.weight.setRendered %}
+                    </div>
+                </div>
+
+                <div class="modal-loader d-none text-center">
+                    {{ 'Please wait ...'|trans({}, 'colissimolabel.bo.default') }}
+                </div>
+
+                <div class="modal-error d-none" style="padding: 10px">
+                    <div class="alert alert-danger" style="margin:0;"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans({}, 'colissimolabel.bo.default') }}</button>
+                    <button type="submit" value="stay" class="btn btn-primary">{{ 'Print'|trans({}, 'colissimolabel.bo.default') }}</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+
+<template id="colissimo-label-tpl">
+    <table class="table table-striped" id="colissimo-label-table" data-url="{{ ajax_get_labels_url }}">
+        <caption>
+            {{ 'Labels Colissimo'|trans({}, 'colissimolabel.bo.default') }}
+            <button class="btn btn-secondary float-end" id="colissimo-open-return" style="margin-right:10px;">
+                {{ 'Generate return label'|trans({}, 'colissimolabel.bo.default') }}
+            </button>
+            <button class="btn btn-primary float-end" id="colissimo-open-standard" name="target">
+                {{ 'Generate new label'|trans({}, 'colissimolabel.bo.default') }}
+            </button>
+        </caption>
+        <thead>
+        <tr>
+            <th>{{ 'Number'|trans({}, 'colissimolabel.bo.default') }}</th>
+            <th>{{ 'Weight'|trans({}, 'colissimolabel.bo.default') }}</th>
+            <th>{{ 'Date'|trans({}, 'colissimolabel.bo.default') }}</th>
+            <th>{{ 'Tracking URL'|trans({}, 'colissimolabel.bo.default') }}</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% include 'colissimo-label/label-list.html.twig' with {'labels': labels} %}
+        </tbody>
+    </table>
+</template>
+
+<script>
+(function () {
+    var tplNode = document.getElementById('colissimo-label-tpl');
+    var bill = document.getElementById('bill');
+    if (tplNode && bill) {
+        bill.insertBefore(tplNode.content.cloneNode(true), bill.firstChild);
+    }
+
+    var modalEl = document.getElementById('modal-colissimo-label');
+    if (!modalEl) {
+        return;
+    }
+    var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    var modalBody = modalEl.querySelector('.modal-body');
+    var modalFooter = modalEl.querySelector('.modal-footer');
+    var modalError = modalEl.querySelector('.modal-error');
+    var modalLoader = modalEl.querySelector('.modal-loader');
+    var modalErrorAlert = modalError ? modalError.querySelector('.alert') : null;
+    var returnField = modalEl.querySelector('#colissimo-return-label');
+    var inputWeight = modalEl.querySelector('#colissimo-input-weight');
+    var table = document.getElementById('colissimo-label-table');
+
+    function print(url, number) {
+        var iframeName = 'iframe-colissimo-label-' + number;
+        var existing = document.getElementById(iframeName);
+        if (existing) {
+            existing.remove();
+        }
+        var iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.id = iframeName;
+        iframe.name = iframeName;
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        iframe.onload = function () {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        };
+    }
+
+    function refreshTable() {
+        if (!table) {
+            return;
+        }
+        fetch(table.dataset.url)
+            .then(function (r) { return r.text(); })
+            .then(function (html) { table.querySelector('tbody').innerHTML = html; })
+            .catch(function () { table.querySelector('tbody').innerHTML = '<tr><td colspan="99">error</td></tr>'; });
+    }
+
+    modalEl.addEventListener('show.bs.modal', function () {
+        if (modalBody) modalBody.classList.remove('d-none');
+        if (modalFooter) modalFooter.classList.remove('d-none');
+        if (modalLoader) modalLoader.classList.add('d-none');
+        if (modalError) modalError.classList.add('d-none');
+        if (modalErrorAlert) modalErrorAlert.innerHTML = '';
+
+        var statusField = modalEl.querySelector('.js-colissimo-field-status');
+        var signedField = modalEl.querySelector('.js-colissimo-field-signed');
+        if (returnField && returnField.value === '1') {
+            if (statusField) statusField.classList.add('d-none');
+            if (signedField) signedField.classList.add('d-none');
+        } else {
+            if (statusField) statusField.classList.remove('d-none');
+            if (signedField) signedField.classList.remove('d-none');
+        }
+    });
+
+    modalEl.addEventListener('shown.bs.modal', function () {
+        if (inputWeight) {
+            inputWeight.focus();
+            var val = inputWeight.value;
+            inputWeight.value = '';
+            inputWeight.value = val;
+        }
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', function () {
+        if (returnField) returnField.value = '0';
+        var statusField = modalEl.querySelector('.js-colissimo-field-status');
+        var signedField = modalEl.querySelector('.js-colissimo-field-signed');
+        if (statusField) statusField.classList.remove('d-none');
+        if (signedField) signedField.classList.remove('d-none');
+    });
+
+    if (table) {
+        table.addEventListener('click', function (e) {
+            var link = e.target.closest('.js-action-print');
+            if (link) {
+                e.preventDefault();
+                print(link.getAttribute('href'), link.dataset.number);
+            }
+        });
+    }
+
+    var openReturn = document.getElementById('colissimo-open-return');
+    if (openReturn) {
+        openReturn.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (returnField) returnField.value = '1';
+            var noChange = modalEl.querySelector('input[name$="[new_status]"][value="nochange"], input[value="nochange"]');
+            if (noChange) noChange.checked = true;
+            var signedInput = modalEl.querySelector('#colissimolabel-input-signedDelivery');
+            if (signedInput) signedInput.checked = false;
+            modal.show();
+        });
+    }
+
+    var openStandard = document.getElementById('colissimo-open-standard');
+    if (openStandard) {
+        openStandard.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (returnField) returnField.value = '0';
+            modal.show();
+        });
+    }
+
+    var form = modalEl.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (modalBody) modalBody.classList.add('d-none');
+            if (modalFooter) modalFooter.classList.add('d-none');
+            if (modalLoader) modalLoader.classList.remove('d-none');
+
+            fetch(form.getAttribute('action'), {
+                method: 'POST',
+                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                body: new URLSearchParams(new FormData(form))
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (json) {
+                    if (modalLoader) modalLoader.classList.add('d-none');
+                    if (returnField) returnField.value = '0';
+                    if (json.error) {
+                        if (modalErrorAlert) modalErrorAlert.innerHTML = Array.isArray(json.error) ? json.error[0] : json.error;
+                        if (modalError) modalError.classList.remove('d-none');
+                        return;
+                    }
+                    var deliveryRef = document.querySelector('input[name="delivery_ref"]');
+                    if (deliveryRef) deliveryRef.value = json.number;
+                    print(json.url, json.number);
+                    refreshTable();
+                    modal.hide();
+                })
+                .catch(function (textStatus) {
+                    if (modalLoader) modalLoader.classList.add('d-none');
+                    if (returnField) returnField.value = '0';
+                    if (modalError) modalError.classList.remove('d-none');
+                    if (modalErrorAlert) modalErrorAlert.innerHTML = textStatus;
+                });
+        });
+    }
+}());
+</script>

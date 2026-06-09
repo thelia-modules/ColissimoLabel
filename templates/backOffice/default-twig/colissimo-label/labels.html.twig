@@ -1,0 +1,145 @@
+{% extends '@BackOfficeDefaultTwig/base.html.twig' %}
+
+{% set tab = app.request.query.get('tab')|default('labels') %}
+
+{% block title %}{{ 'Labels Colissimo'|trans({}, 'colissimolabel.bo.default') }}{% endblock %}
+{% block body_testid %}colissimo-label-labels{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <ul id="tabbed-menu" class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item"><a class="nav-link {{ tab == 'bordereaux' ? 'active' : '' }}" href="{{ path('colissimo_label_bordereau_list') }}">{{ 'Bordereaux'|trans({}, 'colissimolabel.bo.default') }}</a></li>
+                    <li class="nav-item"><a class="nav-link {{ tab == 'labels' ? 'active' : '' }}" href="{{ path('colissimo_label_labels') }}">{{ 'Labels'|trans({}, 'colissimolabel.bo.default') }}</a></li>
+                    <li class="nav-item"><a class="nav-link {{ tab == 'config' ? 'active' : '' }}" href="{{ path('colissimo_label_configuration_configuration') }}">{{ 'Configuration'|trans({}, 'colissimolabel.bo.default') }}</a></li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                <h5 class="card-title">{{ 'Download and print Colissimo labels for orders not yet sent'|trans({}, 'colissimolabel.bo.default') }}</h5>
+
+                {% if form_error_message is defined and form_error_message %}
+                    <div class="alert alert-danger">{{ form_error_message }}</div>
+                {% endif %}
+
+                {{ form_start(form, {'action': path('colissimo_label_order_export'), 'attr': {'id': 'export-form', 'method': 'post'}}) }}
+
+                    <div class="card mb-3">
+                        <div class="card-header">{{ 'Order status change after processing'|trans({}, 'colissimolabel.bo.default') }}</div>
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="{{ form.new_status.vars.full_name }}" id="ls-nochange" value="nochange" {{ form.new_status.vars.value == 'nochange' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="ls-nochange">{{ 'Do not change'|trans({}, 'colissimolabel.bo.default') }}</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="{{ form.new_status.vars.full_name }}" id="ls-processing" value="processing" {{ form.new_status.vars.value == 'processing' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="ls-processing">{{ 'Change to "Processing"'|trans({}, 'colissimolabel.bo.default') }}</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="{{ form.new_status.vars.full_name }}" id="ls-sent" value="sent" {{ form.new_status.vars.value == 'sent' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="ls-sent">{{ 'Change to "Sent". If you choose this option, the delivery notification email is sent to the customer, and the processed order are removed from this page.'|trans({}, 'colissimolabel.bo.default') }}</label>
+                            </div>
+                            {% do form.new_status.setRendered %}
+                        </div>
+                    </div>
+
+                    {% if rows is not empty %}
+                        <table class="table">
+                            <thead>
+                                <tr class="table-active">
+                                    <th>{{ 'REF'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                    <th class="text-center">{{ 'Order date'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                    <th>{{ 'Destination'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                    <th class="text-center">{{ 'Weight'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                    <th class="text-center">{{ 'Price (with taxes)'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                    <th class="text-center">{{ 'Signature'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                    <th class="text-center">{{ 'Module'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                    <th class="text-center">{{ 'Tracking'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                    <th class="text-center">{{ 'Label'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                    <th class="text-center">{{ 'Customs invoice'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                    <th class="text-center">{{ 'Sel.'|trans({}, 'colissimolabel.bo.default') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in rows %}
+                                <tr id="order-{{ row.order_id }}"{{ row.has_error ? ' class="table-warning"' : '' }}>
+                                    <td><a href="/admin/order/update/{{ row.order_id }}?tab=bill" target="_blank">{{ row.ref }}</a></td>
+                                    <td class="text-center">{{ row.order_date ? row.order_date|date('Y-m-d H:i:s') : '' }}</td>
+                                    <td>{{ row.city|upper }} {{ row.zipcode|upper }}, {{ row.country|upper }}</td>
+                                    <td class="text-center">
+                                        <div class="input-group">
+                                            <input class="form-control form-control-sm" type="text" name="{{ form.weight.vars.full_name }}[{{ row.order_id }}]" value="{{ row.weight }}">
+                                            <span class="input-group-text">{{ 'kg'|trans({}, 'colissimolabel.bo.default') }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">{{ row.total_taxed_amount|number_format(2, '.', '') }}</td>
+                                    <td class="text-center">
+                                        <input class="order_checkbox" type="checkbox" name="{{ form.signed.vars.full_name }}[{{ row.order_id }}]" {{ row.signed ? 'checked' : '' }}{{ not row.can_be_not_signed ? ' disabled checked' : '' }}{{ row.tracking_number ? ' disabled' : '' }}>
+                                    </td>
+                                    <td class="text-center"><b>{{ row.module_code }}</b></td>
+                                    <td class="text-center">
+                                        {% if row.tracking_number %}
+                                            <a href="https://www.colissimo.fr/portail_colissimo/suivreResultat.do?parcelnumber={{ row.tracking_number }}" target="_blank">{{ row.tracking_number }}</a>
+                                        {% else %}
+                                            <i title="{{ 'Non disponible'|trans({}, 'colissimolabel.bo.default') }}" class="bi bi-slash-circle"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if row.has_label %}
+                                            <a class="btn btn-secondary btn-sm" href="{{ row.label_url }}" target="_blank" title="{{ 'Download label (%fmt)'|trans({'%fmt': row.label_type|upper}, 'colissimolabel.bo.default') }}">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        {% else %}
+                                            <i title="{{ 'Non disponible'|trans({}, 'colissimolabel.bo.default') }}" class="bi bi-slash-circle"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if row.has_customs_invoice %}
+                                            <a class="btn btn-secondary btn-sm" href="{{ row.customs_invoice_url }}" target="_blank" title="{{ 'Download customs invoice (PDF)'|trans({}, 'colissimolabel.bo.default') }}">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if not row.has_label %}
+                                            <input type="checkbox" name="{{ form.order_id.vars.full_name }}[{{ row.order_id }}]" value="{{ row.order_id }}" class="order_checkbox">
+                                        {% else %}
+                                            <a onclick="return confirm('{{ 'Do you want to clear label and tracking number for this order ?'|trans({}, 'colissimolabel.bo.default') }}')" href="{{ row.clear_label_url }}" class="btn btn-danger btn-sm" title="{{ 'Clear label'|trans({}, 'colissimolabel.bo.default') }}">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% if row.has_error %}
+                                    <tr class="table-warning">
+                                        <td colspan="99" style="padding-top:0;border:none">
+                                            <i class="bi bi-exclamation-triangle"></i> {{ 'Label cannot be created. Error is: '|trans({}, 'colissimolabel.bo.default') }}
+                                            {{ row.error_message|raw }}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+
+                        {% do form.order_id.setRendered %}
+                        {% do form.weight.setRendered %}
+                        {% do form.signed.setRendered %}
+
+                        <div class="clearfix">
+                            <div class="float-end">
+                                <button type="submit" value="stay" class="btn btn-primary" title="{{ 'Process selected orders'|trans({}, 'colissimolabel.bo.default') }}">{{ 'Process selected orders'|trans({}, 'colissimolabel.bo.default') }}</button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">{{ 'There are currently no orders to ship with Colissimo'|trans({}, 'colissimolabel.bo.default') }}</div>
+                    {% endif %}
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

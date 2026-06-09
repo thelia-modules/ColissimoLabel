@@ -1,0 +1,80 @@
+{% extends '@BackOfficeDefaultTwig/base.html.twig' %}
+
+{% set tab = app.request.query.get('tab')|default('config') %}
+
+{% block title %}{{ 'Bordereaux Colissimo'|trans({}, 'colissimolabel.bo.default') }}{% endblock %}
+{% block body_testid %}colissimo-label-configuration{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <ul id="tabbed-menu" class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item"><a class="nav-link {{ tab == 'bordereaux' ? 'active' : '' }}" href="{{ path('colissimo_label_bordereau_list') }}">{{ 'Bordereaux'|trans({}, 'colissimolabel.bo.default') }}</a></li>
+                    <li class="nav-item"><a class="nav-link {{ tab == 'labels' ? 'active' : '' }}" href="{{ path('colissimo_label_labels') }}">{{ 'Labels'|trans({}, 'colissimolabel.bo.default') }}</a></li>
+                    <li class="nav-item"><a class="nav-link {{ tab == 'config' ? 'active' : '' }}" href="{{ path('colissimo_label_configuration_configuration') }}">{{ 'Configuration'|trans({}, 'colissimolabel.bo.default') }}</a></li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                <h5 class="card-title">{{ 'Advanced configuration'|trans({}, 'colissimolabel.bo.default') }}</h5>
+
+                {% if form_error_message is defined and form_error_message %}
+                    <div class="alert alert-danger">{{ form_error_message }}</div>
+                {% endif %}
+
+                {{ form_start(form, {'action': path('colissimo_label_configuration_save'), 'attr': {'method': 'post'}}) }}
+
+                    <div class="card mb-3">
+                        <div class="card-header">{{ 'General informations'|trans({}, 'colissimolabel.bo.default') }}</div>
+                        <div class="card-body">
+                            {{ form_row(form['colissimolabel-endpoint']) }}
+                            {{ form_row(form['contract-number']) }}
+                            {{ form_row(form['password']) }}
+                            {{ form_row(form['default-signed']) }}
+                            {{ form_row(form['generate-bordereau']) }}
+                            {{ form_row(form['default-label-format']) }}
+                            {{ form_row(form['last-bordereau-date']) }}
+                            {{ form_row(form['get-invoices']) }}
+                            {{ form_row(form['get-customs-invoices']) }}
+                            {{ form_row(form['customs-product-hscode']) }}
+                            {{ form_row(form['postal-network']) }}
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">{{ "Sender's address"|trans({}, 'colissimolabel.bo.default') }}</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">{{ form_row(form['colissimolabel-company-name']) }}</div>
+                                <div class="col-md-4">{{ form_row(form['colissimolabel-from-contact-email']) }}</div>
+                                <div class="col-md-4">{{ form_row(form['colissimolabel-from-phone']) }}</div>
+                                <div class="col-md-6">{{ form_row(form['colissimolabel-from-address-1']) }}</div>
+                                <div class="col-md-6">{{ form_row(form['colissimolabel-from-address-2']) }}</div>
+                                <div class="col-md-2">{{ form_row(form['colissimolabel-from-zipcode']) }}</div>
+                                <div class="col-md-5">{{ form_row(form['colissimolabel-from-city']) }}</div>
+                                <div class="col-md-5">
+                                    {{ form_label(form['colissimolabel-from-country']) }}
+                                    <select name="{{ form['colissimolabel-from-country'].vars.full_name }}" class="form-select">
+                                        {% for country in countries|default([]) %}
+                                            <option value="{{ country.id }}"{{ country.id == form['colissimolabel-from-country'].vars.value ? ' selected' : '' }}>{{ country.title }} ({{ country.isocode }})</option>
+                                        {% endfor %}
+                                    </select>
+                                    {{ form_errors(form['colissimolabel-from-country']) }}
+                                    {% do form['colissimolabel-from-country'].setRendered %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" name="save_mode" value="stay" class="btn btn-success" title="{{ 'Save changes'|trans({}, 'colissimolabel.bo.default') }}">
+                        {{ 'Save changes'|trans({}, 'colissimolabel.bo.default') }} <i class="bi bi-check-lg"></i>
+                    </button>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -8,20 +8,44 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Thelia\Controller\Admin\AdminController;
 use Symfony\Component\HttpFoundation\Response;
+use Thelia\Core\Form\TheliaFormFactory;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Core\Translation\Translator;
+use Thelia\Model\CountryQuery;
 use Thelia\Tools\URL;
+use Twig\Environment;
 
 #[Route('/admin/module/ColissimoLabel/configuration', name: 'colissimo_label_configuration_')]
 class ConfigurationController extends AdminController
 {
+    public function __construct(
+        private readonly Environment $twig,
+        private readonly TheliaFormFactory $formFactory,
+    ) {
+    }
+
     #[Route('', name: 'configuration', methods: 'GET')]
     public function renderConfigPageAction(): Response|RedirectResponse
     {
         (new ColissimoLabel())->checkConfigurationsValues();
 
-        return $this->render('colissimo-label/module-configuration');
+        $form = $this->formFactory->createForm(ConfigureColissimoLabel::getName());
+
+        $locale = $this->getCurrentEditionLocale();
+        $countries = [];
+        foreach (CountryQuery::create()->find() as $country) {
+            $countries[] = [
+                'id' => $country->getId(),
+                'title' => $country->setLocale($locale)->getTitle(),
+                'isocode' => strtoupper($country->getIsoalpha2() ?? ''),
+            ];
+        }
+
+        return new Response($this->twig->render(
+            '@ColissimoLabelModule/backOffice/default-twig/colissimo-label/module-configuration.html.twig',
+            ['form' => $form->createView()->getView(), 'countries' => $countries]
+        ));
     }
 
     #[Route('/save', name: 'save', methods: 'POST')]

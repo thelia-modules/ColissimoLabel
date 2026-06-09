@@ -43,6 +43,10 @@ use Thelia\Tools\URL;
 #[Route('/admin/module/ColissimoLabel', name: 'colissimo_label_order_')]
 class OrderController extends AdminController
 {
+    public function __construct(private readonly \Twig\Environment $twig)
+    {
+    }
+
     /**
      * @throws \Exception
      */
@@ -189,7 +193,25 @@ class OrderController extends AdminController
             return new Response(Translator::getInstance()->trans("Sorry, you're not allowed to perform this action"), 403);
         }
 
-        return $this->render('colissimo-label/label-list', ['order_id' => $orderId]);
+        $labels = [];
+        foreach (ColissimoLabelQuery::create()->filterByOrderId((int) $orderId)->find() as $label) {
+            if (empty($label->getTrackingNumber())) {
+                continue;
+            }
+            $labels[] = [
+                'tracking_number' => $label->getTrackingNumber(),
+                'weight' => empty($label->getWeight()) ? $label->getOrder()->getWeight() : $label->getWeight(),
+                'created_at' => $label->getCreatedAt(),
+                'order_id' => $label->getOrderId(),
+                'has_customs_invoice' => (bool) $label->getWithCustomsInvoice(),
+                'customs_invoice_url' => URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/customs-invoice/'.$label->getOrderId()),
+            ];
+        }
+
+        return new Response($this->twig->render(
+            '@ColissimoLabelModule/backOffice/default-twig/colissimo-label/label-list.html.twig',
+            ['labels' => $labels]
+        ));
     }
 
     /**

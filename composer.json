@@ -6,6 +6,10 @@
     "thelia/installer": "~1.1",
     "ext-zip": "*"
   },
+  "suggest": {
+    "thelia/colissimo-home-delivery-module": "Sync contract credentials and detect Colissimo home delivery orders",
+    "thelia/colissimo-pickup-point-module": "Sync contract credentials and detect Colissimo pickup point orders"
+  },
   "extra": {
     "installer-name": "ColissimoLabel"
   }
