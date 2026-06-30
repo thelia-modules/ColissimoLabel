@@ -29,17 +29,61 @@
                     <div class="card mb-3">
                         <div class="card-header">{{ 'General informations'|trans({}, 'colissimolabel.bo.default') }}</div>
                         <div class="card-body">
-                            {{ form_row(form['colissimolabel-endpoint']) }}
-                            {{ form_row(form['contract-number']) }}
-                            {{ form_row(form['password']) }}
-                            {{ form_row(form['default-signed']) }}
-                            {{ form_row(form['generate-bordereau']) }}
-                            {{ form_row(form['default-label-format']) }}
-                            {{ form_row(form['last-bordereau-date']) }}
-                            {{ form_row(form['get-invoices']) }}
-                            {{ form_row(form['get-customs-invoices']) }}
-                            {{ form_row(form['customs-product-hscode']) }}
-                            {{ form_row(form['postal-network']) }}
+                            <div class="mb-3">
+                                {{ form_label(form['colissimolabel-endpoint']) }}
+                                {{ form_widget(form['colissimolabel-endpoint'], {attr: {class: 'form-control'}}) }}
+                                {{ form_errors(form['colissimolabel-endpoint']) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(form['contract-number']) }}
+                                {{ form_widget(form['contract-number'], {attr: {class: 'form-control'}}) }}
+                                {{ form_errors(form['contract-number']) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(form['password']) }}
+                                {{ form_widget(form['password'], {attr: {class: 'form-control'}}) }}
+                                {{ form_errors(form['password']) }}
+                            </div>
+                            <div class="form-check mb-3">
+                                {{ form_widget(form['default-signed'], {attr: {class: 'form-check-input'}}) }}
+                                {{ form_label(form['default-signed'], null, {label_attr: {class: 'form-check-label'}}) }}
+                                {{ form_errors(form['default-signed']) }}
+                            </div>
+                            <div class="form-check mb-3">
+                                {{ form_widget(form['generate-bordereau'], {attr: {class: 'form-check-input'}}) }}
+                                {{ form_label(form['generate-bordereau'], null, {label_attr: {class: 'form-check-label'}}) }}
+                                {{ form_errors(form['generate-bordereau']) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(form['default-label-format']) }}
+                                {{ form_widget(form['default-label-format'], {attr: {class: 'form-select'}}) }}
+                                {{ form_errors(form['default-label-format']) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(form['last-bordereau-date']) }}
+                                {{ form_widget(form['last-bordereau-date'], {attr: {class: 'form-control'}}) }}
+                                {{ form_errors(form['last-bordereau-date']) }}
+                            </div>
+                            <div class="form-check mb-3">
+                                {{ form_widget(form['get-invoices'], {attr: {class: 'form-check-input'}}) }}
+                                {{ form_label(form['get-invoices'], null, {label_attr: {class: 'form-check-label'}}) }}
+                                {{ form_errors(form['get-invoices']) }}
+                            </div>
+                            <div class="form-check mb-3">
+                                {{ form_widget(form['get-customs-invoices'], {attr: {class: 'form-check-input'}}) }}
+                                {{ form_label(form['get-customs-invoices'], null, {label_attr: {class: 'form-check-label'}}) }}
+                                {{ form_errors(form['get-customs-invoices']) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(form['customs-product-hscode']) }}
+                                {{ form_widget(form['customs-product-hscode'], {attr: {class: 'form-control'}}) }}
+                                {{ form_errors(form['customs-product-hscode']) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(form['postal-network']) }}
+                                {{ form_widget(form['postal-network'], {attr: {class: 'form-select'}}) }}
+                                {{ form_errors(form['postal-network']) }}
+                            </div>
                         </div>
                     </div>
 
@@ -47,13 +91,55 @@
                         <div class="card-header">{{ "Sender's address"|trans({}, 'colissimolabel.bo.default') }}</div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-4">{{ form_row(form['colissimolabel-company-name']) }}</div>
-                                <div class="col-md-4">{{ form_row(form['colissimolabel-from-contact-email']) }}</div>
-                                <div class="col-md-4">{{ form_row(form['colissimolabel-from-phone']) }}</div>
-                                <div class="col-md-6">{{ form_row(form['colissimolabel-from-address-1']) }}</div>
-                                <div class="col-md-6">{{ form_row(form['colissimolabel-from-address-2']) }}</div>
-                                <div class="col-md-2">{{ form_row(form['colissimolabel-from-zipcode']) }}</div>
-                                <div class="col-md-5">{{ form_row(form['colissimolabel-from-city']) }}</div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        {{ form_label(form['colissimolabel-company-name']) }}
+                                        {{ form_widget(form['colissimolabel-company-name'], {attr: {class: 'form-control'}}) }}
+                                        {{ form_errors(form['colissimolabel-company-name']) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        {{ form_label(form['colissimolabel-from-contact-email']) }}
+                                        {{ form_widget(form['colissimolabel-from-contact-email'], {attr: {class: 'form-control'}}) }}
+                                        {{ form_errors(form['colissimolabel-from-contact-email']) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        {{ form_label(form['colissimolabel-from-phone']) }}
+                                        {{ form_widget(form['colissimolabel-from-phone'], {attr: {class: 'form-control'}}) }}
+                                        {{ form_errors(form['colissimolabel-from-phone']) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form['colissimolabel-from-address-1']) }}
+                                        {{ form_widget(form['colissimolabel-from-address-1'], {attr: {class: 'form-control'}}) }}
+                                        {{ form_errors(form['colissimolabel-from-address-1']) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form['colissimolabel-from-address-2']) }}
+                                        {{ form_widget(form['colissimolabel-from-address-2'], {attr: {class: 'form-control'}}) }}
+                                        {{ form_errors(form['colissimolabel-from-address-2']) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="mb-3">
+                                        {{ form_label(form['colissimolabel-from-zipcode']) }}
+                                        {{ form_widget(form['colissimolabel-from-zipcode'], {attr: {class: 'form-control'}}) }}
+                                        {{ form_errors(form['colissimolabel-from-zipcode']) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="mb-3">
+                                        {{ form_label(form['colissimolabel-from-city']) }}
+                                        {{ form_widget(form['colissimolabel-from-city'], {attr: {class: 'form-control'}}) }}
+                                        {{ form_errors(form['colissimolabel-from-city']) }}
+                                    </div>
+                                </div>
                                 <div class="col-md-5">
                                     {{ form_label(form['colissimolabel-from-country']) }}
                                     <select name="{{ form['colissimolabel-from-country'].vars.full_name }}" class="form-select">
