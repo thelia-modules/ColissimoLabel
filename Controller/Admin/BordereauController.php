@@ -17,6 +17,9 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
 use Thelia\Controller\Admin\AdminController;
 use Thelia\Core\HttpFoundation\Request;
+use Thelia\Core\Security\AccessManager;
+use Thelia\Core\Security\Resource\AdminResources;
+use Thelia\Tools\TokenProvider;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
@@ -37,6 +40,10 @@ class BordereauController extends AdminController
     #[Route('/bordereaux', name: 'bordereau_list', methods: 'GET')]
     public function listBordereauAction($error = null): Response
     {
+        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::VIEW)) {
+            return $response;
+        }
+
         /* We make sure the folders exist, and create them otherwise */
         ColissimoLabel::checkLabelFolder();
         $lastBordereauDate = ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE);
@@ -75,6 +82,10 @@ class BordereauController extends AdminController
         \Thelia\Core\Form\TheliaFormFactory $formFactory,
         \ColissimoLabel\Service\OrdersNotSentProvider $ordersProvider
     ): Response {
+        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::VIEW)) {
+            return $response;
+        }
+
         ColissimoLabel::checkLabelFolder();
 
         $form = $formFactory->createForm(\ColissimoLabel\Form\LabelGenerationForm::getName());
@@ -99,6 +110,10 @@ class BordereauController extends AdminController
     #[Route('/bordereau/generate', name: 'bordereau_generate', methods: 'GET')]
     public function generateBordereauAction(): Response
     {
+        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
+            return $response;
+        }
+
         /* Checking that the folder exists, and creates it otherwise */
         ColissimoLabel::checkLabelFolder();
 
@@ -170,25 +185,27 @@ class BordereauController extends AdminController
 
     /**
      * Retrieve a bordereau on the server given its filename passed in the request, and return it as a binary response.
-     *
-     * @param Request $request
-     * @return BinaryFileResponse
      */
     #[Route('/bordereau/download', name: 'bordereau_download', methods: 'GET')]
-    public function downloadBordereauAction(Request $request): BinaryFileResponse
+    public function downloadBordereauAction(Request $request): Response
     {
-        $filePath = $request->query->get('filePath');
-        $filePathArray = explode('/', $filePath);
-        $fileName = array_pop($filePathArray);
-        $download = $request->query->get('stay');
+        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::VIEW)) {
+            return $response;
+        }
+
+        $fileName = (string) $request->query->get('fileName');
+
+        if (null === $filePath = $this->resolveBordereauPath($fileName)) {
+            return $this->listBordereauAction('Bordereau not found');
+        }
 
         $response = new BinaryFileResponse($filePath);
 
         /* Download instead of opening the label in a window, if requested */
-        if ($download) {
+        if ($request->query->get('stay')) {
             $response->setContentDisposition(
                 ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                $fileName
+                basename($filePath)
             );
         }
 
@@ -197,18 +214,41 @@ class BordereauController extends AdminController
 
     /**
      * Deletes a bordereau file, then reload the page.
-     *
-     * @param Request $request
-     * @return Response
      */
-    #[Route('/bordereau/delete', name: 'delete')]
-    public function deleteBordereauAction(Request $request): Response
+    #[Route('/bordereau/delete', name: 'delete', methods: 'POST')]
+    public function deleteBordereauAction(Request $request, TokenProvider $tokenProvider): Response
     {
-        $fs = new Filesystem();
-        $filePath = $request->query->get('filePath');
+        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
+            return $response;
+        }
 
-        $fs->remove($filePath);
+        $tokenProvider->checkToken((string) $request->query->get('_token'));
+
+        if (null !== $filePath = $this->resolveBordereauPath((string) $request->query->get('fileName'))) {
+            (new Filesystem())->remove($filePath);
+        }
 
         return $this->listBordereauAction();
+    }
+
+    /**
+     * Resolve a bordereau file name to an absolute path confined to BORDEREAU_FOLDER.
+     * Returns null if the file escapes the folder or does not exist (defeats path traversal).
+     */
+    private function resolveBordereauPath(string $fileName): ?string
+    {
+        $baseDir = realpath(ColissimoLabel::BORDEREAU_FOLDER);
+
+        if (false === $baseDir || '' === $fileName) {
+            return null;
+        }
+
+        $candidate = realpath($baseDir.DIRECTORY_SEPARATOR.basename($fileName));
+
+        if (false === $candidate || !str_starts_with($candidate, $baseDir.DIRECTORY_SEPARATOR)) {
+            return null;
+        }
+
+        return $candidate;
     }
 }

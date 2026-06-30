@@ -240,6 +240,10 @@ class OrderController extends AdminController
     #[Route('/customs-invoice/{orderId}', name: 'customers_invoice')]
     public function getCustomsInvoiceAction($orderId, LabelService $labelService): Response
     {
+        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::VIEW)) {
+            return $response;
+        }
+
         if (null !== $fileName = $labelService->getCustomsInvoicePath($orderId)) {
             return new Response(
                 file_get_contents($fileName),
@@ -284,7 +288,25 @@ class OrderController extends AdminController
     #[Route('/labels-zip/{base64EncodedZipFilename}', name: 'labels_zip')]
     public function getLabelZip($base64EncodedZipFilename): StreamedResponse|Response
     {
+        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
+            return $response;
+        }
+
         $zipFilename = base64_decode($base64EncodedZipFilename);
+
+        // Confine to the temp dir + 'colissimo-label-' prefix used when the zip is created (defeats arbitrary file read).
+        $resolved = realpath($zipFilename);
+        $tempDir = realpath(sys_get_temp_dir());
+
+        if (false === $resolved
+            || false === $tempDir
+            || !str_starts_with($resolved, $tempDir.DS)
+            || !str_starts_with(basename($resolved), 'colissimo-label-')
+        ) {
+            return new Response('File no longer exists');
+        }
+
+        $zipFilename = $resolved;
 
         if (file_exists($zipFilename)) {
             return new StreamedResponse(

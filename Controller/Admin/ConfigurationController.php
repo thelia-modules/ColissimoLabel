@@ -28,6 +28,10 @@ class ConfigurationController extends AdminController
     #[Route('', name: 'configuration', methods: 'GET')]
     public function renderConfigPageAction(): Response|RedirectResponse
     {
+        if (null !== $response = $this->checkAuth([AdminResources::MODULE], ['ColissimoLabel'], AccessManager::VIEW)) {
+            return $response;
+        }
+
         (new ColissimoLabel())->checkConfigurationsValues();
 
         $form = $this->formFactory->createForm(ConfigureColissimoLabel::getName());

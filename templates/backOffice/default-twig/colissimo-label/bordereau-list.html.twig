@@ -47,15 +47,17 @@
                         {% for bordereau in bordereaux %}
                             <tr>
                                 <td class="text-start">
-                                    <a href="{{ path('colissimo_label_bordereau_download') }}?filePath={{ bordereau.path|url_encode }}" target="_blank">{{ bordereau.name }}</a>
+                                    <a href="{{ path('colissimo_label_bordereau_download') }}?fileName={{ bordereau.name|url_encode }}" target="_blank">{{ bordereau.name }}</a>
                                 </td>
                                 <td class="text-center">
-                                    <a class="btn btn-secondary btn-sm" href="{{ path('colissimo_label_bordereau_download') }}?stay=1&filePath={{ bordereau.path|url_encode }}" title="{{ 'Download bordereau'|trans({}, 'colissimolabel.bo.default') }}">
+                                    <a class="btn btn-secondary btn-sm" href="{{ path('colissimo_label_bordereau_download') }}?stay=1&fileName={{ bordereau.name|url_encode }}" title="{{ 'Download bordereau'|trans({}, 'colissimolabel.bo.default') }}">
                                         <i class="bi bi-download"></i>
                                     </a>
-                                    <a class="btn btn-secondary btn-sm" href="{{ path('colissimo_label_delete') }}?filePath={{ bordereau.path|url_encode }}" title="{{ 'Delete bordereau'|trans({}, 'colissimolabel.bo.default') }}">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    <form method="post" action="{{ path('colissimo_label_delete') }}?fileName={{ bordereau.name|url_encode }}&_token={{ assignToken() }}" class="d-inline" onsubmit="return confirm('{{ 'Delete bordereau'|trans({}, 'colissimolabel.bo.default') }} ?')">
+                                        <button type="submit" class="btn btn-secondary btn-sm" title="{{ 'Delete bordereau'|trans({}, 'colissimolabel.bo.default') }}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         {% endfor %}
