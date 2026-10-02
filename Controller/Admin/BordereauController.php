@@ -136,7 +136,12 @@ class BordereauController extends AdminController
         $APIConfiguration->setContractNumber(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_CONTRACT_NUMBER));
         $APIConfiguration->setPassword(ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD));
 
-        $parseResponse = $service->callGenerateBordereauByParcelsNumbersAPI($APIConfiguration, $parcelNumbers);
+        try {
+            $parseResponse = $service->callGenerateBordereauByParcelsNumbersAPI($APIConfiguration, $parcelNumbers);
+        } catch (\SoapFault $soapFault) {
+            return $this->listBordereauAction('Error : '.$soapFault->getMessage());
+        }
+
         $resultAttachment = $parseResponse->attachments;
 
         if (!isset($resultAttachment[0])) {
