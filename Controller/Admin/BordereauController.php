@@ -222,7 +222,7 @@ class BordereauController extends AdminController
             return $response;
         }
 
-        $tokenProvider->checkToken((string) $request->query->get('_token'));
+        $tokenProvider->checkToken((string) $request->request->get('_token'));
 
         if (null !== $filePath = $this->resolveBordereauPath((string) $request->query->get('fileName'))) {
             (new Filesystem())->remove($filePath);
