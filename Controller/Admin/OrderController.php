@@ -64,13 +64,12 @@ class OrderController extends AdminController
 
         $exportForm = $this->createForm(LabelGenerationForm::getName());
         $files = $params = $parcelNumbers = [];
+        $isEditPage = $request->query->get('edit-order');
 
         try {
             $form = $this->validateForm($exportForm);
 
             $data = $form->getData();
-
-            $isEditPage = $request->query->get('edit-order');
 
             if (!$isEditPage) {
                 ColissimoLabel::setConfigValue('new_status', $data['new_status']);
@@ -129,6 +128,12 @@ class OrderController extends AdminController
             }
         } catch (\Exception $ex) {
             Tlog::getInstance()->err('Failed to create Colissimo label : '.$ex->getMessage());
+
+            // The order page reads a JSON answer: a redirect to the label page would reach it as HTML.
+            if ($isEditPage) {
+                return new JsonResponse(['error' => $ex->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
             $this->setupFormErrorContext('Generation étiquettes Colissimo', $ex->getMessage(), $exportForm, $ex);
         }
 

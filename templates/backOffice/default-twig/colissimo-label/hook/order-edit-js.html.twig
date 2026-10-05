@@ -100,9 +100,9 @@
 </template>
 
 <script>
-(function () {
+document.addEventListener('DOMContentLoaded', function () {
     var tplNode = document.getElementById('colissimo-label-tpl');
-    var bill = document.getElementById('bill');
+    var bill = document.getElementById('tab-bill') || document.getElementById('bill');
     if (tplNode && bill) {
         bill.insertBefore(tplNode.content.cloneNode(true), bill.firstChild);
     }
@@ -252,5 +252,5 @@
                 });
         });
     }
-}());
+});
 </script>
