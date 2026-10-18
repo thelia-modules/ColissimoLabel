@@ -28,7 +28,7 @@ class GenerateLabelListener extends BaseAdminController implements EventSubscrib
     ) {
     }
 
-    public function generateLabel(GenerateLabelEvent $event): void
+    public function generateLabel(object $event): void
     {
         $deliveryModuleCode = $event->getOrder()->getModuleRelatedByDeliveryModuleId()?->getCode();
         if ($deliveryModuleCode === "ColissimoHomeDelivery" || $deliveryModuleCode === "ColissimoPickupPoint"|| $deliveryModuleCode === "SoColissimo") {
