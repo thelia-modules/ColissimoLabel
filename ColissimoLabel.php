@@ -101,7 +101,7 @@ class ColissimoLabel extends BaseModule
     /**
      * @param ConnectionInterface|null $con
      */
-    public function postActivation(ConnectionInterface $con = null): void
+    public function postActivation(?ConnectionInterface $con = null): void
     {
         static::checkLabelFolder();
 
@@ -114,7 +114,7 @@ class ColissimoLabel extends BaseModule
         $this->checkConfigurationsValues();
     }
 
-    public function update($currentVersion, $newVersion, ConnectionInterface $con = null): void
+    public function update($currentVersion, $newVersion, ?ConnectionInterface $con = null): void
     {
         $finder = Finder::create()
             ->name('*.sql')
