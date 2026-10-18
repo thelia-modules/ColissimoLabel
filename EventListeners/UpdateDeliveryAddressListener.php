@@ -105,6 +105,7 @@ class UpdateDeliveryAddressListener extends BaseAdminController implements Event
 
         /* Check if delivery is a relay point through ColissimoPickupPoint. Use relay point address if it is */
         if (AuthorizedModuleEnum::ColissimoPickupPoint->value === $order->getModuleRelatedByDeliveryModuleId()->getCode() &&
+            class_exists(OrderAddressColissimoPickupPointQuery::class) &&
             null !== ($AddressColissimoPickupPoint = OrderAddressColissimoPickupPointQuery::create()
                 ->findOneById($order->getDeliveryOrderAddressId()))
             && $AddressColissimoPickupPoint) {

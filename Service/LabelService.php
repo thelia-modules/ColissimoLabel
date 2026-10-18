@@ -85,7 +85,8 @@ class LabelService
                 $colissimoRequest = null;
 
                 /* Same thing with ColissimoPickupPoint */
-                if (AuthorizedModuleEnum::ColissimoPickupPoint->value === $order->getModuleRelatedByDeliveryModuleId()->getCode()) {
+                if (AuthorizedModuleEnum::ColissimoPickupPoint->value === $order->getModuleRelatedByDeliveryModuleId()->getCode()
+                    && class_exists(OrderAddressColissimoPickupPointQuery::class)) {
                     if (null !== $AddressColissimoPickupPoint = OrderAddressColissimoPickupPointQuery::create()
                             ->findOneById($order->getDeliveryOrderAddressId())) {
                         /* If the delivery is through a relay point, we create a new LabelRequest with the relay point and order infos */
