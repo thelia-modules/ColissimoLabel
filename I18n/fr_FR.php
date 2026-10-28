@@ -18,6 +18,7 @@ return [
     'Nom de société' => 'Nom de société',
     'Order status after export' => 'Status de commande après l\'export',
     'Password' => 'Mot de passe',
+    'Leave empty to keep the saved password' => 'Laisser vide pour conserver le mot de passe enregistré',
     'Pays' => 'Pays',
     'Postal Partner Network' => 'Réseau Partenaire Postal',
     'Default' => 'Par défaut',

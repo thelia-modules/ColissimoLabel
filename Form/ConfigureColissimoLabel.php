@@ -7,6 +7,7 @@ use ColissimoLabel\Request\Helper\OutputFormat;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Thelia\Core\Translation\Translator;
@@ -17,6 +18,7 @@ class ConfigureColissimoLabel extends BaseForm
     protected function buildForm(): void
     {
         $translator = Translator::getInstance();
+        $hasPassword = '' !== (string) ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD);
         $this->formBuilder
             ->add(
                 ColissimoLabel::CONFIG_KEY_CONTRACT_NUMBER,
@@ -30,12 +32,14 @@ class ConfigureColissimoLabel extends BaseForm
             )
             ->add(
                 ColissimoLabel::CONFIG_KEY_PASSWORD,
-                TextType::class,
+                PasswordType::class,
                 [
-                    'constraints' => [new NotBlank()],
-                    'data' => ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD),
+                    // The saved password is never sent back to the browser: an empty field keeps it.
+                    'required' => !$hasPassword,
+                    'constraints' => $hasPassword ? [] : [new NotBlank()],
                     'label' => $translator->trans('Password', [], ColissimoLabel::DOMAIN_NAME),
                     'label_attr' => ['for' => ColissimoLabel::CONFIG_KEY_PASSWORD],
+                    'help' => $hasPassword ? $translator->trans('Leave empty to keep the saved password', [], ColissimoLabel::DOMAIN_NAME) : null,
                 ]
             )
             ->add(

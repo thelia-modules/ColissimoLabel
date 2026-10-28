@@ -65,7 +65,13 @@ class ConfigurationController extends AdminController
 
             /* General config values */
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_CONTRACT_NUMBER, $vform->get(ColissimoLabel::CONFIG_KEY_CONTRACT_NUMBER)->getData());
-            ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD, $vform->get(ColissimoLabel::CONFIG_KEY_PASSWORD)->getData());
+            ColissimoLabel::setConfigValue(
+                ColissimoLabel::CONFIG_KEY_PASSWORD,
+                ColissimoLabel::passwordToSave(
+                    $vform->get(ColissimoLabel::CONFIG_KEY_PASSWORD)->getData(),
+                    ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_PASSWORD)
+                )
+            );
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_SIGNED, (int) $vform->get(ColissimoLabel::CONFIG_KEY_DEFAULT_SIGNED)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_GENERATE_BORDEREAU, (int) $vform->get(ColissimoLabel::CONFIG_KEY_GENERATE_BORDEREAU)->getData());
             ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_LABEL_FORMAT, $vform->get(ColissimoLabel::CONFIG_KEY_DEFAULT_LABEL_FORMAT)->getData());

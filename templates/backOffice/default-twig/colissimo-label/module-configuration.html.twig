@@ -41,7 +41,9 @@
                             </div>
                             <div class="mb-3">
                                 {{ form_label(form['password']) }}
-                                {{ form_widget(form['password'], {attr: {class: 'form-control'}}) }}
+                                {# new-password: keeps the browser from filling in the administrator's own password. #}
+                                {{ form_widget(form['password'], {attr: {class: 'form-control', autocomplete: 'new-password'}}) }}
+                                {{ form_help(form['password']) }}
                                 {{ form_errors(form['password']) }}
                             </div>
                             <div class="form-check mb-3">
