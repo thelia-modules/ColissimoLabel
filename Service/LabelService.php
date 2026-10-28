@@ -278,21 +278,17 @@ class LabelService
      */
     public function deleteLabel(string $trackingNumber): int
     {
+        /* An empty tracking number would match every file of the label folder in deleteLabelFile() */
+        if ('' === trim($trackingNumber)) {
+            throw new \InvalidArgumentException('A tracking number is required to delete a label');
+        }
+
         if (null === $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($trackingNumber)) {
             throw new TheliaProcessException('The label for tracking number '.$trackingNumber.' was not found');
         }
 
-        /* We check if the label is from this module */
-        /* We check if the label is from this version of the module -- Compatibility with ColissimoLabel < 1.0.0 */
-        if ($label && '' !== $trackNo = $label->getTrackingNumber()) {
-            $this->deleteLabelFile($trackNo);
-        }
-
-        /*
-         * If we're here, it means the label is coming from a version of ColissimoLabel < 1.0.0
-         * So we need to delete it with its tracking number instead of order ref, since it was named like that back then
-        */
-        $this->deleteLabelFile($trackingNumber);
+        /* The stored value is used: the column is case-insensitive, the posted one may differ in case */
+        $this->deleteLabelFile($label->getTrackingNumber());
 
         $label->delete();
 
@@ -304,14 +300,15 @@ class LabelService
      * @param $fileName
      * @return void
      */
-    protected function deleteLabelFile($fileName): void
+    protected function deleteLabelFile($fileName, string $folder = ColissimoLabel::LABEL_FOLDER): void
     {
         $finder = new Finder();
         $fileSystem = new Filesystem();
 
-        $finder->files()->name($fileName.'*')->in(ColissimoLabel::LABEL_FOLDER);
+        // Only <number>.<ext> and <number>-CN23.<ext>: a plain prefix would also match other numbers.
+        $finder->files()->name($fileName.'.*')->name($fileName.'-CN23.*')->in($folder)->depth('== 0');
         foreach ($finder as $file) {
-            $fileSystem->remove(ColissimoLabel::LABEL_FOLDER.DS.$file->getFilename());
+            $fileSystem->remove($file->getRealPath());
         }
     }
 }

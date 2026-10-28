@@ -25,46 +25,42 @@
                     </div>
                 {% endif %}
 
-                <p>
-                    <a href="{{ path('colissimo_label_bordereau_generate') }}" class="btn btn-info">
+                <form method="post" action="{{ path('colissimo_label_bordereau_generate') }}" class="mb-3">
+                    <input type="hidden" name="_token" value="{{ assignToken() }}">
+                    <button type="submit" class="btn btn-info">
                         {{ 'Generate bordereau for label since : %date'|trans({'%date': lastBordereauDate}, 'colissimolabel.bo.default') }}
-                    </a>
-                </p>
+                    </button>
+                </form>
 
-                {% if bordereaux is not empty %}
-                    <table class="table" style="width:100%">
-                        <colgroup>
-                            <col style="width: 95%;">
-                            <col style="width: 5%;">
-                        </colgroup>
-                        <thead>
-                            <tr class="table-active">
-                                <th class="text-start">{{ 'Bordereau'|trans({}, 'colissimolabel.bo.default') }}</th>
-                                <th class="text-center">{{ 'Action'|trans({}, 'colissimolabel.bo.default') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for bordereau in bordereaux %}
-                            <tr>
-                                <td class="text-start">
-                                    <a href="{{ path('colissimo_label_bordereau_download') }}?fileName={{ bordereau.name|url_encode }}" target="_blank">{{ bordereau.name }}</a>
-                                </td>
-                                <td class="text-center">
-                                    <a class="btn btn-secondary btn-sm" href="{{ path('colissimo_label_bordereau_download') }}?stay=1&fileName={{ bordereau.name|url_encode }}" title="{{ 'Download bordereau'|trans({}, 'colissimolabel.bo.default') }}">
-                                        <i class="bi bi-download"></i>
-                                    </a>
-                                    <form method="post" action="{{ path('colissimo_label_delete') }}?fileName={{ bordereau.name|url_encode }}" class="d-inline" onsubmit="return confirm('{{ 'Delete bordereau'|trans({}, 'colissimolabel.bo.default') }} ?')">
-                                        <input type="hidden" name="_token" value="{{ assignToken() }}">
-                                        <button type="submit" class="btn btn-secondary btn-sm" title="{{ 'Delete bordereau'|trans({}, 'colissimolabel.bo.default') }}">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
+                {% set domain = 'colissimolabel.bo.default' %}
+                {% set rows = bordereaux|map(bordereau => {
+                    id: bordereau.name,
+                    name_html: '<a href="' ~ (path('colissimo_label_bordereau_download') ~ '?fileName=' ~ bordereau.name|url_encode)|e('html_attr') ~ '" target="_blank">' ~ bordereau.name|e ~ '</a>',
+                    _actions: [
+                        row_action('download', 'Download bordereau'|trans({}, domain), href: path('colissimo_label_bordereau_download') ~ '?stay=1&fileName=' ~ bordereau.name|url_encode),
+                        row_action('delete', 'Delete bordereau'|trans({}, domain), modalTarget: '#colissimo-bordereau-delete', dataAttributes: { 'file-name': bordereau.name }),
+                    ],
+                }) %}
+
+                {{ component('BoDataTable', {
+                    id: 'colissimo-bordereaux',
+                    columns: [
+                        column_html('name_html', 'Bordereau'|trans({}, domain)),
+                        column_actions('_actions', 'Actions'|trans({}, domain)),
+                    ],
+                    rows: rows,
+                    emptyMessage: 'No bordereau has been generated yet'|trans({}, domain),
+                }) }}
+
+                {{ component('BoConfirmDialog', {
+                    id: 'colissimo-bordereau-delete',
+                    title: 'Delete bordereau'|trans({}, domain),
+                    message: 'Do you want to delete this bordereau ?'|trans({}, domain),
+                    formAction: path('colissimo_label_delete'),
+                    testid: 'colissimo-bordereau-delete',
+                    prefillTrigger: 'data-file-name',
+                    prefillInput: 'fileName',
+                }) }}
             </div>
         </div>
     </div>

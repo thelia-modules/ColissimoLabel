@@ -63,7 +63,7 @@ If your module declare one or more loop, describe them here like this :
 |$HAS_CUSTOMS_INVOICE    | (bool) Whether a customs invoice was created or not |
 |$LABEL_URL    | The URL from which to download the URL |
 |$CUSTOMS_INVOICE_URL    | The URL from which to download the customs invoice |
-|$CLEAR_LABEL_URL    | The URL from which to delete the label |
+|$CLEAR_LABEL_URL    | URL to POST to delete the label, with `_token`, `number` (tracking number) and optionally `edit-order` and `order_id` |
 |$CAN_BE_NOT_SIGNED    | (bool) Whether the order HAS to be signed or not |
 |$ORDER_DATE    | The order date |
 
@@ -78,6 +78,13 @@ If your module declare one or more loop, describe them here like this :
 ### Output arguments
 
 Same as an order loop, but only order that weren't sent or cancelled and that are paid for will be searched for.
+
+## Changes in 3.1.0
+
+- Deleting a label is a POST with a token (`_token`, `number`), no longer a GET link.
+- Generating and deleting a bordereau are POST requests with a token.
+- `$CLEAR_LABEL_URL` is now the URL to POST to, not a link to follow.
+- The back-office lists are rendered with the theme data table.
 
 ## Other ?
 

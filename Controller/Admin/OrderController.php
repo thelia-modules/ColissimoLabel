@@ -38,6 +38,7 @@ use Thelia\Exception\TheliaProcessException;
 use Thelia\Log\Tlog;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\OrderQuery;
+use Thelia\Tools\TokenProvider;
 use Thelia\Tools\URL;
 
 #[Route('/admin/module/ColissimoLabel', name: 'colissimo_label_order_')]
@@ -226,41 +227,64 @@ class OrderController extends AdminController
      *
      * @throws PropelException
      */
-    #[Route('/label/delete/{number}', name: 'delete', methods: 'GET')]
-    public function deleteLabelAction(Request $request, string $number, LabelService $labelService): Response
+    #[Route('/label/delete', name: 'delete', methods: 'POST')]
+    public function deleteLabelAction(Request $request, LabelService $labelService, TokenProvider $tokenProvider): Response
     {
-        $orderId = $labelService->deleteLabel($number);
+        if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
+            return $response;
+        }
+
+        $tokenProvider->checkToken((string) $request->request->get('_token'));
+
+        // An empty number would match every label file of the folder when the files are removed.
+        $number = trim((string) $request->request->get('number'));
+
+        if ('' === $number) {
+            return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/labels'));
+        }
+
+        $postedOrderId = (int) $request->request->get('order_id');
+
+        try {
+            $orderId = $labelService->deleteLabel($number);
+        } catch (TheliaProcessException) {
+            // The label is already gone, for instance after a second click on the same delete button.
+            if ($request->request->get('edit-order') && $postedOrderId > 0) {
+                return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/'.$postedOrderId.'?tab=bill'));
+            }
+
+            return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/labels'));
+        }
 
         /* Handle the return when called from order edit */
-        if ($request->query->get('edit-order')) {
+        if ($request->request->get('edit-order')) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/order/update/'.$orderId.'?tab=bill'));
         }
 
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl('admin/module/ColissimoLabel/labels#order-'.$orderId));
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/labels#order-'.$orderId));
     }
 
     /**
      * Download the CN23 customs invoice, given an order ID.
      */
-    #[Route('/customs-invoice/{orderId}', name: 'customers_invoice')]
-    public function getCustomsInvoiceAction($orderId, LabelService $labelService): Response
+    #[Route('/customs-invoice/{orderId}', name: 'customers_invoice', requirements: ['orderId' => '\d+'])]
+    public function getCustomsInvoiceAction(int $orderId, LabelService $labelService): Response
     {
         if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::VIEW)) {
             return $response;
         }
 
-        if (null !== $fileName = $labelService->getCustomsInvoicePath($orderId)) {
-            return new Response(
-                file_get_contents($fileName),
-                200,
-                [
-                    'Content-Type' => 'application/pdf',
-                    'Content-disposition' => 'Attachement;filename='.basename($fileName),
-                ]
-            );
+        $fileName = $labelService->getCustomsInvoicePath($orderId);
+
+        if (null === $fileName || !is_file($fileName)) {
+            return $this->pageNotFound();
         }
 
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/labels'));
+        $response = new BinaryFileResponse($fileName);
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, basename($fileName));
+
+        return $response;
     }
 
     /**
@@ -273,7 +297,15 @@ class OrderController extends AdminController
             return $response;
         }
 
-        $file = $labelService->getLabelPathByTrackingNumber($number, $fileName);
+        try {
+            $file = $labelService->getLabelPathByTrackingNumber($number, $fileName);
+        } catch (TheliaProcessException) {
+            $file = null;
+        }
+
+        if (null === $file || !is_file($file)) {
+            return $this->pageNotFound();
+        }
 
         $response = new BinaryFileResponse($file);
 

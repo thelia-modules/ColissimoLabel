@@ -4,10 +4,17 @@ namespace ColissimoLabel\Service;
 
 use ColissimoLabel\ColissimoLabel;
 use ColissimoLabel\Enum\AuthorizedModuleEnum;
+use ColissimoLabel\Model\ColissimoLabel as ColissimoLabelModel;
 use ColissimoLabel\Model\ColissimoLabelQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
+use Thelia\Model\Country;
+use Thelia\Model\CountryQuery;
+use Thelia\Model\CurrencyQuery;
 use Thelia\Model\ModuleQuery;
 use Thelia\Model\Order;
+use Thelia\Model\OrderAddress;
+use Thelia\Model\OrderAddressQuery;
+use Thelia\Model\OrderProductQuery;
 use Thelia\Model\OrderQuery;
 use Thelia\Model\OrderStatus;
 use Thelia\Model\OrderStatusQuery;
@@ -47,40 +54,116 @@ class OrdersNotSentProvider
             )
             ->find();
 
-        $rows = [];
+        if ($orders->isEmpty()) {
+            return [];
+        }
 
+        /* The labels, addresses, countries and currencies of the whole list are loaded once, not once per order */
+        $orderIds = [];
+        $addressIds = [];
         foreach ($orders as $order) {
-            $rows[] = $this->buildRow($order, $locale);
+            $orderIds[] = $order->getId();
+            $addressIds[] = $order->getDeliveryOrderAddressId();
+        }
+
+        $labels = [];
+        foreach (ColissimoLabelQuery::create()->filterByOrderId($orderIds, Criteria::IN)->orderById()->find() as $label) {
+            /* The first label of an order is the one shown, as before */
+            $labels[$label->getOrderId()] ??= $label;
+        }
+
+        $addresses = [];
+        $countryIds = [];
+        foreach (OrderAddressQuery::create()->filterById($addressIds, Criteria::IN)->find() as $address) {
+            $addresses[$address->getId()] = $address;
+            $countryIds[$address->getCountryId()] = true;
+        }
+
+        $countries = [];
+        foreach (CountryQuery::create()->filterById(array_keys($countryIds), Criteria::IN)->joinWithI18n($locale)->find() as $country) {
+            $countries[$country->getId()] = $country;
+        }
+
+        /* Same sum as Order::getWeight(), for the whole list in one query */
+        $weights = [];
+        $weightRows = OrderProductQuery::create()
+            ->filterByOrderId($orderIds, Criteria::IN)
+            ->withColumn('SUM(order_product.quantity * order_product.weight)', 'total_weight')
+            ->select(['OrderId', 'total_weight'])
+            ->groupByOrderId()
+            ->find();
+        foreach ($weightRows as $weightRow) {
+            $weights[$weightRow['OrderId']] = (float) $weightRow['total_weight'];
+        }
+
+        $currencyCodes = CurrencyQuery::create()->find()->toKeyValue('Id', 'Code');
+
+        $context = [
+            'locale' => $locale,
+            'weights' => $weights,
+            'default_signed' => (bool) ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_SIGNED),
+            'date_formatter' => new \IntlDateFormatter($locale, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT),
+            'amount_formatter' => new \NumberFormatter($locale, \NumberFormatter::CURRENCY),
+        ];
+
+        $rows = [];
+        foreach ($orders as $order) {
+            $deliveryAddress = $addresses[$order->getDeliveryOrderAddressId()] ?? null;
+            $rows[] = $this->buildRow(
+                $order,
+                $deliveryAddress,
+                null !== $deliveryAddress ? ($countries[$deliveryAddress->getCountryId()] ?? null) : null,
+                $labels[$order->getId()] ?? null,
+                $currencyCodes[$order->getCurrencyId()] ?? 'EUR',
+                $context
+            );
         }
 
         return $rows;
     }
 
-    private function buildRow(Order $order, string $locale): array
-    {
-        $deliveryAddress = $order->getOrderAddressRelatedByDeliveryOrderAddressId();
+    /**
+     * @param array{locale: string, weights: array<int, float>, default_signed: bool, date_formatter: \IntlDateFormatter, amount_formatter: \NumberFormatter} $context
+     */
+    private function buildRow(
+        Order $order,
+        ?OrderAddress $deliveryAddress,
+        ?Country $country,
+        ?ColissimoLabelModel $label,
+        string $currencyCode,
+        array $context
+    ): array {
+        $locale = $context['locale'];
         $countryTitle = '';
-        if (null !== $deliveryAddress && null !== $country = $deliveryAddress->getCountry()) {
-            $countryTitle = $country->setLocale($locale)->getTitle();
+        $countryFlag = '';
+        if (null !== $country) {
+            $countryTitle = (string) $country->setLocale($locale)->getTitle();
+            if ('' === $countryTitle) {
+                $countryTitle = (string) $country->getIsoalpha2();
+            }
+            $countryFlag = $this->countryFlag((string) $country->getIsoalpha2());
         }
 
-        $label = ColissimoLabelQuery::create()
-            ->filterByOrderId($order->getId())
-            ->orderById()
-            ->findOne();
-
-        $defaultSigned = (bool) ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_SIGNED);
+        $deliveryModule = $order->getModuleRelatedByDeliveryModuleId();
+        $orderDate = $order->getCreatedAt();
+        $totalTaxedAmount = $order->getTotalAmount();
 
         $row = [
+            'id' => $order->getId(),
             'order_id' => $order->getId(),
             'ref' => $order->getRef(),
-            'order_date' => $order->getCreatedAt(),
+            'order_url' => URL::getInstance()->absoluteUrl('/admin/order/update/'.$order->getId(), ['tab' => 'bill']),
+            'order_date' => $orderDate,
+            'order_date_label' => $orderDate instanceof \DateTimeInterface ? (string) $context['date_formatter']->format($orderDate) : '',
             'city' => $deliveryAddress?->getCity() ?? '',
             'zipcode' => $deliveryAddress?->getZipcode() ?? '',
             'country' => $countryTitle,
-            'total_taxed_amount' => $order->getTotalAmount(),
-            'module_code' => $order->getModuleRelatedByDeliveryModuleId()?->getCode() ?? '',
-            'can_be_not_signed' => ColissimoLabel::canOrderBeNotSigned($order),
+            'country_flag' => $countryFlag,
+            'total_taxed_amount' => $totalTaxedAmount,
+            'amount_label' => (string) $context['amount_formatter']->formatCurrency((float) $totalTaxedAmount, $currencyCode),
+            'module_code' => $deliveryModule?->getCode() ?? '',
+            'module_title' => $deliveryModule?->setLocale($locale)->getTitle() ?: ($deliveryModule?->getCode() ?? ''),
+            'can_be_not_signed' => ColissimoLabel::canCountryBeNotSigned((string) $country?->getIsocode()),
             'has_error' => false,
             'error_message' => null,
             'has_customs_invoice' => false,
@@ -90,17 +173,16 @@ class OrdersNotSentProvider
 
         if (null === $label) {
             return array_merge($row, [
-                'weight' => $order->getWeight(),
-                'signed' => $defaultSigned,
+                'weight' => $context['weights'][$order->getId()] ?? 0.0,
+                'signed' => $context['default_signed'],
                 'tracking_number' => null,
                 'has_label' => false,
                 'label_url' => null,
-                'clear_label_url' => null,
             ]);
         }
 
         return array_merge($row, [
-            'weight' => empty($label->getWeight()) ? $order->getWeight() : $label->getWeight(),
+            'weight' => empty($label->getWeight()) ? ($context['weights'][$order->getId()] ?? 0.0) : $label->getWeight(),
             'signed' => (bool) $label->getSigned(),
             'tracking_number' => $label->getTrackingNumber(),
             'has_label' => !empty($label->getLabelType()),
@@ -110,7 +192,21 @@ class OrdersNotSentProvider
             'has_customs_invoice' => (bool) $label->getWithCustomsInvoice(),
             'label_url' => URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/label/'.$label->getTrackingNumber().'?download=1'),
             'customs_invoice_url' => URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/customs-invoice/'.$label->getOrderId()),
-            'clear_label_url' => URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/label/delete/'.$label->getTrackingNumber().'?order='.$label->getOrderId()),
         ]);
+    }
+
+    /**
+     * Same emoji flag as the order list of the back office, built from the two regional indicator letters.
+     */
+    private function countryFlag(string $isoAlpha2): string
+    {
+        if (2 !== \strlen($isoAlpha2) || !ctype_alpha($isoAlpha2)) {
+            return '';
+        }
+
+        $offset = 0x1F1E6 - \ord('A');
+        $upper = strtoupper($isoAlpha2);
+
+        return mb_chr(\ord($upper[0]) + $offset).mb_chr(\ord($upper[1]) + $offset);
     }
 }
