@@ -91,7 +91,8 @@ class ColissimoLabelInfo extends BaseLoop implements PropelSearchLoopInterface
                     ->set('HAS_CUSTOMS_INVOICE', $result->getWithCustomsInvoice())
                     ->set('LABEL_URL', URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/label/'.$result->getTrackingNumber().'?download=1'))
                     ->set('CUSTOMS_INVOICE_URL', URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/customs-invoice/'.$result->getOrderId()))
-                    ->set('CLEAR_LABEL_URL', URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/label/delete/'.$result->getTrackingNumber().'?order='.$result->getOrderId()))
+                    // This URL expects a POST (_token, number), not a GET.
+                    ->set('CLEAR_LABEL_URL', URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/label/delete'))
                     ->set('CAN_BE_NOT_SIGNED', ColissimoLabel::canOrderBeNotSigned($result->getOrder()))
                     ->set('ORDER_DATE', $result->getOrder()->getCreatedAt())
                     ->set('CREATED_AT', $result->getCreatedAt())

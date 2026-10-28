@@ -392,15 +392,25 @@ class ColissimoLabel extends BaseModule
      */
     public static function canOrderBeNotSigned(Order $order): bool
     {
-        $countryIsoCode = $order->getOrderAddressRelatedByDeliveryOrderAddressId()->getCountry()->getIsocode();
+        return self::canCountryBeNotSigned((string) $order->getOrderAddressRelatedByDeliveryOrderAddressId()->getCountry()->getIsocode());
+    }
 
-        /* Checking if the delivery country is in Europe or a DOMTOM. If not, it HAS to be signed */
-        if (!in_array($countryIsoCode, Service::DOMTOM_ISOCODES)
-        && !in_array($countryIsoCode, Service::EUROPE_ISOCODES)) {
+    /**
+     * A parcel may go without signature only to Europe or a DOMTOM, given the numeric ISO code of the delivery country.
+     */
+    public static function canCountryBeNotSigned(string $countryIsoCode): bool
+    {
+        $countryIsoCode = trim($countryIsoCode);
+
+        if ('' === $countryIsoCode) {
             return false;
         }
 
-        return true;
+        // A database migrated from Thelia 2 may store codes without their leading zero ('40' for '040').
+        $countryIsoCode = str_pad($countryIsoCode, 3, '0', STR_PAD_LEFT);
+
+        return in_array($countryIsoCode, Service::DOMTOM_ISOCODES, true)
+            || in_array($countryIsoCode, Service::EUROPE_ISOCODES, true);
     }
 
     /**
@@ -419,7 +429,7 @@ class ColissimoLabel extends BaseModule
     public static function configureServices(ServicesConfigurator $servicesConfigurator): void
     {
         $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
-            ->exclude([__DIR__.'/I18n/*'])
+            ->exclude([__DIR__.'/I18n/*', __DIR__.'/tests/*'])
             ->autowire()
             ->autoconfigure();
     }

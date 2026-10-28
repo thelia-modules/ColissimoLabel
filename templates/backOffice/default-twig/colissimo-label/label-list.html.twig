@@ -17,7 +17,13 @@
                         {{ 'Customs invoice'|trans({}, 'colissimolabel.bo.default') }}
                     </a>
                 {% endif %}
-                <a class="btn btn-danger js-action-reload" onclick="return confirm('{{ 'Do you want to clear this label and tracking number ?'|trans({}, 'colissimolabel.bo.default') }}')" href="{{ path('colissimo_label_order_delete', {'number': label.tracking_number}) }}?order={{ label.order_id }}&edit-order=1">{{ 'Delete'|trans({}, 'colissimolabel.bo.default') }}</a>
+                <form method="post" action="{{ path('colissimo_label_order_delete') }}" class="d-inline" onsubmit="return confirm('{{ 'Do you want to clear this label and tracking number ?'|trans({}, 'colissimolabel.bo.default')|e('js') }}')">
+                    <input type="hidden" name="_token" value="{{ assignToken() }}">
+                    <input type="hidden" name="number" value="{{ label.tracking_number }}">
+                    <input type="hidden" name="order_id" value="{{ label.order_id }}">
+                    <input type="hidden" name="edit-order" value="1">
+                    <button type="submit" class="btn btn-danger">{{ 'Delete'|trans({}, 'colissimolabel.bo.default') }}</button>
+                </form>
             </div>
         </td>
     </tr>

@@ -20,30 +20,36 @@ use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Tools\TokenProvider;
+use Thelia\Tools\URL;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
 #[Route('/admin/module/ColissimoLabel', name: 'colissimo_label_')]
 class BordereauController extends AdminController
 {
+    private const FLASH_ERROR = 'colissimo_label_bordereau_error';
+
     public function __construct(private readonly Environment $twig)
     {
     }
 
     /**
-     * Render the bordereau list page.
-     *
-     * @param null $error
-     *
-     * @return Response
+     * Render the bordereau list page, with the error left by a previous action if any.
      */
     #[Route('/bordereaux', name: 'bordereau_list', methods: 'GET')]
-    public function listBordereauAction($error = null): Response
+    public function listBordereauAction(Request $request): Response
     {
         if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::VIEW)) {
             return $response;
         }
 
+        $errors = $request->getSession()->getFlashBag()->get(self::FLASH_ERROR);
+
+        return $this->renderBordereauList($errors[0] ?? null);
+    }
+
+    private function renderBordereauList(?string $error): Response
+    {
         /* We make sure the folders exist, and create them otherwise */
         ColissimoLabel::checkLabelFolder();
         $lastBordereauDate = ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE);
@@ -79,6 +85,7 @@ class BordereauController extends AdminController
      */
     #[Route('/labels', name: 'labels')]
     public function listLabelsAction(
+        Request $request,
         \Thelia\Core\Form\TheliaFormFactory $formFactory,
         \ColissimoLabel\Service\OrdersNotSentProvider $ordersProvider
     ): Response {
@@ -94,7 +101,7 @@ class BordereauController extends AdminController
             '@ColissimoLabelModule/backOffice/default-twig/colissimo-label/labels.html.twig',
             [
                 'form' => $form->createView()->getView(),
-                'rows' => $ordersProvider->getRows($this->getCurrentEditionLocale()),
+                'rows' => $ordersProvider->getRows($request->getLocale()),
             ]
         ));
     }
@@ -107,12 +114,14 @@ class BordereauController extends AdminController
      *
      * @throws Exception
      */
-    #[Route('/bordereau/generate', name: 'bordereau_generate', methods: 'GET')]
-    public function generateBordereauAction(): Response
+    #[Route('/bordereau/generate', name: 'bordereau_generate', methods: 'POST')]
+    public function generateBordereauAction(Request $request, TokenProvider $tokenProvider): Response
     {
         if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::UPDATE)) {
             return $response;
         }
+
+        $tokenProvider->checkToken((string) $request->request->get('_token'));
 
         /* Checking that the folder exists, and creates it otherwise */
         ColissimoLabel::checkLabelFolder();
@@ -139,17 +148,17 @@ class BordereauController extends AdminController
         try {
             $parseResponse = $service->callGenerateBordereauByParcelsNumbersAPI($APIConfiguration, $parcelNumbers);
         } catch (\SoapFault $soapFault) {
-            return $this->listBordereauAction('Error : '.$soapFault->getMessage());
+            return $this->redirectToBordereauList($request, 'Error : '.$soapFault->getMessage());
         }
 
         $resultAttachment = $parseResponse->attachments;
 
         if (!isset($resultAttachment[0])) {
             if (!isset($parseResponse->soapResponse['data'])) {
-                return $this->listBordereauAction('No label found');
+                return $this->redirectToBordereauList($request, 'No label found');
             }
 
-            return $this->listBordereauAction('Error : '. $this->getError($parseResponse->soapResponse['data']));
+            return $this->redirectToBordereauList($request, 'Error : '.$this->getError($parseResponse->soapResponse['data']));
         }
         $bordereauContent = $resultAttachment[0];
         $fileContent = $bordereauContent['data'];
@@ -170,7 +179,19 @@ class BordereauController extends AdminController
         ColissimoLabel::setConfigValue(ColissimoLabel::CONFIG_KEY_LAST_BORDEREAU_DATE, (new DateTime())->format('Y-m-d H:i:s'));
 
         /* We reload the list of bordereau */
-        return $this->listBordereauAction();
+        return $this->redirectToBordereauList($request);
+    }
+
+    /**
+     * Answer a form posted from the list with a redirect, so that a reload does not post it again.
+     */
+    private function redirectToBordereauList(Request $request, ?string $error = null): Response
+    {
+        if (null !== $error) {
+            $request->getSession()->getFlashBag()->add(self::FLASH_ERROR, $error);
+        }
+
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/bordereaux'));
     }
 
     /**
@@ -201,7 +222,7 @@ class BordereauController extends AdminController
         $fileName = (string) $request->query->get('fileName');
 
         if (null === $filePath = $this->resolveBordereauPath($fileName)) {
-            return $this->listBordereauAction('Bordereau not found');
+            return $this->redirectToBordereauList($request, 'Bordereau not found');
         }
 
         $response = new BinaryFileResponse($filePath);
@@ -229,11 +250,13 @@ class BordereauController extends AdminController
 
         $tokenProvider->checkToken((string) $request->request->get('_token'));
 
-        if (null !== $filePath = $this->resolveBordereauPath((string) $request->query->get('fileName'))) {
+        $fileName = (string) $request->request->get('fileName');
+
+        if (null !== $filePath = $this->resolveBordereauPath($fileName)) {
             (new Filesystem())->remove($filePath);
         }
 
-        return $this->listBordereauAction();
+        return $this->redirectToBordereauList($request);
     }
 
     /**
@@ -250,7 +273,7 @@ class BordereauController extends AdminController
 
         $candidate = realpath($baseDir.DIRECTORY_SEPARATOR.basename($fileName));
 
-        if (false === $candidate || !str_starts_with($candidate, $baseDir.DIRECTORY_SEPARATOR)) {
+        if (false === $candidate || !is_file($candidate) || !str_starts_with($candidate, $baseDir.DIRECTORY_SEPARATOR)) {
             return null;
         }
 

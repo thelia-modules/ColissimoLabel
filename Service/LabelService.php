@@ -278,6 +278,11 @@ class LabelService
      */
     public function deleteLabel(string $trackingNumber): int
     {
+        /* An empty tracking number would match every file of the label folder in deleteLabelFile() */
+        if ('' === trim($trackingNumber)) {
+            throw new \InvalidArgumentException('A tracking number is required to delete a label');
+        }
+
         if (null === $label = ColissimoLabelQuery::create()->findOneByTrackingNumber($trackingNumber)) {
             throw new TheliaProcessException('The label for tracking number '.$trackingNumber.' was not found');
         }
@@ -304,14 +309,15 @@ class LabelService
      * @param $fileName
      * @return void
      */
-    protected function deleteLabelFile($fileName): void
+    protected function deleteLabelFile($fileName, string $folder = ColissimoLabel::LABEL_FOLDER): void
     {
         $finder = new Finder();
         $fileSystem = new Filesystem();
 
-        $finder->files()->name($fileName.'*')->in(ColissimoLabel::LABEL_FOLDER);
+        // Only <number>.<ext> and <number>-CN23.<ext>: a plain prefix would also match other numbers.
+        $finder->files()->name($fileName.'.*')->name($fileName.'-CN23.*')->in($folder);
         foreach ($finder as $file) {
-            $fileSystem->remove(ColissimoLabel::LABEL_FOLDER.DS.$file->getFilename());
+            $fileSystem->remove($folder.DS.$file->getFilename());
         }
     }
 }
