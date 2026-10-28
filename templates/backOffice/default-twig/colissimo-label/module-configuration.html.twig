@@ -42,8 +42,8 @@
                             <div class="mb-3">
                                 {{ form_label(form['password']) }}
                                 {# new-password: keeps the browser from filling in the administrator's own password. #}
-                                {{ form_widget(form['password'], {attr: {class: 'form-control', autocomplete: 'new-password'}}) }}
-                                {{ form_help(form['password']) }}
+                                {{ form_widget(form['password'], {attr: {class: 'form-control', autocomplete: 'new-password'}|merge(form['password'].vars.help ? {'aria-describedby': form['password'].vars.id ~ '_help'} : {})}) }}
+                                {{ form_help(form['password'], {help_attr: {class: 'form-text'}}) }}
                                 {{ form_errors(form['password']) }}
                             </div>
                             <div class="form-check mb-3">
