@@ -74,29 +74,34 @@
 </div>
 
 <template id="colissimo-label-tpl">
-    <table class="table table-striped" id="colissimo-label-table" data-url="{{ ajax_get_labels_url }}">
-        <caption>
-            {{ 'Labels Colissimo'|trans({}, 'colissimolabel.bo.default') }}
-            <button class="btn btn-secondary float-end" id="colissimo-open-return" style="margin-right:10px;">
-                {{ 'Generate return label'|trans({}, 'colissimolabel.bo.default') }}
-            </button>
-            <button class="btn btn-primary float-end" id="colissimo-open-standard" name="target">
-                {{ 'Generate new label'|trans({}, 'colissimolabel.bo.default') }}
-            </button>
-        </caption>
-        <thead>
-        <tr>
-            <th>{{ 'Number'|trans({}, 'colissimolabel.bo.default') }}</th>
-            <th>{{ 'Weight'|trans({}, 'colissimolabel.bo.default') }}</th>
-            <th>{{ 'Date'|trans({}, 'colissimolabel.bo.default') }}</th>
-            <th>{{ 'Tracking URL'|trans({}, 'colissimolabel.bo.default') }}</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        {% include 'colissimo-label/label-list.html.twig' with {'labels': labels} %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-striped" id="colissimo-label-table" data-url="{{ ajax_get_labels_url }}">
+            <caption>
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <span>{{ 'Labels Colissimo'|trans({}, 'colissimolabel.bo.default') }}</span>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-sm btn-primary" id="colissimo-open-standard" name="target">
+                            {{ 'Generate new label'|trans({}, 'colissimolabel.bo.default') }}
+                        </button>
+                        <button class="btn btn-sm btn-secondary" id="colissimo-open-return">
+                            {{ 'Generate return label'|trans({}, 'colissimolabel.bo.default') }}
+                        </button>
+                    </div>
+                </div>
+            </caption>
+            <thead>
+            <tr>
+                <th>{{ 'Number'|trans({}, 'colissimolabel.bo.default') }}</th>
+                <th>{{ 'Weight'|trans({}, 'colissimolabel.bo.default') }}</th>
+                <th>{{ 'Date'|trans({}, 'colissimolabel.bo.default') }}</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% include 'colissimo-label/label-list.html.twig' with {'labels': labels} %}
+            </tbody>
+        </table>
+    </div>
 </template>
 
 <script>
