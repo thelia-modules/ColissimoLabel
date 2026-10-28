@@ -18,6 +18,7 @@ return [
     'Nom de société' => 'Company\'s name',
     'Order status after export' => 'Order status after export',
     'Password' => 'Password',
+    'Leave empty to keep the saved password' => 'Leave empty to keep the saved password',
     'Pays' => 'Country',
     'Please enter a weight for every selected order' => 'Please enter a weight for every selected order',
     'Product HS Code for Customs invoices' => 'Product HS Code for Customs invoices',

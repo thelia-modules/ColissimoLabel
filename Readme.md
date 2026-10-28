@@ -79,6 +79,10 @@ If your module declare one or more loop, describe them here like this :
 
 Same as an order loop, but only order that weren't sent or cancelled and that are paid for will be searched for.
 
+## Changes in 3.1.1
+
+- The contract password is no longer shown in the configuration form. Leave the field empty to keep the saved password.
+
 ## Changes in 3.1.0
 
 - Deleting a label is a POST with a token (`_token`, `number`), no longer a GET link.

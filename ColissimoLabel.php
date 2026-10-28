@@ -414,6 +414,14 @@ class ColissimoLabel extends BaseModule
     }
 
     /**
+     * The configuration form never shows the saved contract password: an empty field keeps it.
+     */
+    public static function passwordToSave(?string $submittedPassword, ?string $savedPassword): ?string
+    {
+        return null === $submittedPassword || '' === $submittedPassword ? $savedPassword : $submittedPassword;
+    }
+
+    /**
      * Remove the accentuated and special characters from a string an replace them with
      * latin ASCII characters. Does the same to cyrillic.
      *
