@@ -14,6 +14,7 @@ use Thelia\Model\ModuleQuery;
 use Thelia\Model\Order;
 use Thelia\Model\OrderAddress;
 use Thelia\Model\OrderAddressQuery;
+use Thelia\Model\OrderProductQuery;
 use Thelia\Model\OrderQuery;
 use Thelia\Model\OrderStatus;
 use Thelia\Model\OrderStatusQuery;
@@ -83,10 +84,23 @@ class OrdersNotSentProvider
             $countries[$country->getId()] = $country;
         }
 
+        /* Same sum as Order::getWeight(), for the whole list in one query */
+        $weights = [];
+        $weightRows = OrderProductQuery::create()
+            ->filterByOrderId($orderIds, Criteria::IN)
+            ->withColumn('SUM(order_product.quantity * order_product.weight)', 'total_weight')
+            ->select(['OrderId', 'total_weight'])
+            ->groupByOrderId()
+            ->find();
+        foreach ($weightRows as $weightRow) {
+            $weights[$weightRow['OrderId']] = (float) $weightRow['total_weight'];
+        }
+
         $currencyCodes = CurrencyQuery::create()->find()->toKeyValue('Id', 'Code');
 
         $context = [
             'locale' => $locale,
+            'weights' => $weights,
             'default_signed' => (bool) ColissimoLabel::getConfigValue(ColissimoLabel::CONFIG_KEY_DEFAULT_SIGNED),
             'date_formatter' => new \IntlDateFormatter($locale, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT),
             'amount_formatter' => new \NumberFormatter($locale, \NumberFormatter::CURRENCY),
@@ -109,7 +123,7 @@ class OrdersNotSentProvider
     }
 
     /**
-     * @param array{locale: string, default_signed: bool, date_formatter: \IntlDateFormatter, amount_formatter: \NumberFormatter} $context
+     * @param array{locale: string, weights: array<int, float>, default_signed: bool, date_formatter: \IntlDateFormatter, amount_formatter: \NumberFormatter} $context
      */
     private function buildRow(
         Order $order,
@@ -159,7 +173,7 @@ class OrdersNotSentProvider
 
         if (null === $label) {
             return array_merge($row, [
-                'weight' => $order->getWeight(),
+                'weight' => $context['weights'][$order->getId()] ?? 0.0,
                 'signed' => $context['default_signed'],
                 'tracking_number' => null,
                 'has_label' => false,
@@ -168,7 +182,7 @@ class OrdersNotSentProvider
         }
 
         return array_merge($row, [
-            'weight' => empty($label->getWeight()) ? $order->getWeight() : $label->getWeight(),
+            'weight' => empty($label->getWeight()) ? ($context['weights'][$order->getId()] ?? 0.0) : $label->getWeight(),
             'signed' => (bool) $label->getSigned(),
             'tracking_number' => $label->getTrackingNumber(),
             'has_label' => !empty($label->getLabelType()),

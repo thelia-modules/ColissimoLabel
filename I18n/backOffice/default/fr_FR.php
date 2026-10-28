@@ -7,6 +7,7 @@ return [
     'Advanced configuration' => 'Configuration avancée',
     'Bordereau' => 'Bordereau',
     'Bordereaux' => 'Bordereaux',
+    'Bordereaux Colissimo' => 'Bordereaux Colissimo',
     'Cancel' => 'Annuler',
     'Change to "Processing"' => 'Changer en "Traitement"',
     'Change to "Sent". If you choose this option, the delivery notification email is sent to the customer, and the processed order are removed from this page.' => 'Changer en "Envoyée". Choisir cette option retirera la commande de cette liste, et enverra un mail de notification au client.',

@@ -267,25 +267,24 @@ class OrderController extends AdminController
     /**
      * Download the CN23 customs invoice, given an order ID.
      */
-    #[Route('/customs-invoice/{orderId}', name: 'customers_invoice')]
-    public function getCustomsInvoiceAction($orderId, LabelService $labelService): Response
+    #[Route('/customs-invoice/{orderId}', name: 'customers_invoice', requirements: ['orderId' => '\d+'])]
+    public function getCustomsInvoiceAction(int $orderId, LabelService $labelService): Response
     {
         if (null !== $response = $this->checkAuth(AdminResources::ORDER, [], AccessManager::VIEW)) {
             return $response;
         }
 
-        if (null !== $fileName = $labelService->getCustomsInvoicePath($orderId)) {
-            return new Response(
-                file_get_contents($fileName),
-                200,
-                [
-                    'Content-Type' => 'application/pdf',
-                    'Content-disposition' => 'Attachement;filename='.basename($fileName),
-                ]
-            );
+        $fileName = $labelService->getCustomsInvoicePath($orderId);
+
+        if (null === $fileName || !is_file($fileName)) {
+            return $this->pageNotFound();
         }
 
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/module/ColissimoLabel/labels'));
+        $response = new BinaryFileResponse($fileName);
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, basename($fileName));
+
+        return $response;
     }
 
     /**

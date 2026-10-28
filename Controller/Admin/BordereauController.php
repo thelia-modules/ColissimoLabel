@@ -203,10 +203,12 @@ class BordereauController extends AdminController
      */
     protected function getError($data): string
     {
-        $errorMessage = explode('<messageContent>', $data);
-        $errorMessage = explode('</messageContent>', $errorMessage[1]);
+        $errorMessage = explode('<messageContent>', (string) $data);
+        if (!isset($errorMessage[1])) {
+            return 'Unknown error';
+        }
 
-        return $errorMessage[0];
+        return explode('</messageContent>', $errorMessage[1])[0];
     }
 
     /**

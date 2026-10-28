@@ -58,4 +58,34 @@ class LabelServiceTest extends TestCase
             rmdir($folder);
         }
     }
+
+    /**
+     * A match in a subfolder (bordereau/) must not delete the file of the same name at the root.
+     */
+    public function testDeleteLabelFileOnlyLooksAtTheRootOfTheFolder(): void
+    {
+        $folder = sys_get_temp_dir().'/colissimo-label-test-'.uniqid();
+        mkdir($folder.'/sub', 0777, true);
+
+        try {
+            touch($folder.'/sub/6A1.pdf');
+            touch($folder.'/6A1.pdf');
+
+            $service = new class(new EventDispatcher()) extends LabelService {
+                public function deleteIn(string $number, string $folder): void
+                {
+                    $this->deleteLabelFile($number, $folder);
+                }
+            };
+            $service->deleteIn('6A1', $folder);
+
+            $this->assertFileDoesNotExist($folder.'/6A1.pdf');
+            $this->assertFileExists($folder.'/sub/6A1.pdf');
+        } finally {
+            @unlink($folder.'/sub/6A1.pdf');
+            @unlink($folder.'/6A1.pdf');
+            @rmdir($folder.'/sub');
+            @rmdir($folder);
+        }
+    }
 }

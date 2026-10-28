@@ -107,6 +107,14 @@ document.addEventListener('DOMContentLoaded', function () {
         bill.insertBefore(tplNode.content.cloneNode(true), bill.firstChild);
     }
 
+    // The module redirects here with ?tab=bill, but the order page only opens the shipments tab from the URL.
+    if (new URLSearchParams(window.location.search).get('tab') === 'bill') {
+        var billToggle = document.getElementById('tab-bill-toggle');
+        if (billToggle) {
+            billToggle.click();
+        }
+    }
+
     var modalEl = document.getElementById('modal-colissimo-label');
     if (!modalEl) {
         return;
@@ -234,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (modalLoader) modalLoader.classList.add('d-none');
                     if (returnField) returnField.value = '0';
                     if (json.error) {
-                        if (modalErrorAlert) modalErrorAlert.innerHTML = Array.isArray(json.error) ? json.error[0] : json.error;
+                        if (modalErrorAlert) modalErrorAlert.textContent = Array.isArray(json.error) ? json.error[0] : json.error;
                         if (modalError) modalError.classList.remove('d-none');
                         return;
                     }
@@ -248,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (modalLoader) modalLoader.classList.add('d-none');
                     if (returnField) returnField.value = '0';
                     if (modalError) modalError.classList.remove('d-none');
-                    if (modalErrorAlert) modalErrorAlert.innerHTML = textStatus;
+                    if (modalErrorAlert) modalErrorAlert.textContent = textStatus;
                 });
         });
     }

@@ -7,6 +7,7 @@ return [
     'Advanced configuration' => 'Advanced configuration',
     'Bordereau' => 'Bordereau',
     'Bordereaux' => 'Bordereaux',
+    'Bordereaux Colissimo' => 'Colissimo bordereaux',
     'Cancel' => 'Cancel',
     'Change to "Processing"' => 'Change to "Processing"',
     'Change to "Sent". If you choose this option, the delivery notification email is sent to the customer, and the processed order are removed from this page.' => 'Change to "Sent". If you choose this option, the delivery notification email is sent to the customer, and the processed order are removed from this page.',
